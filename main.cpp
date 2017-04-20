@@ -133,9 +133,37 @@ const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
 const GLfloat high_shininess[] = { 100.0f };
 
 /* Program entry point */
+
+void searchfile(){//2017.4.20
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir ("C:\\Users\\luke\\Desktop\\420\\p")) != NULL) {
+    /* print all the files and directories within directory */
+        while ((ent = readdir (dir)) != NULL) {
+            printf ("%s\n", ent->d_name);
+        }
+        closedir (dir);
+    } else {
+    /* could not open directory */
+        perror ("");
+        return EXIT_FAILURE;
+    }
+}
+
 void read_lego_file(char *file_name)
 {
-    ;
+	/*2017.4.20
+    std::string line;
+    while (std::getline(infile, line))
+    {
+        std::istringstream iss(line);
+        //int a, b;
+        if (!iss) { break; } // error
+        //std::cout << iss<<" ";
+        std::cout << line<<"\n";
+
+    }
+    */
 }
 
 void motiple_metrix( float u, float v, float w, float array[4][4] )
