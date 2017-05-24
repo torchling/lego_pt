@@ -1,223 +1,256 @@
+#include <cstdio>
+#include <cstdlib>
+
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
 #include <windows.h>
 #include <GL/glut.h>
 #endif
-
-#include "helpteddy.h"
-#include <vector>
-#include <stdlib.h>
-#include <stdio.h>
 #include <iostream>
-#include <math.h>
+#include <stdlib.h>
+#include <cmath>
+#include <ctime>
+#include <list>
+#include "objloader.h"
 
-static int slices = 16;
-static int stacks = 16;
-std::vector<triangle> tri_Pool;
-std::vector<array_data> v;
+using namespace std;
+//////////////////////////////////////////////////
+//global
+float g_fWidth = 1000;
+float g_fHeight = 500;
+float g_fDepth = 100;
+float g_fAngle = .0;
 
-int t_number=0; //number of triangles in lego
-float m1[4][4]; //or m1[3][4]
-float xyz[3];
+struct Button{
+	float m_fPosX;		//表示在正交投影坐标系(左下角为坐标原点)的坐标，
+	float m_fPosY;
+	float m_fWidth;		//屏幕像素单位
+	float m_fHeight;
 
+	bool m_bPressed;
+	void Render()
+	{
+		glPushMatrix();
+		{
+			//将中心位于原点的cube移动到使cube左下角坐标为m_fPosX,m_fPosY的位置
+			//必须考虑cube的自身长宽
+			glTranslatef(m_fPosX+m_fWidth/2, m_fPosY+m_fHeight/2, -2.0);		//-2.0只是为了按钮可见
+			if( m_bPressed )
+			{
+				//double scaleAmt = 10.0 * sin( (double)rand() );
+				//double scaleAmt = sin( (double)rand() );
+				glScalef(0.9, 0.9, 1.0);
+			}
+			//cube中心位于原点
+			glScalef (m_fWidth, m_fHeight, 5.0);
+			glutSolidCube(1.0);
+		}
+		glPopMatrix();
+	}
+	bool OnMouseDown(int mousex, int mousey)
+	{
+		//鼠标的位置：mousex，mousey坐标系是原点位于左上角
+		//必须将mousey变换到原点位于左下角的坐标系中
+		mousey = g_fHeight-mousey;
+		if( mousex > m_fPosX && mousex < m_fPosX+m_fWidth &&
+			mousey > m_fPosY && mousey < m_fPosY+m_fHeight )
+		{
+			//cout<<"button is pressed"<<"\n";
+			m_bPressed = true;
 
-/* GLUT callback Handlers */
+			return true;
+		}
+		return false;
+	}
+	void OnMouseUp()
+	{
+		m_bPressed = false;
+	}
+};
 
-static void resize(int width, int height)
+Button* pBtn;
+Button* pBtn2;
+Button* pBtn3;
+
+objloader suz ( "suzanne.obj" ) ;
+suz.build_list();
+objloader::triangle * p;
+p = list;
+
+void init(void)
 {
-    const float ar = (float) width / (float) height;
+	glClearColor (0.5, 0.5, 0.5, 0.0);
+	glShadeModel (GL_SMOOTH);
 
-    glViewport(0, 0, width, height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
+	pBtn = new Button;
+	pBtn->m_bPressed = false;
+	pBtn->m_fPosX = 40;
+	pBtn->m_fPosY = 480;
+	pBtn->m_fWidth = 60;
+	pBtn->m_fHeight = 20;
+	//printf("**********button pos: 40/t480/n");
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity() ;
+	pBtn2 = new Button;
+	pBtn2->m_bPressed = false;
+	pBtn2->m_fPosX = 105;
+	pBtn2->m_fPosY = 480;
+	pBtn2->m_fWidth = 60;
+	pBtn2->m_fHeight = 20;
+	cout<<pBtn2->m_fPosY<<"\n";
+	//printf("000000000000000");
+
+	pBtn3= new Button;
+	pBtn3->m_bPressed = false;
+	pBtn3->m_fPosX = 170;
+	pBtn3->m_fPosY = 480;
+	pBtn3->m_fWidth = 60;
+	pBtn3->m_fHeight = 20;
+	cout<<pBtn2->m_fPosY<<"\n";
 }
 
-static void display(void)
+void CubeOrigin(void)
 {
-    const double t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
-    const double a = t*90.0;
+    glColor3f(1.0f,0.0f,0.0f);    // Top Color red
+    glVertex3f( 0.2f, 0.2f,-0.2f);    // Top Right Of The Quad (Top)
+    glVertex3f(-0.2f, 0.2f,-0.2f);    // Top Left Of The Quad (Top)
+    glVertex3f(-0.2f, 0.2f, 0.2f);    // Bottom Left Of The Quad (Top)
+    glVertex3f( 0.2f, 0.2f, 0.2f);    // Bottom Right Of The Quad (Top)
+    glColor3f(1.0f,0.0f,0.0f);    // Bottom Color red
+    glVertex3f( 0.2f,-0.2f, 0.2f);    // Top Right Of The Quad (Bottom)
+    glVertex3f(-0.2f,-0.2f, 0.2f);    // Top Left Of The Quad (Bottom)
+    glVertex3f(-0.2f,-0.2f,-0.2f);    // Bottom Left Of The Quad (Bottom)
+    glVertex3f( 0.2f,-0.2f,-0.2f);    // Bottom Right Of The Quad (Bottom)
+    glColor3f(1.0f,0.0f,0.0f);    // Front Color red
+    glVertex3f( 0.2f, 0.2f, 0.2f);    // Top Right Of The Quad (Front)
+    glVertex3f(-0.2f, 0.2f, 0.2f);    // Top Left Of The Quad (Front)
+    glVertex3f(-0.2f,-0.2f, 0.2f);    // Bottom Left Of The Quad (Front)
+    glVertex3f( 0.2f,-0.2f, 0.2f);    // Bottom Right Of The Quad (Front)
+    glColor3f(1.0f,0.0f,0.0f);    // Back Color red
+    glVertex3f( 0.2f,-0.2f,-0.2f);    // Top Right Of The Quad (Back)
+    glVertex3f(-0.2f,-0.2f,-0.2f);    // Top Left Of The Quad (Back)
+    glVertex3f(-0.2f, 0.2f,-0.2f);    // Bottom Left Of The Quad (Back)
+    glVertex3f( 0.2f, 0.2f,-0.2f);    // Bottom Right Of The Quad (Back)
+    glColor3f(1.0f,0.0f,0.0f);    // Left Color red
+    glVertex3f(-0.2f, 0.2f, 0.2f);    // Top Right Of The Quad (Left)
+    glVertex3f(-0.2f, 0.2f,-0.2f);    // Top Left Of The Quad (Left)
+    glVertex3f(-0.2f,-0.2f,-0.2f);    // Bottom Left Of The Quad (Left)
+    glVertex3f(-0.2f,-0.2f, 0.2f);    // Bottom Right Of The Quad (Left)
+    glColor3f(1.0f,0.0f,0.0f);    // Right Color red
+    glVertex3f( 0.2f, 0.2f,-0.2f);    // Top Right Of The Quad (Right)
+    glVertex3f( 0.2f, 0.2f, 0.2f);    // Top Left Of The Quad (Right)
+    glVertex3f( 0.2f,-0.2f, 0.2f);    // Bottom Left Of The Quad (Right)
+    glVertex3f( 0.2f,-0.2f,-0.2f);    // Bottom Right Of The Quad (Right)
+}
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glColor3d(1,0,0);
+void display(void)
+{
+	glClear (GL_COLOR_BUFFER_BIT);
+	glColor3f (1.0, 1.0, 1.0);
 
-    glPushMatrix();
-        glTranslated(-2.4,1.2,-6);
-        glRotated(60,1,0,0);
-        glRotated(a,0,0,1);
-        glutSolidSphere(1,slices,stacks);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, g_fWidth, 0, g_fHeight, 0, g_fDepth);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	pBtn->Render();
+	pBtn2->Render();
+	pBtn3->Render();
+
+	// 绘制cube物体，
+	glMatrixMode (GL_PROJECTION);		//回复原有的设置
+	glLoadIdentity ();
+	gluPerspective(60,1.0,1.5,20);
+	glMatrixMode (GL_MODELVIEW);
+	glLoadIdentity ();
+
+	/* viewing transformation  */
+	gluLookAt (0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	glRotatef(g_fAngle, 0.0, 1.0, 0.0);
+	//glRotatef(0.0, 0.0, 1.0, 0.0);
+	glScalef (1.0, 2.0, 1.0);      /* modeling transformation */
+	glutWireCube (0.3);
+
+	glPushMatrix();
+	glRotatef(-16.0, 0.0, 1.0, 0.0);
+    glTranslatef(1.2,0.0,0.0);//0.0, 0.0, 0.0
+    glBegin(GL_QUADS);        //The cube at center of window,the original cube
+    glutWireCube (1.5);
+    //CubeOrigin();
+    glEnd();
     glPopMatrix();
 
     glPushMatrix();
-        glTranslated(0,1.2,-6);
-        glRotated(60,1,0,0);
-        glRotated(a,0,0,1);
-        glutSolidCone(1,1,slices,stacks);
+    glRotatef(16.0, 0.0, 1.0, 0.0);
+    glTranslatef(-1.2,0.0,0.0);//0.0, 0.0, 0.0
+    glBegin(GL_QUADS);        //The cube at center of window,the original cube
+    glutWireCube (1.5);
+    //CubeOrigin();
+    glEnd();
     glPopMatrix();
-
-    glPushMatrix();
-        glTranslated(2.4,1.2,-6);
-        glRotated(60,1,0,0);
-        glRotated(a,0,0,1);
-        glutSolidTorus(0.2,0.8,slices,stacks);
-    glPopMatrix();
-
-    glPushMatrix();
-        glTranslated(-2.4,-1.2,-6);
-        glRotated(60,1,0,0);
-        glRotated(a,0,0,1);
-        glutWireSphere(1,slices,stacks);
-    glPopMatrix();
-
-    glPushMatrix();
-        glTranslated(0,-1.2,-6);
-        glRotated(60,1,0,0);
-        glRotated(a,0,0,1);
-        glutWireCone(1,1,slices,stacks);
-    glPopMatrix();
-
-    glPushMatrix();
-        glTranslated(2.4,-1.2,-6);
-        glRotated(60,1,0,0);
-        glRotated(a,0,0,1);
-        glutWireTorus(0.2,0.8,slices,stacks);
-    glPopMatrix();
-
-    glutSwapBuffers();
+	
+	//glFlush();
+	glutSwapBuffers();
 }
 
-
-static void key(unsigned char key, int x, int y)
+void reshape (int w, int h)
 {
-    switch (key)
-    {
-        case 27 :
-        case 'q':
-            exit(0);
-            break;
-
-        case '+':
-            slices++;
-            stacks++;
-            break;
-
-        case '-':
-            if (slices>3 && stacks>3)
-            {
-                slices--;
-                stacks--;
-            }
-            break;
-    }
-
-    glutPostRedisplay();
+	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
+	glMatrixMode (GL_PROJECTION);
+	glLoadIdentity ();
+	gluPerspective(60,1.0,1.5,20);
+	glMatrixMode (GL_MODELVIEW);
 }
 
-static void idle(void)
+void keyboard(unsigned char key, int x, int y)
 {
-    glutPostRedisplay();
+	switch (key) {
+case 27:
+	exit(0);
+	break;
+	}
 }
 
-const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
-const GLfloat light_diffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
-const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-const GLfloat light_position[] = { 2.0f, 5.0f, 5.0f, 0.0f };
-
-const GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f };
-const GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
-const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
-const GLfloat high_shininess[] = { 100.0f };
-
-/* Program entry point */
-
-void searchfile(){//2017.4.20
-    DIR *dir;
-    struct dirent *ent;
-    if ((dir = opendir ("C:\\Users\\luke\\Desktop\\420\\p")) != NULL) {
-    /* print all the files and directories within directory */
-        while ((ent = readdir (dir)) != NULL) {
-            printf ("%s\n", ent->d_name);
-        }
-        closedir (dir);
-    } else {
-    /* could not open directory */
-        perror ("");
-        return EXIT_FAILURE;
-    }
-}
-
-void read_lego_file(char *file_name)
+void mouse(int button, int state, int x, int y)
 {
-	/*2017.4.20
-    std::string line;
-    while (std::getline(infile, line))
-    {
-        std::istringstream iss(line);
-        //int a, b;
-        if (!iss) { break; } // error
-        //std::cout << iss<<" ";
-        std::cout << line<<"\n";
+	if(button==GLUT_LEFT_BUTTON)
+		switch(state)
+	{
+		case GLUT_DOWN:
+			//左键按下：
+			//printf("Mouse pos : %d/t%d/n", x, -500-y);
+			if( pBtn->OnMouseDown(x, y) ){
+				g_fAngle += 2.0;
+				cout<<"button_1"<<"\n";
+			}
+			else if( pBtn2->OnMouseDown(x, y) )
+            	cout<<"button_2"<<"\n";
+			else if( pBtn3->OnMouseDown(x, y) )
+				cout<<"button_3"<<"\n";
+			break;
 
-    }
-    */
+		case GLUT_UP:
+			pBtn->OnMouseUp();
+			pBtn2->OnMouseUp();
+			pBtn3->OnMouseUp();
+			break;
+	}
+	glutPostRedisplay();
 }
 
-void motiple_metrix( float u, float v, float w, float array[4][4] )
+int main(int argc, char** argv)
 {
-    xyz[0]=u*array[0][0]+v*array[0][1]+w*array[0][2]+array[0][3];
-    xyz[1]=u*array[1][0]+v*array[1][1]+w*array[1][2]+array[1][3];
-    xyz[2]=u*array[2][0]+v*array[2][1]+w*array[2][2]+array[2][3];
+	glutInit(&argc, argv);
+	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowSize (1000, 500);
+	glutInitWindowPosition (100, 100);
+	glutCreateWindow (argv[0]);
+	init ();
+	glutDisplayFunc(display);
+	glutReshapeFunc(reshape);
+	glutKeyboardFunc(keyboard);
+	glutMouseFunc( mouse );
+	glutMainLoop();
+	return 0;
 }
 
-void draw_lego()
-{
-    for(int i=0; i<t_number; i++){
-        ;
-    }
-}
-
-int main(int argc, char *argv[])
-{
-    draw_lego();
-    glutInit(&argc, argv);
-    glutInitWindowSize(640,480);
-    glutInitWindowPosition(10,10);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-
-    glutCreateWindow("GLUT Shapes");
-
-    glutReshapeFunc(resize);
-    glutDisplayFunc(display);
-    glutKeyboardFunc(key);
-    glutIdleFunc(idle);
-
-    glClearColor(1,1,1,1);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
-    glEnable(GL_LIGHT0);
-    glEnable(GL_NORMALIZE);
-    glEnable(GL_COLOR_MATERIAL);
-    glEnable(GL_LIGHTING);
-
-    glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-
-    glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
-    glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
-
-    glutMainLoop();
-
-    return EXIT_SUCCESS;
-}
