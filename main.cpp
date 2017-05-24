@@ -7,6 +7,7 @@
 #include <windows.h>
 #include <GL/glut.h>
 #endif
+
 #include <iostream>
 #include <stdlib.h>
 #include <cmath>
@@ -16,11 +17,21 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <dirent.h>
+//#include <dirent.h>
 
 #include <cstdlib>
 
 #include <vector>
+
+#include "glm.h"
+
+GLMmodel *MODEL;
+GLMmodel *MODEL_1;
+
+
+//vector<*GLMmodel> GLM_model_list;
+
+
 
 using namespace std;
 //////////////////////////////////////////////////
@@ -109,8 +120,8 @@ Button* pBtn;
 Button* pBtn2;
 Button* pBtn3;
 
-char* p = "suzanne.obj";
-std::ifstream infile(p);
+//char* p = "suzanne.obj";
+
 
 void read_lego_data(){
 	;
@@ -120,7 +131,13 @@ std::vector<vertex> obj_vPool;
 std::vector<face> obj_fPool;
 std::vector<triangle> obj_tPool;
 
-void read_obj(){
+void read_obj(char filename[]){
+    std::ifstream infile(filename);
+	if (!infile) {
+		cout << "Can't Load " << filename << "\n";
+		return;
+	}
+
 	std::string line;
 	char section[10];
 	char faceSec[5];
@@ -282,7 +299,18 @@ void init(void)
 	pBtn3->m_fHeight = 20;
 	cout<<pBtn2->m_fPosY<<"\n";
 
-	read_obj();
+	//read_obj("suzanne.obj");
+
+	MODEL = glmReadOBJ("suzanne.obj"); //"bunny.obj" "suzanne.obj"
+	glmUnitize(MODEL);
+	glmFacetNormals(MODEL);
+	glmVertexNormals(MODEL, 90);
+
+    MODEL_1 = glmReadOBJ("bunny.obj"); //"bunny.obj" "suzanne.obj"
+	glmUnitize(MODEL_1);
+	glmFacetNormals(MODEL_1);
+	glmVertexNormals(MODEL_1, 90);
+
 }
 
 void CubeOrigin(void)
@@ -376,8 +404,14 @@ void display(void)
     //CubeOrigin();
     glEnd();
 
+    glColor3f(0.7f, 0.2f, 0.2f);
+    glmDraw(MODEL_1, GLM_SMOOTH);//GLM_FLAT  GLM_SMOOTH
+
+
     //drawObj_f();
     glPopMatrix();
+
+    glColor3f (1.0, 1.0, 1.0);
 
     glPushMatrix();
     glRotatef(16.0, 0.0, 1.0, 0.0);
@@ -392,7 +426,13 @@ void display(void)
     glBegin(GL_POINTS);
     	drawObj_p();
 	glEnd();
+
+    //draw obj format file
+    glmDraw(MODEL, GLM_FLAT);//GLM_FLAT  GLM_SMOOTH
+
     glPopMatrix();
+
+
 
 	//glFlush();
 	glutSwapBuffers();
