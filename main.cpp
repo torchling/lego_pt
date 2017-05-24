@@ -11,8 +11,16 @@
 #include <stdlib.h>
 #include <cmath>
 #include <ctime>
-#include <list>
-#include "objloader.h"
+//#include <list> //no need
+
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <dirent.h>
+
+#include <cstdlib>
+
+#include <vector>
 
 using namespace std;
 //////////////////////////////////////////////////
@@ -21,6 +29,34 @@ float g_fWidth = 1000;
 float g_fHeight = 500;
 float g_fDepth = 100;
 float g_fAngle = .0;
+
+struct vertex
+{
+    GLfloat x;
+    GLfloat y;
+    GLfloat z;
+};
+
+struct edge
+{
+    vertex v1;
+    vertex v2;
+};
+
+struct triangle
+{
+    vertex v1;
+    vertex v2;
+    vertex v3;
+};
+
+struct face //max to 4 points
+{
+    int v1;
+    int v2;
+    int v3;
+    int v4;
+};
 
 struct Button{
 	float m_fPosX;		//表示在正交投影坐标系(左下角为坐标原点)的坐标，
@@ -73,10 +109,148 @@ Button* pBtn;
 Button* pBtn2;
 Button* pBtn3;
 
-objloader suz ( "suzanne.obj" ) ;
-suz.build_list();
-objloader::triangle * p;
-p = list;
+char* p = "suzanne.obj";
+std::ifstream infile(p);
+
+void read_lego_data(){
+	;
+}
+
+std::vector<vertex> obj_vPool;
+std::vector<face> obj_fPool;
+std::vector<triangle> obj_tPool;
+
+void read_obj(){
+	std::string line;
+	char section[10];
+	char faceSec[5];
+	vertex v;
+	face f;
+	triangle tri;
+
+    while (std::getline(infile, line))
+    {
+        std::istringstream iss(line);
+
+        if (!iss) { break; } // error
+        //std::cout << iss<<" ";
+        //std::cout << line<<"\n";
+        //std::cout << line[0]<<"\n";
+
+		int nOb=0; //number of blank_space
+		int nOb2=0; //number of blank_space
+        for ( int i=0; i!=line.end()-line.begin(); i++){
+    		if( line[0]=='v' && line[1]==' ' ){
+    			if(line[i]==' '){
+    				nOb++;
+    				int c = 0;
+    				int j = i;
+    				while( line[j+1] != ' ' && (j+1) != line.end()-line.begin() ){
+    					section[c]=line[j+1];
+    					j++;
+    					c++;
+    				}
+    				if(nOb==1){
+    					v.x = atof(section);
+    					section[10]={0};
+    				}
+    				else if(nOb==2){
+    					v.y = atof(section);
+    					section[10]={0};
+    				}
+    				else if(nOb==3){
+    					v.z = atof(section);
+    					section[10]={0};
+    					obj_vPool.push_back(v);
+                       }
+    				else;
+    			}
+
+    		}
+    		else if( line[0]=='f' && line[1]==' ' ){
+
+    			if(line[i]==' '){
+    				nOb2++;
+    				int c = 0;
+    				int j = i;
+    				while( line[j+1] != ' ' && (j+1) != line.end()-line.begin() ){
+    					section[c]=line[j+1];
+    					j++;
+    					c++;
+    				}
+    				if(nOb2==1){
+    					f.v1 = atof(section);
+    					faceSec[5]={0};
+    				}
+    				else if(nOb2==2){
+    					f.v2 = atof(section);
+    					faceSec[5]={0};
+    				}
+    				else if(nOb2==3){
+    					f.v3 = atof(section);
+    					faceSec[5]={0};
+    					if( j+1 == line.end()-line.begin() ){
+    						f.v4=0;
+    						obj_fPool.push_back(f);
+    					}
+    				}
+    				else if(nOb2==4){
+    					f.v4 = atof(section);
+    					faceSec[5]={0};
+    					obj_fPool.push_back(f);
+                    }
+    				else;
+    			}
+    		}
+  		}
+
+    }
+
+    for(int i=0; i<obj_fPool.size(); i++){
+		if(obj_fPool[i].v4==0){
+			tri.v1 = obj_vPool[ obj_fPool[i].v1 ];
+			tri.v2 = obj_vPool[ obj_fPool[i].v2 ];
+			tri.v3 = obj_vPool[ obj_fPool[i].v3 ];
+
+			obj_tPool.push_back(tri);
+		}
+		else{
+			tri.v1 = obj_vPool[ obj_fPool[i].v1 ];
+			tri.v2 = obj_vPool[ obj_fPool[i].v2 ];
+			tri.v3 = obj_vPool[ obj_fPool[i].v3 ];
+
+			obj_tPool.push_back(tri);
+
+			tri.v1 = obj_vPool[ obj_fPool[i].v3 ];
+			tri.v2 = obj_vPool[ obj_fPool[i].v4 ];
+			tri.v3 = obj_vPool[ obj_fPool[i].v1 ];
+
+			obj_tPool.push_back(tri);
+		}
+	}
+
+
+/*
+    for(int i=0; i<obj_vPool.size(); i++){
+
+    	cout<< obj_vPool[i].x << '\n';
+    }*/
+    /*for(int i=0; i<obj_fPool.size(); i++){
+
+    	cout<< obj_fPool[i].v1 <<" "<< obj_fPool[i].v2 <<" "<< obj_fPool[i].v3 <<" "<< obj_fPool[i].v4 << '\n';
+    }*/
+    cout<< "Size is "<< obj_vPool.size() << '\n';
+/*
+    std::string str ("Test string");
+    cout<< str.end()-str.begin() <<"\n";
+  	for ( std::string::iterator it=str.begin(); it!=str.end(); ++it){
+    	std::cout << *it;
+    	if(*it==' ')
+    		cout << "space"<<'\n';
+  	}
+  	std::cout << '\n';
+*/
+}
 
 void init(void)
 {
@@ -107,6 +281,8 @@ void init(void)
 	pBtn3->m_fWidth = 60;
 	pBtn3->m_fHeight = 20;
 	cout<<pBtn2->m_fPosY<<"\n";
+
+	read_obj();
 }
 
 void CubeOrigin(void)
@@ -142,6 +318,26 @@ void CubeOrigin(void)
     glVertex3f( 0.2f,-0.2f, 0.2f);    // Bottom Left Of The Quad (Right)
     glVertex3f( 0.2f,-0.2f,-0.2f);    // Bottom Right Of The Quad (Right)
 }
+void drawObj_p()
+{
+	glColor3f(0.0f,0.0f,1.0f);
+	for(int i=0; i<obj_vPool.size(); i++){
+		glVertex3f( obj_vPool[i].x, obj_vPool[i].y, obj_vPool[i].z);
+	}
+}
+
+void drawObj_f()
+{
+	glColor3f(1.0f,1.0f,1.0f);
+
+	for(int i=0; i<obj_tPool.size(); i++){
+		glBegin(GL_TRIANGLES);
+			glVertex3f( obj_tPool[i].v1.x, obj_tPool[i].v1.y, obj_tPool[i].v1.z);
+			glVertex3f( obj_tPool[i].v2.x, obj_tPool[i].v2.y, obj_tPool[i].v2.z);
+			glVertex3f( obj_tPool[i].v3.x, obj_tPool[i].v3.y, obj_tPool[i].v3.z);
+		glEnd();
+	}
+}
 
 void display(void)
 {
@@ -174,21 +370,30 @@ void display(void)
 	glPushMatrix();
 	glRotatef(-16.0, 0.0, 1.0, 0.0);
     glTranslatef(1.2,0.0,0.0);//0.0, 0.0, 0.0
-    glBegin(GL_QUADS);        //The cube at center of window,the original cube
+
+    glBegin(GL_QUADS);        //The cube on the right hand
     glutWireCube (1.5);
     //CubeOrigin();
     glEnd();
+
+    //drawObj_f();
     glPopMatrix();
 
     glPushMatrix();
     glRotatef(16.0, 0.0, 1.0, 0.0);
     glTranslatef(-1.2,0.0,0.0);//0.0, 0.0, 0.0
-    glBegin(GL_QUADS);        //The cube at center of window,the original cube
+
+    glBegin(GL_QUADS);        //The cube on the left hand
     glutWireCube (1.5);
     //CubeOrigin();
     glEnd();
+
+
+    glBegin(GL_POINTS);
+    	drawObj_p();
+	glEnd();
     glPopMatrix();
-	
+
 	//glFlush();
 	glutSwapBuffers();
 }
@@ -223,10 +428,14 @@ void mouse(int button, int state, int x, int y)
 				g_fAngle += 2.0;
 				cout<<"button_1"<<"\n";
 			}
-			else if( pBtn2->OnMouseDown(x, y) )
+			else if( pBtn2->OnMouseDown(x, y) ){
+				g_fAngle -= 2.0;
             	cout<<"button_2"<<"\n";
-			else if( pBtn3->OnMouseDown(x, y) )
+            }
+			else if( pBtn3->OnMouseDown(x, y) ){
+				g_fAngle = .0;
 				cout<<"button_3"<<"\n";
+			}
 			break;
 
 		case GLUT_UP:
