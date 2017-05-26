@@ -7,7 +7,6 @@
 #include <windows.h>
 #include <GL/glut.h>
 #endif
-
 #include <iostream>
 #include <stdlib.h>
 #include <cmath>
@@ -17,21 +16,11 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-//#include <dirent.h>
+#include <dirent.h>
 
 #include <cstdlib>
 
 #include <vector>
-
-#include "glm.h"
-
-GLMmodel *MODEL;
-GLMmodel *MODEL_1;
-
-
-//vector<*GLMmodel> GLM_model_list;
-
-
 
 using namespace std;
 //////////////////////////////////////////////////
@@ -120,8 +109,8 @@ Button* pBtn;
 Button* pBtn2;
 Button* pBtn3;
 
-//char* p = "suzanne.obj";
-
+char* p = "suzanne.obj";
+std::ifstream infile(p);
 
 void read_lego_data(){
 	;
@@ -131,13 +120,7 @@ std::vector<vertex> obj_vPool;
 std::vector<face> obj_fPool;
 std::vector<triangle> obj_tPool;
 
-void read_obj(char filename[]){
-    std::ifstream infile(filename);
-	if (!infile) {
-		cout << "Can't Load " << filename << "\n";
-		return;
-	}
-
+void read_obj(){
 	std::string line;
 	char section[10];
 	char faceSec[5];
@@ -185,7 +168,7 @@ void read_obj(char filename[]){
 
     		}
     		else if( line[0]=='f' && line[1]==' ' ){
-
+    			
     			if(line[i]==' '){
     				nOb2++;
     				int c = 0;
@@ -225,22 +208,22 @@ void read_obj(char filename[]){
 
     for(int i=0; i<obj_fPool.size(); i++){
 		if(obj_fPool[i].v4==0){
-			tri.v1 = obj_vPool[ obj_fPool[i].v1 ];
-			tri.v2 = obj_vPool[ obj_fPool[i].v2 ];
-			tri.v3 = obj_vPool[ obj_fPool[i].v3 ];
+			tri.v1 = obj_vPool[ obj_fPool[i].v1-1 ];
+			tri.v2 = obj_vPool[ obj_fPool[i].v2-1 ];
+			tri.v3 = obj_vPool[ obj_fPool[i].v3-1 ];
 
 			obj_tPool.push_back(tri);
 		}
 		else{
-			tri.v1 = obj_vPool[ obj_fPool[i].v1 ];
-			tri.v2 = obj_vPool[ obj_fPool[i].v2 ];
-			tri.v3 = obj_vPool[ obj_fPool[i].v3 ];
+			tri.v1 = obj_vPool[ obj_fPool[i].v1-1 ];
+			tri.v2 = obj_vPool[ obj_fPool[i].v2-1 ];
+			tri.v3 = obj_vPool[ obj_fPool[i].v3-1 ];
 
 			obj_tPool.push_back(tri);
 
-			tri.v1 = obj_vPool[ obj_fPool[i].v3 ];
-			tri.v2 = obj_vPool[ obj_fPool[i].v4 ];
-			tri.v3 = obj_vPool[ obj_fPool[i].v1 ];
+			tri.v1 = obj_vPool[ obj_fPool[i].v3-1 ];
+			tri.v2 = obj_vPool[ obj_fPool[i].v4-1 ];
+			tri.v3 = obj_vPool[ obj_fPool[i].v1-1 ];
 
 			obj_tPool.push_back(tri);
 		}
@@ -299,18 +282,7 @@ void init(void)
 	pBtn3->m_fHeight = 20;
 	cout<<pBtn2->m_fPosY<<"\n";
 
-	//read_obj("suzanne.obj");
-
-	MODEL = glmReadOBJ("suzanne.obj"); //"bunny.obj" "suzanne.obj"
-	glmUnitize(MODEL);
-	glmFacetNormals(MODEL);
-	glmVertexNormals(MODEL, 90);
-
-    MODEL_1 = glmReadOBJ("bunny.obj"); //"bunny.obj" "suzanne.obj"
-	glmUnitize(MODEL_1);
-	glmFacetNormals(MODEL_1);
-	glmVertexNormals(MODEL_1, 90);
-
+	read_obj();
 }
 
 void CubeOrigin(void)
@@ -348,7 +320,7 @@ void CubeOrigin(void)
 }
 void drawObj_p()
 {
-	glColor3f(0.0f,0.0f,1.0f);
+	glColor3f(0.0f,0.0f,0.0f);
 	for(int i=0; i<obj_vPool.size(); i++){
 		glVertex3f( obj_vPool[i].x, obj_vPool[i].y, obj_vPool[i].z);
 	}
@@ -357,14 +329,13 @@ void drawObj_p()
 void drawObj_f()
 {
 	glColor3f(1.0f,1.0f,1.0f);
-
-	for(int i=0; i<obj_tPool.size(); i++){
-		glBegin(GL_TRIANGLES);
+	glBegin(GL_TRIANGLES);
+		for(int i=0; i<obj_tPool.size(); i++){	
 			glVertex3f( obj_tPool[i].v1.x, obj_tPool[i].v1.y, obj_tPool[i].v1.z);
 			glVertex3f( obj_tPool[i].v2.x, obj_tPool[i].v2.y, obj_tPool[i].v2.z);
 			glVertex3f( obj_tPool[i].v3.x, obj_tPool[i].v3.y, obj_tPool[i].v3.z);
-		glEnd();
-	}
+		}
+	glEnd();
 }
 
 void display(void)
@@ -398,41 +369,29 @@ void display(void)
 	glPushMatrix();
 	glRotatef(-16.0, 0.0, 1.0, 0.0);
     glTranslatef(1.2,0.0,0.0);//0.0, 0.0, 0.0
-
+    
     glBegin(GL_QUADS);        //The cube on the right hand
     glutWireCube (1.5);
     //CubeOrigin();
     glEnd();
-
-    glColor3f(0.7f, 0.2f, 0.2f);
-    glmDraw(MODEL_1, GLM_SMOOTH);//GLM_FLAT  GLM_SMOOTH
-
-
+    
     //drawObj_f();
     glPopMatrix();
-
-    glColor3f (1.0, 1.0, 1.0);
 
     glPushMatrix();
     glRotatef(16.0, 0.0, 1.0, 0.0);
     glTranslatef(-1.2,0.0,0.0);//0.0, 0.0, 0.0
-
+    
     glBegin(GL_QUADS);        //The cube on the left hand
     glutWireCube (1.5);
     //CubeOrigin();
     glEnd();
-
-
+    
+    
     glBegin(GL_POINTS);
     	drawObj_p();
 	glEnd();
-
-    //draw obj format file
-    glmDraw(MODEL, GLM_FLAT);//GLM_FLAT  GLM_SMOOTH
-
     glPopMatrix();
-
-
 
 	//glFlush();
 	glutSwapBuffers();
