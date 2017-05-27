@@ -127,7 +127,7 @@ void read_obj(){
 	vertex v;
 	face f;
 	triangle tri;
-
+	cout<<"Start to get line"<<'\n';
     while (std::getline(infile, line))
     {
         std::istringstream iss(line);
@@ -174,20 +174,20 @@ void read_obj(){
     				int c = 0;
     				int j = i;
     				while( line[j+1] != ' ' && (j+1) != line.end()-line.begin() ){
-    					section[c]=line[j+1];
+    					faceSec[c]=line[j+1];// 5/26:section[c]; 5/27:faceSec[c]
     					j++;
     					c++;
     				}
     				if(nOb2==1){
-    					f.v1 = atof(section);
+    					f.v1 = atoi(faceSec);// 5/26:section; 5/27:faceSec
     					faceSec[5]={0};
     				}
     				else if(nOb2==2){
-    					f.v2 = atof(section);
+    					f.v2 = atoi(faceSec);// 5/26:section; 5/27:faceSec
     					faceSec[5]={0};
     				}
     				else if(nOb2==3){
-    					f.v3 = atof(section);
+    					f.v3 = atoi(faceSec);// 5/26:section; 5/27:faceSec
     					faceSec[5]={0};
     					if( j+1 == line.end()-line.begin() ){
     						f.v4=0;
@@ -195,16 +195,21 @@ void read_obj(){
     					}
     				}
     				else if(nOb2==4){
-    					f.v4 = atof(section);
+    					f.v4 = atoi(faceSec);// 5/26:section; 5/27:faceSec
     					faceSec[5]={0};
     					obj_fPool.push_back(f);
                     }
     				else;
     			}
     		}
+    		else{
+    			;
+    		}
   		}
 
     }
+	cout<< "Size of vertex is "<< obj_vPool.size() << '\n';
+	cout<< "Size of faces is "<< obj_fPool.size() << '\n';
 
     for(int i=0; i<obj_fPool.size(); i++){
 		if(obj_fPool[i].v4==0){
@@ -239,7 +244,8 @@ void read_obj(){
 
     	cout<< obj_fPool[i].v1 <<" "<< obj_fPool[i].v2 <<" "<< obj_fPool[i].v3 <<" "<< obj_fPool[i].v4 << '\n';
     }*/
-    cout<< "Size is "<< obj_vPool.size() << '\n';
+    
+    
 /*
     std::string str ("Test string");
     cout<< str.end()-str.begin() <<"\n";
@@ -271,7 +277,7 @@ void init(void)
 	pBtn2->m_fPosY = 480;
 	pBtn2->m_fWidth = 60;
 	pBtn2->m_fHeight = 20;
-	cout<<pBtn2->m_fPosY<<"\n";
+	//cout<<pBtn2->m_fPosY<<"\n";
 	//printf("000000000000000");
 
 	pBtn3= new Button;
@@ -280,7 +286,7 @@ void init(void)
 	pBtn3->m_fPosY = 480;
 	pBtn3->m_fWidth = 60;
 	pBtn3->m_fHeight = 20;
-	cout<<pBtn2->m_fPosY<<"\n";
+	//cout<<pBtn2->m_fPosY<<"\n";
 
 	read_obj();
 }
@@ -326,9 +332,9 @@ void drawObj_p()
 	}
 }
 
-void drawObj_f()
+void drawObj_t()
 {
-	glColor3f(1.0f,1.0f,1.0f);
+	glColor3f(1.0f,0.0f,0.0f);
 	glBegin(GL_TRIANGLES);
 		for(int i=0; i<obj_tPool.size(); i++){	
 			glVertex3f( obj_tPool[i].v1.x, obj_tPool[i].v1.y, obj_tPool[i].v1.z);
@@ -374,23 +380,24 @@ void display(void)
     glutWireCube (1.5);
     //CubeOrigin();
     glEnd();
-    
-    //drawObj_f();
+
+    glBegin(GL_POINTS);
+    	drawObj_p();
+	glEnd();
+ 
     glPopMatrix();
 
     glPushMatrix();
     glRotatef(16.0, 0.0, 1.0, 0.0);
     glTranslatef(-1.2,0.0,0.0);//0.0, 0.0, 0.0
-    
+
+	glColor3f(1.0f,1.0f,1.0f);    
     glBegin(GL_QUADS);        //The cube on the left hand
     glutWireCube (1.5);
     //CubeOrigin();
     glEnd();
     
-    
-    glBegin(GL_POINTS);
-    	drawObj_p();
-	glEnd();
+    drawObj_t();
     glPopMatrix();
 
 	//glFlush();
