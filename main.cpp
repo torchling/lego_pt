@@ -110,6 +110,8 @@ Button* pBtn2;
 Button* pBtn3;
 
 char* p = "suzanne.obj";
+//char* p = "GermanShephardLowPoly.obj";
+//char* p = "panther.obj";
 std::ifstream infile(p);
 
 void read_lego_data(){
@@ -122,7 +124,7 @@ std::vector<triangle> obj_tPool;
 
 void read_obj(){
 	std::string line;
-	char section[10];
+	char section[20];
 	char faceSec[5];
 	vertex v;
 	face f;
@@ -140,6 +142,8 @@ void read_obj(){
 		int nOb=0; //number of blank_space
 		int nOb2=0; //number of blank_space
         for ( int i=0; i!=line.end()-line.begin(); i++){
+    		//memset(section, 0, 20);
+    		//memset(faceSec, 0, 5);
     		if( line[0]=='v' && line[1]==' ' ){
     			if(line[i]==' '){
     				nOb++;
@@ -152,15 +156,15 @@ void read_obj(){
     				}
     				if(nOb==1){
     					v.x = atof(section);
-    					section[10]={0};
+    					memset(section, 0, 20);
     				}
     				else if(nOb==2){
     					v.y = atof(section);
-    					section[10]={0};
+    					memset(section, 0, 20);
     				}
     				else if(nOb==3){
     					v.z = atof(section);
-    					section[10]={0};
+    					memset(section, 0, 20);
     					obj_vPool.push_back(v);
                        }
     				else;
@@ -168,27 +172,27 @@ void read_obj(){
 
     		}
     		else if( line[0]=='f' && line[1]==' ' ){
-    			
+
     			if(line[i]==' '){
     				nOb2++;
     				int c = 0;
     				int j = i;
-    				while( line[j+1] != ' ' && (j+1) != line.end()-line.begin() ){
+    				while( (line[j+1] != ' ') && ((j+1) != line.end()-line.begin()) && (line[j+1] != '/') ){
     					faceSec[c]=line[j+1];// 5/26:section[c]; 5/27:faceSec[c]
     					j++;
     					c++;
     				}
     				if(nOb2==1){
     					f.v1 = atoi(faceSec);// 5/26:section; 5/27:faceSec
-    					faceSec[5]={0};
+    					memset(faceSec, 0, 5);
     				}
     				else if(nOb2==2){
     					f.v2 = atoi(faceSec);// 5/26:section; 5/27:faceSec
-    					faceSec[5]={0};
+    					memset(faceSec, 0, 5);
     				}
     				else if(nOb2==3){
     					f.v3 = atoi(faceSec);// 5/26:section; 5/27:faceSec
-    					faceSec[5]={0};
+    					memset(faceSec, 0, 5);
     					if( j+1 == line.end()-line.begin() ){
     						f.v4=0;
     						obj_fPool.push_back(f);
@@ -196,7 +200,7 @@ void read_obj(){
     				}
     				else if(nOb2==4){
     					f.v4 = atoi(faceSec);// 5/26:section; 5/27:faceSec
-    					faceSec[5]={0};
+    					memset(faceSec, 0, 5);
     					obj_fPool.push_back(f);
                     }
     				else;
@@ -244,8 +248,8 @@ void read_obj(){
 
     	cout<< obj_fPool[i].v1 <<" "<< obj_fPool[i].v2 <<" "<< obj_fPool[i].v3 <<" "<< obj_fPool[i].v4 << '\n';
     }*/
-    
-    
+
+
 /*
     std::string str ("Test string");
     cout<< str.end()-str.begin() <<"\n";
@@ -335,8 +339,8 @@ void drawObj_p()
 void drawObj_t()
 {
 	glColor3f(1.0f,0.0f,0.0f);
-	glBegin(GL_TRIANGLES);
-		for(int i=0; i<obj_tPool.size(); i++){	
+	glBegin(GL_LINE_LOOP);
+		for(int i=0; i<obj_tPool.size(); i++){
 			glVertex3f( obj_tPool[i].v1.x, obj_tPool[i].v1.y, obj_tPool[i].v1.z);
 			glVertex3f( obj_tPool[i].v2.x, obj_tPool[i].v2.y, obj_tPool[i].v2.z);
 			glVertex3f( obj_tPool[i].v3.x, obj_tPool[i].v3.y, obj_tPool[i].v3.z);
@@ -367,37 +371,49 @@ void display(void)
 
 	/* viewing transformation  */
 	gluLookAt (0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	//gluLookAt (0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	glRotatef(g_fAngle, 0.0, 1.0, 0.0);
 	//glRotatef(0.0, 0.0, 1.0, 0.0);
 	glScalef (1.0, 2.0, 1.0);      /* modeling transformation */
 	glutWireCube (0.3);
 
-	glPushMatrix();
-	glRotatef(-16.0, 0.0, 1.0, 0.0);
-    glTranslatef(1.2,0.0,0.0);//0.0, 0.0, 0.0
-    
-    glBegin(GL_QUADS);        //The cube on the right hand
-    glutWireCube (1.5);
-    //CubeOrigin();
-    glEnd();
+	glPushMatrix();			//The cube on the right hand
+    	glRotatef(-16.0, 0.0, 1.0, 0.0);
+    	glTranslatef(1.2,0.0,0.0);//1.2, 0.0, 0.0
 
-    glBegin(GL_POINTS);
-    	drawObj_p();
-	glEnd();
- 
+    	glColor3f(1.0f,1.0f,1.0f);
+   		glBegin(GL_QUADS);        
+    	glutWireCube (1.5);
+    	glEnd();
+    glPopMatrix();
+    
+    glPushMatrix();			//The cube on the left hand
+    	glRotatef(16.0, 0.0, 1.0, 0.0);
+    	glTranslatef(-1.2,0.0,0.0);//1.2, 0.0, 0.0
+
+    	glColor3f(1.0f,1.0f,1.0f);
+   		glBegin(GL_QUADS);        
+    	glutWireCube (1.5);
+    	glEnd();
     glPopMatrix();
 
-    glPushMatrix();
-    glRotatef(16.0, 0.0, 1.0, 0.0);
-    glTranslatef(-1.2,0.0,0.0);//0.0, 0.0, 0.0
+	glPushMatrix();			//Obj model points
+		glRotatef(-16.0, 0.0, 1.0, 0.0);
+    	//glTranslatef(1.2,-3.0,-2.0);	// dog
+    	glTranslatef(1.2, 0.0, 0.0);	// monkey
 
-	glColor3f(1.0f,1.0f,1.0f);    
-    glBegin(GL_QUADS);        //The cube on the left hand
-    glutWireCube (1.5);
-    //CubeOrigin();
-    glEnd();
-    
-    drawObj_t();
+    	glBegin(GL_POINTS);
+    		drawObj_p();
+		glEnd();
+
+    glPopMatrix();
+
+    glPushMatrix();			//Obj model faces
+    	glRotatef(16.0, 0.0, 1.0, 0.0);
+    	//glTranslatef(-1.2,-3.0,-2.0);	// dog
+    	glTranslatef(-1.2, 0.0, 0.0);	// monkey
+
+    	drawObj_t();
     glPopMatrix();
 
 	//glFlush();
