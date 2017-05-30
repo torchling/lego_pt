@@ -216,23 +216,24 @@ void read_obj(){
 	cout<< "Size of faces is "<< obj_fPool.size() << '\n';
 
     for(int i=0; i<obj_fPool.size(); i++){
-		if(obj_fPool[i].v4==0){
-			tri.v1 = obj_vPool[ obj_fPool[i].v1-1 ];
+		if(obj_fPool[i].v4!=0){
+    		tri.v1 = obj_vPool[ obj_fPool[i].v1-1 ];
 			tri.v2 = obj_vPool[ obj_fPool[i].v2-1 ];
 			tri.v3 = obj_vPool[ obj_fPool[i].v3-1 ];
+
+			obj_tPool.push_back(tri);
+
+			tri.v1 = obj_vPool[ obj_fPool[i].v1-1 ];
+			tri.v2 = obj_vPool[ obj_fPool[i].v3-1 ];
+			tri.v3 = obj_vPool[ obj_fPool[i].v4-1 ];
 
 			obj_tPool.push_back(tri);
 		}
 		else{
+			
 			tri.v1 = obj_vPool[ obj_fPool[i].v1-1 ];
 			tri.v2 = obj_vPool[ obj_fPool[i].v2-1 ];
 			tri.v3 = obj_vPool[ obj_fPool[i].v3-1 ];
-
-			obj_tPool.push_back(tri);
-
-			tri.v1 = obj_vPool[ obj_fPool[i].v3-1 ];
-			tri.v2 = obj_vPool[ obj_fPool[i].v4-1 ];
-			tri.v3 = obj_vPool[ obj_fPool[i].v1-1 ];
 
 			obj_tPool.push_back(tri);
 		}
@@ -339,14 +340,25 @@ void drawObj_p()
 void drawObj_t()
 {
 	glColor3f(1.0f,0.0f,0.0f);
-	glBegin(GL_LINE_LOOP);
+	
+	for(int i=0; i<obj_tPool.size(); i++){
+		glBegin(GL_LINE_LOOP);
+			glVertex3f( obj_tPool[i].v1.x, obj_tPool[i].v1.y, obj_tPool[i].v1.z);
+			glVertex3f( obj_tPool[i].v2.x, obj_tPool[i].v2.y, obj_tPool[i].v2.z);
+			glVertex3f( obj_tPool[i].v3.x, obj_tPool[i].v3.y, obj_tPool[i].v3.z);
+		glEnd();
+	}
+	/*
+	glBegin(GL_TRIANGLES);
 		for(int i=0; i<obj_tPool.size(); i++){
 			glVertex3f( obj_tPool[i].v1.x, obj_tPool[i].v1.y, obj_tPool[i].v1.z);
 			glVertex3f( obj_tPool[i].v2.x, obj_tPool[i].v2.y, obj_tPool[i].v2.z);
 			glVertex3f( obj_tPool[i].v3.x, obj_tPool[i].v3.y, obj_tPool[i].v3.z);
 		}
 	glEnd();
+	*/
 }
+	
 
 void display(void)
 {
@@ -370,8 +382,8 @@ void display(void)
 	glLoadIdentity ();
 
 	/* viewing transformation  */
-	gluLookAt (0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	//gluLookAt (0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt (0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);	//monkey
+	//gluLookAt (0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);	// dog
 	glRotatef(g_fAngle, 0.0, 1.0, 0.0);
 	//glRotatef(0.0, 0.0, 1.0, 0.0);
 	glScalef (1.0, 2.0, 1.0);      /* modeling transformation */
@@ -398,9 +410,10 @@ void display(void)
     glPopMatrix();
 
 	glPushMatrix();			//Obj model points
-		glRotatef(-16.0, 0.0, 1.0, 0.0);
-    	//glTranslatef(1.2,-3.0,-2.0);	// dog
-    	glTranslatef(1.2, 0.0, 0.0);	// monkey
+		glRotatef(-16.0, 0.0, 1.0, 0.0);	
+		glRotatef(-90.0, 1.0, 0.0, 0.0);	// monkey only
+    	//glTranslatef(1.2,-3.0,-2.0);		// dog
+    	glTranslatef(1.2, 0.0, 0.0);		// monkey
 
     	glBegin(GL_POINTS);
     		drawObj_p();
@@ -409,9 +422,10 @@ void display(void)
     glPopMatrix();
 
     glPushMatrix();			//Obj model faces
-    	glRotatef(16.0, 0.0, 1.0, 0.0);
-    	//glTranslatef(-1.2,-3.0,-2.0);	// dog
-    	glTranslatef(-1.2, 0.0, 0.0);	// monkey
+    	glRotatef(16.0, 0.0, 1.0, 0.0);	
+    	glRotatef(-90.0, 1.0, 0.0, 0.0);	// monkey only
+    	//glTranslatef(-1.2,-3.0,-2.0);		// dog
+    	glTranslatef(-1.2, 0.0, 0.0);		// monkey
 
     	drawObj_t();
     glPopMatrix();
