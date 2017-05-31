@@ -22,6 +22,7 @@
 
 #include <vector>
 
+
 using namespace std;
 //////////////////////////////////////////////////
 //global
@@ -121,6 +122,19 @@ void read_lego_data(){
 std::vector<vertex> obj_vPool;
 std::vector<face> obj_fPool;
 std::vector<triangle> obj_tPool;
+
+std::vector<vertex> voxel_center_vPool;
+
+bool in_voxel(vertex test, vertex voxel_center, float edge_length){
+	float radius = edge_length*0.5;
+
+	if( abs(test.x - voxel_center.x)<radius 
+	 && abs(test.y - voxel_center.y)<radius 
+	 && abs(test.z - voxel_center.z)<radius 
+	)return true;
+	
+	return false;
+}
 
 void read_obj(){
 	std::string line;
@@ -261,6 +275,64 @@ void read_obj(){
   	}
   	std::cout << '\n';
 */
+	//voxelize the model
+	float max_x = obj_vPool[0].x;
+	float min_x = obj_vPool[0].x;
+	float max_y = obj_vPool[0].y;
+	float min_y = obj_vPool[0].y;
+	float max_z = obj_vPool[0].z;
+	float min_z = obj_vPool[0].z;
+
+	for(int i=0; i<obj_vPool.size(); i++){
+		//get Max
+		if(max_x < obj_vPool[i].x)
+			max_x = obj_vPool[i].x;
+
+		if(max_y < obj_vPool[i].y)
+			max_y = obj_vPool[i].y;
+
+		if(max_z < obj_vPool[i].z)
+			max_z = obj_vPool[i].z;
+		
+		//get min
+		if(min_x > obj_vPool[i].x)
+			min_x = obj_vPool[i].x;
+		
+		if(min_y > obj_vPool[i].y)
+			min_y = obj_vPool[i].y;
+		
+		if(min_z > obj_vPool[i].z)
+			min_z = obj_vPool[i].z;
+	}
+
+	max_x = max_x - min_x;//use max to replace radius of whole model
+	max_y = max_y - min_y;//..
+	max_z = max_z - min_z;//..
+	
+	float voxel_length
+
+	int xn = max_x/voxel_length;
+	int yn = max_y/voxel_length;
+	int zn = max_z/voxel_length;
+
+	vertex test;
+
+	for(int i=0; i<xn; i++){
+		for(int j=0; j<yn; j++){
+			for(int k=0; k<zn; k++){
+				test.x = min_x + xn*voxel_length*0.5;
+				test.y = min_y + yn*voxel_length*0.5;
+				test.z = min_z + zn*voxel_length*0.5;
+
+				for(int l=0; l<obj_vPool.size(); l++){
+					if( in_voxel(test, obj_vPool[l], voxel_length) )
+						voxel_center_vPool.push_back(test);
+				}
+			}
+		}
+	}
+
+	//resize voxel_center_vPool;
 }
 
 void init(void)
