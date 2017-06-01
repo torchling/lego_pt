@@ -31,7 +31,7 @@ float g_fHeight = 500;
 float g_fDepth = 100;
 float g_fAngle = .0;
 
-float voxel_length = 0.5;
+float voxel_length = 0.2;
 float voxel_length_half = voxel_length*0.5;//
 
 struct vertex
@@ -130,12 +130,17 @@ std::vector<vertex> voxel_center_vPool;
 
 bool in_voxel(vertex test, vertex voxel_center, float radius){
 	//float radius = edge_length*0.5;
-
-	if( abs(test.x - voxel_center.x)<radius 
-	 && abs(test.y - voxel_center.y)<radius 
-	 && abs(test.z - voxel_center.z)<radius 
+	/*
+	if( ((test.x - voxel_center.x)<=radius || (voxel_center.x - test.x)<=radius)
+	 && ((test.y - voxel_center.y)<=radius || (voxel_center.y - test.y)<=radius)
+	 && ((test.z - voxel_center.z)<=radius || (voxel_center.z - test.z)<=radius)
 	)return true;
-	
+	*/
+	if( abs(test.x - voxel_center.x)<=radius
+	 && abs(test.y - voxel_center.y)<=radius
+	 && abs(test.z - voxel_center.z)<=radius 
+	)return true;
+
 	return false;
 }
 
@@ -247,7 +252,7 @@ void read_obj(){
 			obj_tPool.push_back(tri);
 		}
 		else{
-			
+
 			tri.v1 = obj_vPool[ obj_fPool[i].v1-1 ];
 			tri.v2 = obj_vPool[ obj_fPool[i].v2-1 ];
 			tri.v3 = obj_vPool[ obj_fPool[i].v3-1 ];
@@ -296,14 +301,14 @@ void read_obj(){
 
 		if(max_z < obj_vPool[i].z)
 			max_z = obj_vPool[i].z;
-		
+
 		//get min
 		if(min_x > obj_vPool[i].x)
 			min_x = obj_vPool[i].x;
-		
+
 		if(min_y > obj_vPool[i].y)
 			min_y = obj_vPool[i].y;
-		
+
 		if(min_z > obj_vPool[i].z)
 			min_z = obj_vPool[i].z;
 	}
@@ -311,29 +316,36 @@ void read_obj(){
 	max_x = max_x - min_x;//use max to replace radius of whole model
 	max_y = max_y - min_y;//..
 	max_z = max_z - min_z;//..
-	
+
 	//float voxel_length;
 
 	int xn = max_x/voxel_length;
 	int yn = max_y/voxel_length;
 	int zn = max_z/voxel_length;
 
-	vertex test;
+	vertex voxel_center_test;
 
 	for(int i=0; i<xn; i++){
 		for(int j=0; j<yn; j++){
 			for(int k=0; k<zn; k++){
-				test.x = min_x + xn*voxel_length*0.5;
-				test.y = min_y + yn*voxel_length*0.5;
-				test.z = min_z + zn*voxel_length*0.5;
+				voxel_center_test.x = min_x + i*voxel_length;
+				voxel_center_test.y = min_y + j*voxel_length;
+				voxel_center_test.z = min_z + k*voxel_length;
 
 				for(int l=0; l<obj_vPool.size(); l++){
-					if( in_voxel(test, obj_vPool[l], voxel_length_half) )
-						voxel_center_vPool.push_back(test);
+					if( in_voxel(obj_vPool[l], voxel_center_test, voxel_length_half) )
+						voxel_center_vPool.push_back(voxel_center_test);
 				}
 			}
 		}
 	}
+
+	cout<< "size of voxel: " << voxel_center_vPool.size() <<"\n";
+	//cout<< obj_vPool[0].y <<"\n";
+	for(int i=0; i<20; i++){
+		cout<< voxel_center_vPool[i].y <<"\n";
+	}
+	cout<< voxel_center_vPool[ voxel_center_vPool.size()-1 ].y <<"\n";
 
 	//resize voxel_center_vPool;
 }
@@ -416,7 +428,7 @@ void drawObj_p()
 void drawObj_t()
 {
 	glColor3f(1.0f,0.0f,0.0f);
-	
+
 	for(int i=0; i<obj_tPool.size(); i++){
 		glBegin(GL_LINE_LOOP);
 			glVertex3f( obj_tPool[i].v1.x, obj_tPool[i].v1.y, obj_tPool[i].v1.z);
@@ -469,13 +481,13 @@ void drawVoxel()
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
-		glEnd(); 
+		glEnd();
 		glBegin(GL_LINE_LOOP);
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
-		glEnd(); 
+		glEnd();
 	}
 }
 
@@ -513,23 +525,23 @@ void display(void)
     	glTranslatef(1.2,0.0,0.0);//1.2, 0.0, 0.0
 
     	glColor3f(1.0f,1.0f,1.0f);
-   		glBegin(GL_QUADS);        
+   		glBegin(GL_QUADS);
     	glutWireCube (1.5);
     	glEnd();
     glPopMatrix();
-    
+
     glPushMatrix();			//The cube on the left hand
     	glRotatef(16.0, 0.0, 1.0, 0.0);
     	glTranslatef(-1.2,0.0,0.0);//1.2, 0.0, 0.0
 
     	glColor3f(1.0f,1.0f,1.0f);
-   		glBegin(GL_QUADS);        
+   		glBegin(GL_QUADS);
     	glutWireCube (1.5);
     	glEnd();
     glPopMatrix();
 
 	glPushMatrix();			//Obj model points
-		glRotatef(-16.0, 0.0, 1.0, 0.0);	
+		glRotatef(-16.0, 0.0, 1.0, 0.0);
 		glRotatef(-90.0, 1.0, 0.0, 0.0);	// monkey only
     	//glTranslatef(1.2,-3.0,-2.0);		// dog
     	glTranslatef(1.2, 0.0, 0.0);		// monkey
@@ -538,16 +550,17 @@ void display(void)
     		drawObj_p();
 		glEnd();
 
+    	drawVoxel();
+
     glPopMatrix();
 
     glPushMatrix();			//Obj model faces
-    	glRotatef(16.0, 0.0, 1.0, 0.0);	
+    	glRotatef(16.0, 0.0, 1.0, 0.0);
     	glRotatef(-90.0, 1.0, 0.0, 0.0);	// monkey only
     	//glTranslatef(-1.2,-3.0,-2.0);		// dog
     	glTranslatef(-1.2, 0.0, 0.0);		// monkey
 
     	drawObj_t();
-    	drawVoxel();
     glPopMatrix();
 
 	//glFlush();
