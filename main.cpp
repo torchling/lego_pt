@@ -31,6 +31,9 @@ float g_fHeight = 500;
 float g_fDepth = 100;
 float g_fAngle = .0;
 
+float voxel_length = 0.5;
+float voxel_length_half = voxel_length*0.5;//
+
 struct vertex
 {
     GLfloat x;
@@ -125,8 +128,8 @@ std::vector<triangle> obj_tPool;
 
 std::vector<vertex> voxel_center_vPool;
 
-bool in_voxel(vertex test, vertex voxel_center, float edge_length){
-	float radius = edge_length*0.5;
+bool in_voxel(vertex test, vertex voxel_center, float radius){
+	//float radius = edge_length*0.5;
 
 	if( abs(test.x - voxel_center.x)<radius 
 	 && abs(test.y - voxel_center.y)<radius 
@@ -309,7 +312,7 @@ void read_obj(){
 	max_y = max_y - min_y;//..
 	max_z = max_z - min_z;//..
 	
-	float voxel_length
+	//float voxel_length;
 
 	int xn = max_x/voxel_length;
 	int yn = max_y/voxel_length;
@@ -325,7 +328,7 @@ void read_obj(){
 				test.z = min_z + zn*voxel_length*0.5;
 
 				for(int l=0; l<obj_vPool.size(); l++){
-					if( in_voxel(test, obj_vPool[l], voxel_length) )
+					if( in_voxel(test, obj_vPool[l], voxel_length_half) )
 						voxel_center_vPool.push_back(test);
 				}
 			}
@@ -401,6 +404,7 @@ void CubeOrigin(void)
     glVertex3f( 0.2f,-0.2f, 0.2f);    // Bottom Left Of The Quad (Right)
     glVertex3f( 0.2f,-0.2f,-0.2f);    // Bottom Right Of The Quad (Right)
 }
+
 void drawObj_p()
 {
 	glColor3f(0.0f,0.0f,0.0f);
@@ -430,7 +434,50 @@ void drawObj_t()
 	glEnd();
 	*/
 }
-	
+
+void drawVoxel()
+{
+
+	glColor3f(0.0f,1.0f,0.0f);
+	for(int i=0; i<voxel_center_vPool.size(); i++){
+		glBegin(GL_LINE_LOOP);
+			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+		glEnd();
+		glBegin(GL_LINE_LOOP);
+			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+		glEnd();
+		glBegin(GL_LINE_LOOP);
+			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+		glEnd();
+		glBegin(GL_LINE_LOOP);
+			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+		glEnd();
+		glBegin(GL_LINE_LOOP);
+			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
+		glEnd(); 
+		glBegin(GL_LINE_LOOP);
+			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+		glEnd(); 
+	}
+}
 
 void display(void)
 {
@@ -500,6 +547,7 @@ void display(void)
     	glTranslatef(-1.2, 0.0, 0.0);		// monkey
 
     	drawObj_t();
+    	drawVoxel();
     glPopMatrix();
 
 	//glFlush();
