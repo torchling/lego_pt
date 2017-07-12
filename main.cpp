@@ -118,14 +118,45 @@ char* p = "suzanne.obj";
 //char* p = "panther.obj";
 std::ifstream infile(p);
 
-void read_lego_data(){
+void save_lego_parts_geometry(/* geo_storage space_number, geo_type:?,  */){
 	;
 }
 
+void search_one_lego_part_and_read_it(/* part's_name, geo_storage_id:?? */){
+	//need 2 variable 
+	//1.part's_number or part's_name 2.save to "selected" part's_geo_storage in part list
+	
+	//variable list:
+	short geo_type = 0;// 2:line, 3:triangle, 4:Quadrilateral
+	char line[10];//tmp for compile July 12 2017
+
+	//function list:
+	if(line[0]=='1'){
+		//command
+		search_one_lego_part_and_read_it();//same geo_storage space as father
+	}
+	if(line[0]=='2'){
+		//line
+		save_lego_parts_geometry(/* geo_storage_id, geo_type:2,  */);
+	}
+	if(line[0]=='3'){
+		//triangle
+		save_lego_parts_geometry(/* geo_storage_id, geo_type:3,  */);
+		;
+	}
+	if(line[0]=='4'){
+		//Quadrilateral
+		save_lego_parts_geometry(/* geo_storage_id, geo_type:4,  */);
+		;
+	}
+}
+
+//Storage vectors list of ABCD.obj input
 std::vector<vertex> obj_vPool;
 std::vector<face> obj_fPool;
 std::vector<triangle> obj_tPool;
 
+//Storage vector of Voxel 
 std::vector<vertex> voxel_center_vPool;
 
 bool in_voxel(vertex test, vertex voxel_center, float radius){
