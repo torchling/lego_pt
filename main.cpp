@@ -62,6 +62,36 @@ struct face //max to 4 points
     int v4;
 };
 
+struct part_v1 //This is part struct Ver.01 .
+{
+	std::vector< vertex > connection_1_x ; // x means Convex
+	std::vector< vertex > connection_1_o ; // o means Concave
+
+	std::vector< vertex > connection_2_x ;
+	std::vector< vertex > connection_2_o ;
+
+	// For the small set like rooster we only have 2 kinds of connecting way
+	// but in the future, we need more then 2.
+/*
+	std::vector< vertex > connection_3_x ;
+	std::vector< vertex > connection_3_o ;
+
+	std::vector< vertex > connection_4_x ;
+	std::vector< vertex > connection_4_o ;
+*/	 
+
+	vertex[8] approximate_shape;//For now. It's still a box, designed for border detection. 
+
+};
+
+// Vectors to store the ldraw lego geometry
+/*----------------------------------------------------------------*/
+vector< vector<edge> > bricks ;//just store shapes for drawing, not for matching. 
+//first  layer is for parts(bricks).
+//second layer is for lines.
+
+vector< vector<part_v1> > parts  ;//For real math stuffs. Prepare for assembling possibility
+
 struct Button{
 	float m_fPosX;		//表示在正交投影坐标系(左下角为坐标原点)的坐标，
 	float m_fPosY;
@@ -119,14 +149,24 @@ char* p = "suzanne.obj";
 std::ifstream infile(p);
 
 void save_lego_parts_geometry(/* geo_storage space_number, geo_type:?,  */){
-	;
+	
+	if( geo_type == 2 ){ //to save a line
+		;
+	}
+	if( geo_type == 3 ){ //to save a triangle
+		;
+	}
+	if( geo_type == 4 ){ //to save a quad.
+		;
+	}
 }
 
 void search_one_lego_part_and_read_it(/* part's_name, geo_storage_id:?? */){
 	//need 2 variable 
 	//1.part's_number or part's_name 2.save to "selected" part's_geo_storage in part list
-	
-	//variable list:
+	 
+	//variable list:.
+
 	short geo_type = 0;// 2:line, 3:triangle, 4:Quadrilateral
 	char line[10];//tmp for compile July 12 2017
 
