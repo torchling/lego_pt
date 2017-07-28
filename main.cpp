@@ -67,8 +67,8 @@ struct part_v1 //This is part struct Ver.01 .
 	std::vector< vertex > connection_1_x ; // x means Convex
 	std::vector< vertex > connection_1_o ; // o means Concave
 
-	std::vector< vertex > connection_2_x ;
-	std::vector< vertex > connection_2_o ;
+	std::vector< vertex > connection_2_x ; // x means Convex
+	std::vector< vertex > connection_2_o ; // o means Concave
 
 	// For the small set like rooster we only have 2 kinds of connecting way
 	// but in the future, we need more then 2.
@@ -80,9 +80,13 @@ struct part_v1 //This is part struct Ver.01 .
 	std::vector< vertex > connection_4_o ;
 */	 
 
+	std::vector< vertex > vertexPool; // all vertices in this part (maybe, we don't need this)
+	std::vector< triangle > tpfp; // triangle pool for part 
+
 	vertex[8] approximate_shape;//For now. It's still a box, designed for border detection. 
 
 };
+
 
 // Vectors to store the ldraw lego geometry
 /*----------------------------------------------------------------*/
@@ -153,19 +157,60 @@ void save_lego_parts_geometry(/* geo_storage space_number, geo_type:?, line */){
 // variable list:
 
 	float metrix[12];	// 3*4 : xyz abc def ghi
+	vertex dot1;
+	vertex dot2;
+	vertex dot3;
+	triangle tri; // line, triangle, quad. They all been saved as a triangle formate. 
 
 // function list:
 	// convert
 
 	// save
 	if( geo_type == 2 ){ //to save a line
-		;
+
+		dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
+		dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
+
+		tri.v1 = dot1;
+		tri.v2 = dot2;
+		tri.v3 = dot2; // if it's a line, v2=v3.
+
+		//push_back
 	}
+
 	if( geo_type == 3 ){ //to save a triangle
-		;
+		
+		dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
+		dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
+		dot3.x = metrix[6];		dot3.y = metrix[7];		dot3.z = metrix[8]; // dot3 = x3y3z3
+		
+		tri.v1 = dot1;
+		tri.v2 = dot2;
+		tri.v3 = dot3;
+
+		//push_back
 	}
 	if( geo_type == 4 ){ //to save a quad.
-		;
+		
+		dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
+		dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
+		dot3.x = metrix[6];		dot3.y = metrix[7];		dot3.z = metrix[8]; // dot3 = x3y3z3
+		
+		tri.v1 = dot1;
+		tri.v2 = dot2;
+		tri.v3 = dot3;
+
+		//push_back
+
+		dot1.x = metrix[6];		dot1.y = metrix[7];		dot1.z = metrix[8]; // dot1 = x3y3z3
+		dot2.x = metrix[9];		dot2.y = metrix[10];	dot2.z = metrix[11];// dot2 = x4y4z4
+		dot3.x = metrix[0];		dot3.y = metrix[1];		dot3.z = metrix[2]; // dot3 = x1y1z1
+		
+		tri.v1 = dot1;
+		tri.v2 = dot2;
+		tri.v3 = dot3;
+
+		//push_back
 	}
 }
 
@@ -177,6 +222,7 @@ void search_one_lego_part_and_read_it(/* part's_name, geo_storage_id:?? */){
 
 	short geo_type = 0;	// 2:line, 3:triangle, 4:Quadrilateral
 	char line[10];		// tmp for compile July 12 2017
+	part_v1 part;
 
 // function list:
 
@@ -193,15 +239,12 @@ void search_one_lego_part_and_read_it(/* part's_name, geo_storage_id:?? */){
 		if(line[0]=='3'){
 			//triangle
 			save_lego_parts_geometry(/* geo_storage_id, geo_type:3, line */);
-			;
 		}
 		if(line[0]=='4'){
 			//Quadrilateral
 			save_lego_parts_geometry(/* geo_storage_id, geo_type:4, line */);
-			;
 		}
 	}
-
 
 
 }
