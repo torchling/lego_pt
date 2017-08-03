@@ -214,35 +214,48 @@ void save_lego_parts_geometry(/* geo_storage space_number, geo_type:?, line */){
 	}
 }
 
-void search_one_lego_part_and_read_it(/* part's_name, geo_storage_id:?? */){
+void search_one_lego_part_and_read_it(/* part's_name, geo_storage_id:?? */char *part_name, ){
 // need 2 variable 
 // 1.part's_number or part's_name 2.save to "selected" part's_geo_storage in part list
 	 
 // variable list:
 
 	short geo_type = 0;	// 2:line, 3:triangle, 4:Quadrilateral
-	char line[10];		// tmp for compile July 12 2017
+	//char line[10];		// tmp for compile July 12 2017
 	part_v1 part;
 
 // function list:
+	ifstream inf(part_name);
+    char *test;
+    int type,color, a,b,c, d,e,f, g,h,i, j,k,l;
+    char fninf[10];
+    string line;
 
+	if(!inf){
+		cerr<<"Error: can't read part."<<endl;
+		exit(1);
+	}
 	// read, sent, save
-	for(/*each line in the file*/){
-		if(line[0]=='1'){
-			//command
-			search_one_lego_part_and_read_it();//same geo_storage space as father
-		}
-		if(line[0]=='2'){
-			//line
-			save_lego_parts_geometry(/* geo_storage_id, geo_type:2, line */);
-		}
-		if(line[0]=='3'){
-			//triangle
-			save_lego_parts_geometry(/* geo_storage_id, geo_type:3, line */);
-		}
-		if(line[0]=='4'){
-			//Quadrilateral
-			save_lego_parts_geometry(/* geo_storage_id, geo_type:4, line */);
+	while(getline(inf, line)){
+		istringstream iss(line);
+		if (iss >> x >> color) {
+
+			if(type==1){
+				//command
+				search_one_lego_part_and_read_it();//same geo_storage space as father
+			}
+			if(type==2){
+				//line
+				save_lego_parts_geometry(, 2,/* geo_storage_id, geo_type:2, line */);
+			}
+			if(type==3){
+				//triangle
+				save_lego_parts_geometry(, 3,/* geo_storage_id, geo_type:3, line */);
+			}
+			if(type==4){
+				//Quadrilateral
+				save_lego_parts_geometry(, 4,/* geo_storage_id, geo_type:4, line */);
+			}
 		}
 	}
 
