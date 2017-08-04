@@ -90,11 +90,12 @@ struct part_v1 //This is part struct Ver.01 .
 
 // Vectors to store the ldraw lego geometry
 /*----------------------------------------------------------------*/
-vector< vector<edge> > bricks ;//just store shapes for drawing, not for matching. 
-//first  layer is for parts(bricks).
-//second layer is for lines.
+// 01
+vector< vector<edge> > bricks ;		//just store shapes for drawing, not for matching. 
 
-vector< vector<part_v1> > parts  ;//For real math stuffs. Prepare for assembling possibility
+// 02
+vector< vector<part_v1> > parts  ;	//For real math stuffs. Prepare for assembling possibility
+/*----------------------------------------------------------------*/
 
 struct Button{
 	float m_fPosX;		//表示在正交投影坐标系(左下角为坐标原点)的坐标，
@@ -152,114 +153,111 @@ char* p = "suzanne.obj";
 //char* p = "panther.obj";
 std::ifstream infile(p);
 
-void save_lego_parts_geometry(/* geo_storage space_number, geo_type:?, line */){
 
-// variable list:
-
-	float metrix[12];	// 3*4 : xyz abc def ghi
-	vertex dot1;
-	vertex dot2;
-	vertex dot3;
-	triangle tri; // line, triangle, quad. They all been saved as a triangle formate. 
-
-// function list:
-	// convert
-
-	// save
-	if( geo_type == 2 ){ //to save a line
-
-		dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
-		dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
-
-		tri.v1 = dot1;
-		tri.v2 = dot2;
-		tri.v3 = dot2; // if it's a line, v2=v3.
-
-		//push_back
-	}
-
-	if( geo_type == 3 ){ //to save a triangle
-		
-		dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
-		dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
-		dot3.x = metrix[6];		dot3.y = metrix[7];		dot3.z = metrix[8]; // dot3 = x3y3z3
-		
-		tri.v1 = dot1;
-		tri.v2 = dot2;
-		tri.v3 = dot3;
-
-		//push_back
-	}
-	if( geo_type == 4 ){ //to save a quad.
-		
-		dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
-		dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
-		dot3.x = metrix[6];		dot3.y = metrix[7];		dot3.z = metrix[8]; // dot3 = x3y3z3
-		
-		tri.v1 = dot1;
-		tri.v2 = dot2;
-		tri.v3 = dot3;
-
-		//push_back
-
-		dot1.x = metrix[6];		dot1.y = metrix[7];		dot1.z = metrix[8]; // dot1 = x3y3z3
-		dot2.x = metrix[9];		dot2.y = metrix[10];	dot2.z = metrix[11];// dot2 = x4y4z4
-		dot3.x = metrix[0];		dot3.y = metrix[1];		dot3.z = metrix[2]; // dot3 = x1y1z1
-		
-		tri.v1 = dot1;
-		tri.v2 = dot2;
-		tri.v3 = dot3;
-
-		//push_back
-	}
-}
-
-void search_one_lego_part_and_read_it(/* part's_name, geo_storage_id:?? */char *part_name, ){
-// need 2 variable 
-// 1.part's_number or part's_name 2.save to "selected" part's_geo_storage in part list
+void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_name, geo_storage_id:?? */ ){
+	// need 2 variable 
+	// 1.part's_number or part's_name 2.save to "selected" part's_geo_storage in part list
 	 
 // variable list:
 
 	short geo_type = 0;	// 2:line, 3:triangle, 4:Quadrilateral
-	//char line[10];		// tmp for compile July 12 2017
-	part_v1 part;
+	part_v1 part;		// tmp 
+    
+    //int type,color, a,b,c, d,e,f, g,h,i, j,k,l;
+    int type, color;			// type is ldraw-types: 1, 2, 3, 4 and ldraw-color
+    //int metrix[12];				// a,b,c, d,e,f, g,h,i, j,k,l;
+    
+    char fninf[10];				// only used in type 1, to store the file name
+    char *test;					// only used in type 1, to store the file name
+    string line;				// to read file line by line, we use string
+
+    float metrix[12];	// 3*4 : xyz abc def ghi
+	vertex dot1;
+	vertex dot2;
+	vertex dot3;
+	triangle tri; // line, triangle, quad. They all been saved as a triangle formate.
+
 
 // function list:
-	ifstream inf(part_name);
-    char *test;
-    int type,color, a,b,c, d,e,f, g,h,i, j,k,l;
-    char fninf[10];
-    string line;
+	ifstream inf(part_name);	// read the file with ifstream and save to inf
 
 	if(!inf){
 		cerr<<"Error: can't read part."<<endl;
 		exit(1);
 	}
-	// read, sent, save
-	while(getline(inf, line)){
-		istringstream iss(line);
+	// read, save
+	while(getline(inf, line)){	// use getline to save each line from 'inf' to 'line', one at a time. 
+		istringstream iss(line);// istringstream helps 'line'(string) transform into 'iss'(stream). 
 		if (iss >> x >> color) {
 
 			if(type==1){
 				//command
+				iss >> >> >>
 				search_one_lego_part_and_read_it();//same geo_storage space as father
 			}
 			if(type==2){
 				//line
-				save_lego_parts_geometry(, 2,/* geo_storage_id, geo_type:2, line */);
+				iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5];
+
+				dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
+				dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
+
+				tri.v1 = dot1;
+				tri.v2 = dot2;
+				tri.v3 = dot2; // if it's a line, v2=v3.
+
+				//push_back
+				;
 			}
 			if(type==3){
 				//triangle
-				save_lego_parts_geometry(, 3,/* geo_storage_id, geo_type:3, line */);
+				iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
+					>> metrix[6] >> metrix[7] >> metrix[8];
+				
+				dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
+				dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
+				dot3.x = metrix[6];		dot3.y = metrix[7];		dot3.z = metrix[8]; // dot3 = x3y3z3
+		
+				tri.v1 = dot1;
+				tri.v2 = dot2;
+				tri.v3 = dot3;
+
+				//push_back
+				;
 			}
 			if(type==4){
 				//Quadrilateral
-				save_lego_parts_geometry(, 4,/* geo_storage_id, geo_type:4, line */);
+				iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
+					>> metrix[6] >> metrix[7] >> metrix[8] >> metrix[9] >> metrix[10] >> metrix[11];
+				
+				dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
+				dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
+				dot3.x = metrix[6];		dot3.y = metrix[7];		dot3.z = metrix[8]; // dot3 = x3y3z3
+		
+				tri.v1 = dot1;
+				tri.v2 = dot2;
+				tri.v3 = dot3;
+
+				//push_back
+				;
+
+				dot1.x = metrix[6];		dot1.y = metrix[7];		dot1.z = metrix[8]; // dot1 = x3y3z3
+				dot2.x = metrix[9];		dot2.y = metrix[10];	dot2.z = metrix[11];// dot2 = x4y4z4
+				dot3.x = metrix[0];		dot3.y = metrix[1];		dot3.z = metrix[2]; // dot3 = x1y1z1
+		
+				tri.v1 = dot1;
+				tri.v2 = dot2;
+				tri.v3 = dot3;
+
+				//push_back
+				;
 			}
 		}
 	}
+}
 
-
+void load_lego_parts_list( char *part_list ){ //load lego parts from the list
+	;
 }
 
 //Storage vectors list of ABCD.obj input
