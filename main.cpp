@@ -207,7 +207,7 @@ void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_nam
 				tri.v3 = dot2; // if it's a line, v2=v3.
 
 				//push_back
-				;
+				parts[vector_id].tpfp.push_back(tri);
 			}
 			if(type==3){
 				//triangle
@@ -223,7 +223,7 @@ void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_nam
 				tri.v3 = dot3;
 
 				//push_back
-				;
+				parts[vector_id].tpfp.push_back(tri);
 			}
 			if(type==4){
 				//Quadrilateral
@@ -239,7 +239,7 @@ void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_nam
 				tri.v3 = dot3;
 
 				//push_back
-				;
+				parts[vector_id].tpfp.push_back(tri);
 
 				dot1.x = metrix[6];		dot1.y = metrix[7];		dot1.z = metrix[8]; // dot1 = x3y3z3
 				dot2.x = metrix[9];		dot2.y = metrix[10];	dot2.z = metrix[11];// dot2 = x4y4z4
@@ -250,7 +250,7 @@ void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_nam
 				tri.v3 = dot3;
 
 				//push_back
-				;
+				parts[vector_id].tpfp.push_back(tri);
 			}
 		}
 	}
