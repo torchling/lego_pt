@@ -256,8 +256,38 @@ void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_nam
 	}
 }
 
+void searchfile(char *wanted_file){//
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir ("C:\\Users\\luke\\Desktop\\420\\p")) != NULL) {
+        // sear all the files and directories within directory
+        while ((ent = readdir (dir)) != NULL) {
+            
+            if(ent->d_name == wanted_file){
+                read_one_lego_part_and_save_it( wanted_file );
+            }
+        }
+        closedir (dir);
+    } else {
+        // could not open directory
+        perror ("");
+        return EXIT_FAILURE;
+    }
+}
+
 void load_lego_parts_list( char *part_list ){ //load lego parts from the list
-	;
+	
+	ifstream inf(part_list);	// read the file with ifstream and save to inf
+
+	if(!inf){
+		cerr<<"Error: can't read part."<<endl;
+		exit(1);
+	}
+	// read, save
+	while(getline(inf, line)){	// use getline to save each line from 'inf' to 'line', one at a time. 
+		istringstream iss(line);
+		searchfile(iss);
+	}
 }
 
 //Storage vectors list of ABCD.obj input
