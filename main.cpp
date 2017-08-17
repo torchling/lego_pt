@@ -78,12 +78,12 @@ struct part_v1 //This is part struct Ver.01 .
 
 	std::vector< vertex > connection_4_x ;
 	std::vector< vertex > connection_4_o ;
-*/	 
+*/
 
 	std::vector< vertex > vertexPool; // all vertices in this part (maybe, we don't need this)
-	std::vector< triangle > tpfp; // triangle pool for part 
+	std::vector< triangle > tpfp; // triangle pool for part
 
-	vertex[8] approximate_shape;//For now. It's still a box, designed for border detection. 
+	//vertex[8] approximate_shape;//For now. It's still a box, designed for border detection.
 
 };
 
@@ -91,10 +91,10 @@ struct part_v1 //This is part struct Ver.01 .
 // Vectors to store the ldraw lego geometry
 /*----------------------------------------------------------------*/
 // 01
-vector< vector<edge> > bricks ;		//just store shapes for drawing, not for matching. 
+vector< edge > bricks ;		//just store shapes for drawing, not for matching.
 
 // 02
-vector< vector<part_v1> > parts  ;	//For real math stuffs. Prepare for assembling possibility
+vector< part_v1 > parts  ;	//For real math stuffs. Prepare for assembling possibility
 /*----------------------------------------------------------------*/
 
 struct Button{
@@ -154,30 +154,55 @@ char* p = "suzanne.obj";
 std::ifstream infile(p);
 
 
-void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_name, geo_storage_id:?? */ ){
-	// need 2 variable 
-	// 1.part's_number or part's_name 2.save to "selected" part's_geo_storage in part list
-	 
+// 超該死，C++不能循環呼叫所以只好把 read_one_lego_part_and_save_it() 和 searchfile() 合在一起------------/
+
+// search_or_read() <-- read_one_lego_part_and_save_it() + searchfile()
+
+void search_or_read( char *part_name, bool SorR /*true:search false:read*/){
+//---- if start -------------------------------------
+	if(SorR){
+		DIR *dir;
+    	struct dirent *ent;
+    	if ((dir = opendir ("C:\\Users\\luke\\Desktop\\button_test\\p")) != NULL) {
+        	// sear all the files and directories within directory
+    	    while ((ent = readdir (dir)) != NULL) {
+
+   		        if(ent->d_name == part_name){
+                	search_or_read( part_name, false );
+            	}
+        	}
+        	closedir (dir);
+    	} else {
+        	// could not open directory
+        	perror ("");
+        	//return EXIT_FAILURE;
+    	}
+	}
+//---- if end -------------------------------------
+
+//---- else start -------------------------------------
+	else{
 // variable list:
 
 	short geo_type = 0;	// 2:line, 3:triangle, 4:Quadrilateral
-	part_v1 part;		// tmp 
-    
-    //int type,color, a,b,c, d,e,f, g,h,i, j,k,l;
-    int type, color;			// type is ldraw-types: 1, 2, 3, 4 and ldraw-color
-    //int metrix[12];				// a,b,c, d,e,f, g,h,i, j,k,l;
-    
-    char fninf[10];				// only used in type 1, to store the file name
-    char *test;					// only used in type 1, to store the file name
-    string line;				// to read file line by line, we use string
+	part_v1 part;		// tmp
 
-    float metrix[12];	// 3*4 : xyz abc def ghi
+    //int type,color, a,b,c, d,e,f, g,h,i, j,k,l;
+    int type, color;	// type is ldraw-types: 1, 2, 3, 4 and ldraw-color
+    //int metrix[12];	// a,b,c, d,e,f, g,h,i, j,k,l;
+
+    char fninf[20];		// only used in type 1, to store the file name
+    char *test;			// only used in type 1, to store the file name
+    string line;		// to read file line by line, we use string
+
+    float metrix[12];	// only used in type 1, to store the file name
+    					//3*4 : xyz abc def ghi
 	vertex dot1;
 	vertex dot2;
 	vertex dot3;
 	triangle tri; // line, triangle, quad. They all been saved as a triangle formate.
 
-	parttmp = new part_v1;
+    part_v1 parttmp;
 
 // function list:
 	ifstream inf(part_name);	// read the file with ifstream and save to inf
@@ -187,14 +212,16 @@ void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_nam
 		exit(1);
 	}
 	// read, save
-	while(getline(inf, line)){	// use getline to save each line from 'inf' to 'line', one at a time. 
-		istringstream iss(line);// istringstream helps 'line'(string) transform into 'iss'(stream). 
-		if (iss >> x >> color) {
+	while(getline(inf, line)){	// use getline to save each line from 'inf' to 'line', one at a time.
+		istringstream iss(line);// istringstream helps 'line'(string) transform into 'iss'(stream).
+		if (iss >> type >> color) {
 
 			if(type==1){
 				//command
-				iss >> >> >>
-				search_one_lego_part_and_read_it();//same geo_storage space as father
+				iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
+				    >> metrix[6] >> metrix[7] >> metrix[8] >> metrix[9] >> metrix[10]>> metrix[11]
+				    >> fninf;
+				search_or_read( fninf, true );//same geo_storage space as father
 			}
 			if(type==2){
 				//line
@@ -208,78 +235,62 @@ void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_nam
 				tri.v3 = dot2; // if it's a line, v2=v3.
 
 				//push_back
-				parttmp->tpfp.push_back(tri);
+				parttmp.tpfp.push_back(tri);
 			}
 			if(type==3){
 				//triangle
 				iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
 					>> metrix[6] >> metrix[7] >> metrix[8];
-				
+
 				dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
 				dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
 				dot3.x = metrix[6];		dot3.y = metrix[7];		dot3.z = metrix[8]; // dot3 = x3y3z3
-		
+
 				tri.v1 = dot1;
 				tri.v2 = dot2;
 				tri.v3 = dot3;
 
 				//push_back
-				parttmp->tpfp.push_back(tri);
+				parttmp.tpfp.push_back(tri);
 			}
 			if(type==4){
 				//Quadrilateral
 				iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
 					>> metrix[6] >> metrix[7] >> metrix[8] >> metrix[9] >> metrix[10] >> metrix[11];
-				
+
 				dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
 				dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
 				dot3.x = metrix[6];		dot3.y = metrix[7];		dot3.z = metrix[8]; // dot3 = x3y3z3
-		
+
 				tri.v1 = dot1;
 				tri.v2 = dot2;
 				tri.v3 = dot3;
 
 				//push_back
-				parttmp->tpfp.push_back(tri);
+				parttmp.tpfp.push_back(tri);
 
 				dot1.x = metrix[6];		dot1.y = metrix[7];		dot1.z = metrix[8]; // dot1 = x3y3z3
 				dot2.x = metrix[9];		dot2.y = metrix[10];	dot2.z = metrix[11];// dot2 = x4y4z4
 				dot3.x = metrix[0];		dot3.y = metrix[1];		dot3.z = metrix[2]; // dot3 = x1y1z1
-		
+
 				tri.v1 = dot1;
 				tri.v2 = dot2;
 				tri.v3 = dot3;
 
 				//push_back
-				parttmp->tpfp.push_back(tri);
+				parttmp.tpfp.push_back(tri);
 			}
 		}
+
+		parts.push_back(parttmp);
+
+		}
 	}
-
-	parts.push_back(partmp);
-}
-
-void searchfile(char *wanted_file){//
-    DIR *dir;
-    struct dirent *ent;
-    if ((dir = opendir ("C:\\Users\\luke\\Desktop\\button_test\\p")) != NULL) {
-        // sear all the files and directories within directory
-        while ((ent = readdir (dir)) != NULL) {
-            
-            if(ent->d_name == wanted_file){
-                read_one_lego_part_and_save_it( wanted_file );
-            }
-        }
-        closedir (dir);
-    } else {
-        // could not open directory
-        perror ("");
-        return EXIT_FAILURE;
-    }
+//---- else end -------------------------------------
 }
 
 void load_lego_parts_list( char *part_list ){ //load lego parts from the list
-	
+
 	ifstream inf(part_list);	// read the file with ifstream and save to inf
 
 	if(!inf){
@@ -287,9 +298,9 @@ void load_lego_parts_list( char *part_list ){ //load lego parts from the list
 		exit(1);
 	}
 	// read, save
-	while(getline(inf, line)){	// use getline to save each line from 'inf' to 'line', one at a time. 
+	while(getline(inf, line)){	// use getline to save each line from 'inf' to 'line', one at a time.
 		istringstream iss(line);
-		searchfile(iss);
+		search_or_read(iss, true);
 	}
 }
 
@@ -298,7 +309,7 @@ std::vector<vertex> obj_vPool;
 std::vector<face> obj_fPool;
 std::vector<triangle> obj_tPool;
 
-//Storage vector of Voxel 
+//Storage vector of Voxel
 std::vector<vertex> voxel_center_vPool;
 
 bool in_voxel(vertex test, vertex voxel_center, float radius){
@@ -311,7 +322,7 @@ bool in_voxel(vertex test, vertex voxel_center, float radius){
 	*/
 	if( abs(test.x - voxel_center.x)<=radius
 	 && abs(test.y - voxel_center.y)<=radius
-	 && abs(test.z - voxel_center.z)<=radius 
+	 && abs(test.z - voxel_center.z)<=radius
 	)return true;
 
 	return false;
@@ -668,11 +679,11 @@ void drawVoxel()
 }
 
 void drawPart(int p_number){
-	for(int i=0; i < parts[p_number]->tpfp.size() ; i++){
+	for(int i=0; i < parts[p_number].tpfp.size() ; i++){
 		glBegin(GL_LINE_LOOP);
-			glVertex3f( parts[p_number]->tpfp.v1.x, parts[p_number]->tpfp.v1.y, parts[p_number]->tpfp.v1.z);
-			glVertex3f( parts[p_number]->tpfp.v2.x, parts[p_number]->tpfp.v2.y, parts[p_number]->tpfp.v2.z);
-			glVertex3f( parts[p_number]->tpfp.v3.x, parts[p_number]->tpfp.v3.y, parts[p_number]->tpfp.v3.z);
+			glVertex3f( parts[p_number].tpfp[i].v1.x, parts[p_number].tpfp[i].v1.y, parts[p_number].tpfp[i].v1.z);
+			glVertex3f( parts[p_number].tpfp[i].v2.x, parts[p_number].tpfp[i].v2.y, parts[p_number].tpfp[i].v2.z);
+			glVertex3f( parts[p_number].tpfp[i].v3.x, parts[p_number].tpfp[i].v3.y, parts[p_number].tpfp[i].v3.z);
 		glEnd();
 	}
 }
@@ -752,13 +763,13 @@ void display(void)
     // drawPart
     glPushMatrix();
     	glRotatef(-16.0, 0.0, 1.0, 0.0);
-		glRotatef(0.0, 1.0, 0.0, 0.0);	
+		glRotatef(0.0, 1.0, 0.0, 0.0);
     	glTranslatef(1.2, 0.0, 0.0);
 
     	for(int i=0; i<parts.size(); i++){
     		drawPart(i);
     	}
-    glPopMatrix();		
+    glPopMatrix();
 
 	//glFlush();
 	glutSwapBuffers();
