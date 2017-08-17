@@ -291,6 +291,9 @@ void search_or_read( char *part_name, bool SorR /*true:search false:read*/){
 
 void load_lego_parts_list( char *part_list ){ //load lego parts from the list
 
+	string line;
+	char *name;
+
 	ifstream inf(part_list);	// read the file with ifstream and save to inf
 
 	if(!inf){
@@ -300,7 +303,8 @@ void load_lego_parts_list( char *part_list ){ //load lego parts from the list
 	// read, save
 	while(getline(inf, line)){	// use getline to save each line from 'inf' to 'line', one at a time.
 		istringstream iss(line);
-		search_or_read(iss, true);
+		iss >> name;
+		search_or_read(name, true);
 	}
 }
 
@@ -566,7 +570,7 @@ void init(void)
 
 	read_obj();
 
-	char* list = "rooster.txt";
+	char* list = "40234_Rooster_reduced";
 	load_lego_parts_list(list);
 }
 
