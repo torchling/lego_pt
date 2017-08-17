@@ -177,6 +177,7 @@ void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_nam
 	vertex dot3;
 	triangle tri; // line, triangle, quad. They all been saved as a triangle formate.
 
+	parttmp = new part_v1;
 
 // function list:
 	ifstream inf(part_name);	// read the file with ifstream and save to inf
@@ -207,7 +208,7 @@ void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_nam
 				tri.v3 = dot2; // if it's a line, v2=v3.
 
 				//push_back
-				parts[vector_id].tpfp.push_back(tri);
+				parttmp->tpfp.push_back(tri);
 			}
 			if(type==3){
 				//triangle
@@ -223,7 +224,7 @@ void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_nam
 				tri.v3 = dot3;
 
 				//push_back
-				parts[vector_id].tpfp.push_back(tri);
+				parttmp->tpfp.push_back(tri);
 			}
 			if(type==4){
 				//Quadrilateral
@@ -239,7 +240,7 @@ void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_nam
 				tri.v3 = dot3;
 
 				//push_back
-				parts[vector_id].tpfp.push_back(tri);
+				parttmp->tpfp.push_back(tri);
 
 				dot1.x = metrix[6];		dot1.y = metrix[7];		dot1.z = metrix[8]; // dot1 = x3y3z3
 				dot2.x = metrix[9];		dot2.y = metrix[10];	dot2.z = metrix[11];// dot2 = x4y4z4
@@ -250,16 +251,18 @@ void read_one_lego_part_and_save_it( char *part_name, int vector_id/* part's_nam
 				tri.v3 = dot3;
 
 				//push_back
-				parts[vector_id].tpfp.push_back(tri);
+				parttmp->tpfp.push_back(tri);
 			}
 		}
 	}
+
+	parts.push_back(partmp);
 }
 
 void searchfile(char *wanted_file){//
     DIR *dir;
     struct dirent *ent;
-    if ((dir = opendir ("C:\\Users\\luke\\Desktop\\420\\p")) != NULL) {
+    if ((dir = opendir ("C:\\Users\\luke\\Desktop\\button_test\\p")) != NULL) {
         // sear all the files and directories within directory
         while ((ent = readdir (dir)) != NULL) {
             
@@ -551,6 +554,9 @@ void init(void)
 	//cout<<pBtn2->m_fPosY<<"\n";
 
 	read_obj();
+
+	char* list = "rooster.txt";
+	load_lego_parts_list(list);
 }
 
 void CubeOrigin(void)
@@ -661,6 +667,16 @@ void drawVoxel()
 	}
 }
 
+void drawPart(int p_number){
+	for(int i=0; i < parts[p_number]->tpfp.size() ; i++){
+		glBegin(GL_LINE_LOOP);
+			glVertex3f( parts[p_number]->tpfp.v1.x, parts[p_number]->tpfp.v1.y, parts[p_number]->tpfp.v1.z);
+			glVertex3f( parts[p_number]->tpfp.v2.x, parts[p_number]->tpfp.v2.y, parts[p_number]->tpfp.v2.z);
+			glVertex3f( parts[p_number]->tpfp.v3.x, parts[p_number]->tpfp.v3.y, parts[p_number]->tpfp.v3.z);
+		glEnd();
+	}
+}
+
 void display(void)
 {
 	glClear (GL_COLOR_BUFFER_BIT);
@@ -733,6 +749,17 @@ void display(void)
     	drawObj_t();
     glPopMatrix();
 
+    // drawPart
+    glPushMatrix();
+    	glRotatef(-16.0, 0.0, 1.0, 0.0);
+		glRotatef(0.0, 1.0, 0.0, 0.0);	
+    	glTranslatef(1.2, 0.0, 0.0);
+
+    	for(int i=0; i<parts.size(); i++){
+    		drawPart(i);
+    	}
+    glPopMatrix();		
+
 	//glFlush();
 	glutSwapBuffers();
 }
@@ -793,7 +820,7 @@ int main(int argc, char** argv)
 	glutInitWindowSize (1000, 500);
 	glutInitWindowPosition (100, 100);
 	glutCreateWindow (argv[0]);
-	init ();
+	init();
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
