@@ -34,6 +34,9 @@ float g_fAngle = .0;
 float voxel_length = 0.2;
 float voxel_length_half = voxel_length*0.5;//
 
+float metrix_O[12] = {0};
+float metrix_V[12];
+
 struct vertex
 {
     GLfloat x;
@@ -158,23 +161,35 @@ std::ifstream infile(p);
 
 // search_or_read() <-- read_one_lego_part_and_save_it() + searchfile()
 
-void search_or_read( char *part_name, bool SorR /*true:search false:read*/){
+void search_or_read( char *part_name, bool SorR, /*true:search false:read*/){
 //---- if start -------------------------------------
-	if(SorR){
+	if(SorR==true){
+		cout<<"We are searching in the folder"<<endl;
+
 		DIR *dir;
     	struct dirent *ent;
-    	if ((dir = opendir ("C:\\Users\\luke\\Desktop\\button_test\\p")) != NULL) {
+    	if ((dir = opendir ("C:\\Users\\user\\Desktop\\button_test\\parts")) != NULL) {//C:\Users\luke\Desktop\button_test
         	// sear all the files and directories within directory
+        	bool done=false;
+        	if(done==false){
+        		done=true;
+        		cout<<"We are working on those parts. Please wait..."<<endl;
+    	    }
     	    while ((ent = readdir (dir)) != NULL) {
+    	    	string name;
+    	    	string d_name;
 
+    	    	cout<<"Trying to read those parts."<<endl;
    		        if(ent->d_name == part_name){
+   		        	cout<<"Now we have parts names."<<endl;
                 	search_or_read( part_name, false );
             	}
         	}
         	closedir (dir);
     	} else {
         	// could not open directory
-        	perror ("");
+        	cerr<<"Can't search the part"<<endl;
+        	exit(1);
         	//return EXIT_FAILURE;
     	}
 	}
@@ -183,7 +198,7 @@ void search_or_read( char *part_name, bool SorR /*true:search false:read*/){
 //---- else start -------------------------------------
 	else{
 // variable list:
-
+		cout<<"We are trying to read the part file."<<endl;
 	short geo_type = 0;	// 2:line, 3:triangle, 4:Quadrilateral
 	part_v1 part;		// tmp
 
@@ -208,7 +223,7 @@ void search_or_read( char *part_name, bool SorR /*true:search false:read*/){
 	ifstream inf(part_name);	// read the file with ifstream and save to inf
 
 	if(!inf){
-		cerr<<"Error: can't read part."<<endl;
+		cerr<<"Error: can't read part. 02"<<endl;
 		exit(1);
 	}
 	// read, save
@@ -292,16 +307,20 @@ void search_or_read( char *part_name, bool SorR /*true:search false:read*/){
 void load_lego_parts_list( char *part_list ){ //load lego parts from the list
 
 	string line;
-	char *name;
+	char name[15];
 
 	ifstream inf(part_list);	// read the file with ifstream and save to inf
 
 	if(!inf){
-		cerr<<"Error: can't read part."<<endl;
+		cerr<<"Error: can't read part. 01"<<endl;
 		exit(1);
+	}
+	else{
+		cout<<"We got the list."<<endl;
 	}
 	// read, save
 	while(getline(inf, line)){	// use getline to save each line from 'inf' to 'line', one at a time.
+		cout<<"We are on the list."<<endl;
 		istringstream iss(line);
 		iss >> name;
 		search_or_read(name, true);
@@ -569,9 +588,12 @@ void init(void)
 	//cout<<pBtn2->m_fPosY<<"\n";
 
 	read_obj();
-
-	char* list = "40234_Rooster_reduced";
+/*
+	char* list = "40234_Rooster_reduced.txt";
 	load_lego_parts_list(list);
+*/
+	char* partt = "3005.dat";
+	search_or_read(partt, true);
 }
 
 void CubeOrigin(void)
