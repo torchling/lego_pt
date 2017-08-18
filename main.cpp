@@ -34,8 +34,8 @@ float g_fAngle = .0;
 float voxel_length = 0.2;
 float voxel_length_half = voxel_length*0.5;//
 
-float metrix_O[12] = {0};
-float metrix_V[12];
+float metrix_O[12] = { 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+//float metrix_V[12];
 
 struct vertex
 {
@@ -161,14 +161,14 @@ std::ifstream infile(p);
 
 // search_or_read() <-- read_one_lego_part_and_save_it() + searchfile()
 
-void search_or_read( char *part_name, bool SorR, /*true:search false:read*/){
+void search_or_read( char *part_name, bool SorR, float metrix_pre[12] /*true:search false:read*/){
 //---- if start -------------------------------------
 	if(SorR==true){
 		cout<<"We are searching in the folder"<<endl;
 
 		DIR *dir;
     	struct dirent *ent;
-    	if ((dir = opendir ("C:\\Users\\user\\Desktop\\button_test\\parts")) != NULL) {//C:\Users\luke\Desktop\button_test
+    	if ((dir = opendir ("C:\\Users\\luke\\Desktop\\button_test\\parts")) != NULL) {//C:\Users\luke\Desktop\button_test
         	// sear all the files and directories within directory
         	bool done=false;
         	if(done==false){
@@ -204,13 +204,13 @@ void search_or_read( char *part_name, bool SorR, /*true:search false:read*/){
 
     //int type,color, a,b,c, d,e,f, g,h,i, j,k,l;
     int type, color;	// type is ldraw-types: 1, 2, 3, 4 and ldraw-color
-    //int metrix[12];	// a,b,c, d,e,f, g,h,i, j,k,l;
+    int metrix[12] = { 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 };	// a,b,c, d,e,f, g,h,i, j,k,l;
 
     char fninf[20];		// only used in type 1, to store the file name
     char *test;			// only used in type 1, to store the file name
     string line;		// to read file line by line, we use string
 
-    float metrix[12];	// only used in type 1, to store the file name
+    //float metrix[12];	// only used in type 1, to store the file name
     					//3*4 : xyz abc def ghi
 	vertex dot1;
 	vertex dot2;
@@ -592,8 +592,8 @@ void init(void)
 	char* list = "40234_Rooster_reduced.txt";
 	load_lego_parts_list(list);
 */
-	char* partt = "3005.dat";
-	search_or_read(partt, true);
+	//char* partt = "3005.dat";
+	//search_or_read(partt, true);
 }
 
 void CubeOrigin(void)
