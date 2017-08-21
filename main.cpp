@@ -34,8 +34,8 @@ float g_fAngle = .0;
 float voxel_length = 0.2;
 float voxel_length_half = voxel_length*0.5;//
 
-float metrix_O[12] = { 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-//float metrix_V[12];
+float metrix_O[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
+float metrix_V[12];
 
 struct vertex
 {
@@ -160,15 +160,47 @@ std::ifstream infile(p);
 // 超該死，C++不能循環呼叫所以只好把 read_one_lego_part_and_save_it() 和 searchfile() 合在一起------------/
 
 // search_or_read() <-- read_one_lego_part_and_save_it() + searchfile()
+void search_or_read_in_s( char *part_name, float array_O[12] ){
 
-void search_or_read( char *part_name, bool SorR, float metrix_pre[12] /*true:search false:read*/){
+		DIR *dir;
+    	struct dirent *ent;
+    	if ((dir = opendir ("C:\\Users\\user\\Desktop\\button_test\\parts\\s")) != NULL) {//C:\Users\luke\Desktop\button_test
+        	// sear all the files and directories within directory
+        	bool done=false;
+        	if(done==false){
+        		done=true;
+        		cout<<"We are working on those parts in s. Please wait..."<<endl;
+    	    }
+    	    while ((ent = readdir (dir)) != NULL) {
+    	    	string name;
+    	    	string d_name;
+
+    	    	cout<<"Trying to read those parts. s."<<endl;
+   		        if(ent->d_name == part_name){
+   		        	cout<<"Now we have parts names. s."<<endl;
+                	
+                	search_or_read( part_name, true, array_O );//??
+                	//or
+                	search_or_read_in_s( part_name, array_O );//??
+            	}
+        	}
+        	closedir (dir);
+    	} else {
+        	// could not open directory
+        	cerr<<"Can't search the part s."<<endl;
+        	exit(1);
+        	//return EXIT_FAILURE;
+    	}
+}
+
+void search_or_read( char *part_name, bool SorR, float array_O[12]/*true:search false:read*/){
 //---- if start -------------------------------------
 	if(SorR==true){
 		cout<<"We are searching in the folder"<<endl;
 
 		DIR *dir;
     	struct dirent *ent;
-    	if ((dir = opendir ("C:\\Users\\luke\\Desktop\\button_test\\parts")) != NULL) {//C:\Users\luke\Desktop\button_test
+    	if ((dir = opendir ("C:\\Users\\user\\Desktop\\button_test\\parts")) != NULL) {//C:\Users\luke\Desktop\button_test
         	// sear all the files and directories within directory
         	bool done=false;
         	if(done==false){
@@ -204,13 +236,13 @@ void search_or_read( char *part_name, bool SorR, float metrix_pre[12] /*true:sea
 
     //int type,color, a,b,c, d,e,f, g,h,i, j,k,l;
     int type, color;	// type is ldraw-types: 1, 2, 3, 4 and ldraw-color
-    int metrix[12] = { 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 };	// a,b,c, d,e,f, g,h,i, j,k,l;
+    //int metrix[12];	// a,b,c, d,e,f, g,h,i, j,k,l;
 
     char fninf[20];		// only used in type 1, to store the file name
     char *test;			// only used in type 1, to store the file name
     string line;		// to read file line by line, we use string
 
-    //float metrix[12];	// only used in type 1, to store the file name
+    float metrix[12];	// only used in type 1, to store the file name
     					//3*4 : xyz abc def ghi
 	vertex dot1;
 	vertex dot2;
@@ -236,7 +268,20 @@ void search_or_read( char *part_name, bool SorR, float metrix_pre[12] /*true:sea
 				iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
 				    >> metrix[6] >> metrix[7] >> metrix[8] >> metrix[9] >> metrix[10]>> metrix[11]
 				    >> fninf;
-				search_or_read( fninf, true );//same geo_storage space as father
+				metrix_V[3] = array_O[3]*metrix[3] + array_O[4]*metrix[6] + array_O[5]*metrix[9];
+				metrix_V[4] = array_O[3]*metrix[4] + array_O[4]*metrix[7] + array_O[5]*metrix[10];
+				metrix_V[5] = array_O[3]*metrix[5] + array_O[4]*metrix[8] + array_O[5]*metrix[11];
+				metrix_V[0] = array_O[3]*metrix[0] + array_O[4]*metrix[1] + array_O[5]*metrix[2];
+				metrix_V[6] = array_O[6]*metrix[3] + array_O[7]*metrix[6] + array_O[8]*metrix[9];
+				metrix_V[7] = array_O[6]*metrix[4] + array_O[7]*metrix[7] + array_O[8]*metrix[10];
+				metrix_V[8] = array_O[6]*metrix[5] + array_O[7]*metrix[8] + array_O[8]*metrix[11];
+				metrix_V[1] = array_O[6]*metrix[0] + array_O[7]*metrix[1] + array_O[8]*metrix[2];
+				metrix_V[9]  = array_O[9]*metrix[3] + array_O[10]*metrix[6] + array_O[11]*metrix[9];
+				metrix_V[10] = array_O[9]*metrix[4] + array_O[10]*metrix[7] + array_O[11]*metrix[10];
+				metrix_V[11] = array_O[9]*metrix[5] + array_O[10]*metrix[8] + array_O[11]*metrix[11];
+				metrix_V[2]  = array_O[9]*metrix[0] + array_O[10]*metrix[1] + array_O[11]*metrix[2];
+
+				search_or_read( fninf, true, metrix_V );//same geo_storage space as father
 			}
 			if(type==2){
 				//line
@@ -592,8 +637,8 @@ void init(void)
 	char* list = "40234_Rooster_reduced.txt";
 	load_lego_parts_list(list);
 */
-	//char* partt = "3005.dat";
-	//search_or_read(partt, true);
+	char* partt = "3005.dat";
+	search_or_read(partt, true, );
 }
 
 void CubeOrigin(void)
