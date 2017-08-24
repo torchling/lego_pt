@@ -37,7 +37,7 @@ float voxel_length_half = voxel_length*0.5;//
 float metrix_O[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
 float metrix_V[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
 
-float rate = 0.03;
+float rate = 0.15;
 
 struct vertex
 {
@@ -100,6 +100,8 @@ vector< edge > bricks ;		//just store shapes for drawing, not for matching.
 
 // 02
 vector< part_v1 > parts  ;	//For real math stuffs. Prepare for assembling possibility
+
+vector< triangle > trianglePool  ;
 /*----------------------------------------------------------------*/
 
 struct Button{
@@ -170,7 +172,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
 		DIR *dir;
     	struct dirent *ent;
-    	if ((dir = opendir ("C:\\Users\\luke\\Desktop\\button_test\\parts")) != NULL) {
+    	if ((dir = opendir ("C:\\Users\\user\\Desktop\\button_test\\parts")) != NULL) {
     		//C:\Users\luke\Desktop\button_test
     		//C:\Users\user\Desktop\button_test
         	// sear all the files and directories within directory
@@ -190,7 +192,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
         	//return EXIT_FAILURE;
     	}
 
-    	if ((dir = opendir ("C:\\Users\\luke\\Desktop\\button_test\\parts\\s")) != NULL) {
+    	if ((dir = opendir ("C:\\Users\\user\\Desktop\\button_test\\parts\\s")) != NULL) {
     		//C:\Users\luke\Desktop\button_test
     		//C:\Users\user\Desktop\button_test
         	// search all the files and directories within directory
@@ -224,7 +226,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 	cout << endl;
 
 	short geo_type = 0;	// 2:line, 3:triangle, 4:Quadrilateral
-	part_v1 part;		// tmp
+	//part_v1 part;		// tmp
 
     //int type,color, a,b,c, d,e,f, g,h,i, j,k,l;
     int type, color;	// type is ldraw-types: 1, 2, 3, 4 and ldraw-color
@@ -271,20 +273,22 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 				iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
 				    >> metrix[6] >> metrix[7] >> metrix[8] >> metrix[9] >> metrix[10]>> metrix[11]
 				    >> fninf;
-/*
+
 				metrix_V[3] = array_O[3]*metrix[3] + array_O[4]*metrix[6] + array_O[5]*metrix[9];
 				metrix_V[4] = array_O[3]*metrix[4] + array_O[4]*metrix[7] + array_O[5]*metrix[10];
 				metrix_V[5] = array_O[3]*metrix[5] + array_O[4]*metrix[8] + array_O[5]*metrix[11];
-				metrix_V[0] = array_O[3]*metrix[0] + array_O[4]*metrix[1] + array_O[5]*metrix[2];
+				metrix_V[0] = array_O[3]*metrix[0] + array_O[4]*metrix[1] + array_O[5]*metrix[2] + array_O[0];
 				metrix_V[6] = array_O[6]*metrix[3] + array_O[7]*metrix[6] + array_O[8]*metrix[9];
 				metrix_V[7] = array_O[6]*metrix[4] + array_O[7]*metrix[7] + array_O[8]*metrix[10];
 				metrix_V[8] = array_O[6]*metrix[5] + array_O[7]*metrix[8] + array_O[8]*metrix[11];
-				metrix_V[1] = array_O[6]*metrix[0] + array_O[7]*metrix[1] + array_O[8]*metrix[2];
+				metrix_V[1] = array_O[6]*metrix[0] + array_O[7]*metrix[1] + array_O[8]*metrix[2] + array_O[1];
 				metrix_V[9]  = array_O[9]*metrix[3] + array_O[10]*metrix[6] + array_O[11]*metrix[9];
 				metrix_V[10] = array_O[9]*metrix[4] + array_O[10]*metrix[7] + array_O[11]*metrix[10];
 				metrix_V[11] = array_O[9]*metrix[5] + array_O[10]*metrix[8] + array_O[11]*metrix[11];
-				metrix_V[2]  = array_O[9]*metrix[0] + array_O[10]*metrix[1] + array_O[11]*metrix[2];
-*/
+				metrix_V[2]  = array_O[9]*metrix[0] + array_O[10]*metrix[1] + array_O[11]*metrix[2] + array_O[2];
+
+				for(int i=0; i<12 ; i++){ metrix[i] = metrix_V[i]; }
+
 				cout << metrix_V[3] <<' '<< metrix_V[4] <<' '<< metrix_V[5] <<' '<< metrix_V[0] << endl;
 				cout << metrix_V[6] <<' '<< metrix_V[7] <<' '<< metrix_V[8] <<' '<< metrix_V[1] << endl;
 				cout << metrix_V[9] <<' '<< metrix_V[10] <<' '<< metrix_V[11] <<' '<< metrix_V[2] << endl;
@@ -324,6 +328,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
 				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 				//push_back
+				//trianglePool.push_back(tri);
 				parttmp.tpfp.push_back(tri);
 				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
 				//metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
@@ -367,6 +372,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
 				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 				//push_back
+				//trianglePool.push_back(tri);
 				parttmp.tpfp.push_back(tri);
 				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
 				//metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
@@ -419,6 +425,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 
 				//push_back
+				//trianglePool.push_back(tri);
 				parttmp.tpfp.push_back(tri);
 
 				dot1.x = metrix[6];		dot1.y = metrix[7];		dot1.z = metrix[8]; // dot1 = x3y3z3
@@ -432,6 +439,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 
 				//push_back
+				//trianglePool.push_back(tri);
 				parttmp.tpfp.push_back(tri);
 				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
 				//metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
@@ -737,7 +745,7 @@ void init(void)
 	for(int i=0; i<12; i++){
 		metrix_O[i] = metrix_O[i]*rate;
 	}
-	string partt = "3070b.dat";//"3005.dat";3024 3070b
+	string partt = "11477.dat";//"3005.dat";3024 3070b
 	search_or_read(partt, false, metrix_O);
 }
 
