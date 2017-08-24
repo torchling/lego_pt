@@ -35,7 +35,9 @@ float voxel_length = 0.2;
 float voxel_length_half = voxel_length*0.5;//
 
 float metrix_O[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
-float metrix_V[12];
+float metrix_V[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
+
+float rate = 0.03;
 
 struct vertex
 {
@@ -160,67 +162,54 @@ std::ifstream infile(p);
 // 超該死，C++不能循環呼叫所以只好把 read_one_lego_part_and_save_it() 和 searchfile() 合在一起------------/
 
 // search_or_read() <-- read_one_lego_part_and_save_it() + searchfile()
-void search_or_read_in_s( char *part_name, float array_O[12] ){
+
+void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /*true:search false:read*/){
+//---- if start -------------------------------------
+	if(SorR==true){
+
 
 		DIR *dir;
     	struct dirent *ent;
-    	if ((dir = opendir ("C:\\Users\\user\\Desktop\\button_test\\parts\\s")) != NULL) {//C:\Users\luke\Desktop\button_test
+    	if ((dir = opendir ("C:\\Users\\luke\\Desktop\\button_test\\parts")) != NULL) {
+    		//C:\Users\luke\Desktop\button_test
+    		//C:\Users\user\Desktop\button_test
         	// sear all the files and directories within directory
-        	bool done=false;
-        	if(done==false){
-        		done=true;
-        		cout<<"We are working on those parts in s. Please wait..."<<endl;
-    	    }
+
     	    while ((ent = readdir (dir)) != NULL) {
-    	    	string name;
     	    	string d_name;
 
-    	    	cout<<"Trying to read those parts. s."<<endl;
-   		        if(ent->d_name == part_name){
-   		        	cout<<"Now we have parts names. s."<<endl;
-                	
-                	search_or_read( part_name, true, array_O );//??
-                	//or
-                	search_or_read_in_s( part_name, array_O );//??
+    	    	if(ent->d_name == part_name){
+   		        	search_or_read( part_name, false, array_O );
             	}
         	}
         	closedir (dir);
     	} else {
         	// could not open directory
-        	cerr<<"Can't search the part s."<<endl;
+        	cerr<<"Can't search the part in \\parts"<<endl;
         	exit(1);
         	//return EXIT_FAILURE;
     	}
-}
 
-void search_or_read( char *part_name, bool SorR, float array_O[12]/*true:search false:read*/){
-//---- if start -------------------------------------
-	if(SorR==true){
-		cout<<"We are searching in the folder"<<endl;
+    	if ((dir = opendir ("C:\\Users\\luke\\Desktop\\button_test\\parts\\s")) != NULL) {
+    		//C:\Users\luke\Desktop\button_test
+    		//C:\Users\user\Desktop\button_test
+        	// search all the files and directories within directory
 
-		DIR *dir;
-    	struct dirent *ent;
-    	if ((dir = opendir ("C:\\Users\\user\\Desktop\\button_test\\parts")) != NULL) {//C:\Users\luke\Desktop\button_test
-        	// sear all the files and directories within directory
-        	bool done=false;
-        	if(done==false){
-        		done=true;
-        		cout<<"We are working on those parts. Please wait..."<<endl;
-    	    }
     	    while ((ent = readdir (dir)) != NULL) {
-    	    	string name;
-    	    	string d_name;
+    	    	string d_name;      // ent->d_name: 3005.dat
+                string ss="s\\";      // ss: s
+                string sdname = ss + ent->d_name; // s3005.dat
 
-    	    	cout<<"Trying to read those parts."<<endl;
-   		        if(ent->d_name == part_name){
-   		        	cout<<"Now we have parts names."<<endl;
-                	search_or_read( part_name, false );
-            	}
+                if(sdname == part_name){// part_name: s\3005.dat (backslash was escaped.)
+
+                    //cout<<"Found "<< ent->d_name <<" in \\parts\\s"<<endl;
+                    search_or_read( ent->d_name, false, array_O );
+                }
         	}
         	closedir (dir);
     	} else {
         	// could not open directory
-        	cerr<<"Can't search the part"<<endl;
+        	cerr<<"Can't search the part in \\parts\\s"<<endl;
         	exit(1);
         	//return EXIT_FAILURE;
     	}
@@ -230,7 +219,10 @@ void search_or_read( char *part_name, bool SorR, float array_O[12]/*true:search 
 //---- else start -------------------------------------
 	else{
 // variable list:
-		cout<<"We are trying to read the part file."<<endl;
+		//cout<<"We are trying to read the part file."<<endl;
+	cout << part_name << endl;
+	cout << endl;
+
 	short geo_type = 0;	// 2:line, 3:triangle, 4:Quadrilateral
 	part_v1 part;		// tmp
 
@@ -238,8 +230,9 @@ void search_or_read( char *part_name, bool SorR, float array_O[12]/*true:search 
     int type, color;	// type is ldraw-types: 1, 2, 3, 4 and ldraw-color
     //int metrix[12];	// a,b,c, d,e,f, g,h,i, j,k,l;
 
-    char fninf[20];		// only used in type 1, to store the file name
-    char *test;			// only used in type 1, to store the file name
+    string fninf;
+    //char fninf[20];		// only used in type 1, to store the file name
+    //char *test;			// only used in type 1, to store the file name
     string line;		// to read file line by line, we use string
 
     float metrix[12];	// only used in type 1, to store the file name
@@ -252,14 +245,24 @@ void search_or_read( char *part_name, bool SorR, float array_O[12]/*true:search 
     part_v1 parttmp;
 
 // function list:
-	ifstream inf(part_name);	// read the file with ifstream and save to inf
+    string path      = "parts\\";
+    string pathToS   = "parts\\s\\";
+    string pathName  = path + part_name;
+    string pathsName = pathToS + part_name;
+    char *dat_name = new char[ pathName.length() + 1 ];
+    strcpy(dat_name, pathName.c_str());
+    char *s_dat_name = new char[ pathsName.length() + 1 ];
+    strcpy(s_dat_name, pathsName.c_str());
 
-	if(!inf){
+	ifstream inf(dat_name);	// read the file with ifstream and save to inf
+	ifstream infs(s_dat_name);	// read the file with ifstream and save to inf
+
+	if( !inf && !infs ){
 		cerr<<"Error: can't read part. 02"<<endl;
 		exit(1);
 	}
 	// read, save
-	while(getline(inf, line)){	// use getline to save each line from 'inf' to 'line', one at a time.
+	while( getline(inf, line)||getline(infs, line) ){	// use getline to save each line from 'inf' to 'line', one at a time.
 		istringstream iss(line);// istringstream helps 'line'(string) transform into 'iss'(stream).
 		if (iss >> type >> color) {
 
@@ -268,6 +271,7 @@ void search_or_read( char *part_name, bool SorR, float array_O[12]/*true:search 
 				iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
 				    >> metrix[6] >> metrix[7] >> metrix[8] >> metrix[9] >> metrix[10]>> metrix[11]
 				    >> fninf;
+/*
 				metrix_V[3] = array_O[3]*metrix[3] + array_O[4]*metrix[6] + array_O[5]*metrix[9];
 				metrix_V[4] = array_O[3]*metrix[4] + array_O[4]*metrix[7] + array_O[5]*metrix[10];
 				metrix_V[5] = array_O[3]*metrix[5] + array_O[4]*metrix[8] + array_O[5]*metrix[11];
@@ -280,12 +284,36 @@ void search_or_read( char *part_name, bool SorR, float array_O[12]/*true:search 
 				metrix_V[10] = array_O[9]*metrix[4] + array_O[10]*metrix[7] + array_O[11]*metrix[10];
 				metrix_V[11] = array_O[9]*metrix[5] + array_O[10]*metrix[8] + array_O[11]*metrix[11];
 				metrix_V[2]  = array_O[9]*metrix[0] + array_O[10]*metrix[1] + array_O[11]*metrix[2];
+*/
+				cout << metrix_V[3] <<' '<< metrix_V[4] <<' '<< metrix_V[5] <<' '<< metrix_V[0] << endl;
+				cout << metrix_V[6] <<' '<< metrix_V[7] <<' '<< metrix_V[8] <<' '<< metrix_V[1] << endl;
+				cout << metrix_V[9] <<' '<< metrix_V[10] <<' '<< metrix_V[11] <<' '<< metrix_V[2] << endl;
+				cout << endl;
 
-				search_or_read( fninf, true, metrix_V );//same geo_storage space as father
+				search_or_read( fninf, true, metrix );//same geo_storage space as father
+				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
+				//metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
 			}
 			if(type==2){
 				//line
 				iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5];
+
+				metrix_V[0] = array_O[3]*metrix[0] + array_O[4]*metrix[1] + array_O[5]*metrix[2] + array_O[0];
+				metrix_V[1] = array_O[6]*metrix[0] + array_O[7]*metrix[1] + array_O[8]*metrix[2] + array_O[1];
+				metrix_V[2] = array_O[9]*metrix[0] + array_O[10]*metrix[1] + array_O[11]*metrix[2] + array_O[2];
+
+				metrix[0] = metrix_V[0]*rate;
+				metrix[1] = metrix_V[1]*rate;
+				metrix[2] = metrix_V[2]*rate;
+
+
+				metrix_V[0] = array_O[3]*metrix[3] + array_O[4]*metrix[4] + array_O[5]*metrix[5] + array_O[0];
+				metrix_V[1] = array_O[6]*metrix[3] + array_O[7]*metrix[4] + array_O[8]*metrix[5] + array_O[1];
+				metrix_V[2] = array_O[9]*metrix[3] + array_O[10]*metrix[4] + array_O[11]*metrix[5] + array_O[2];
+
+				metrix[3] = metrix_V[0]*rate;
+				metrix[4] = metrix_V[1]*rate;
+				metrix[5] = metrix_V[2]*rate;
 
 				dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
 				dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
@@ -294,14 +322,41 @@ void search_or_read( char *part_name, bool SorR, float array_O[12]/*true:search 
 				tri.v2 = dot2;
 				tri.v3 = dot2; // if it's a line, v2=v3.
 
+				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 				//push_back
 				parttmp.tpfp.push_back(tri);
+				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
+				//metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
 			}
 			if(type==3){
 				//triangle
 				iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
 					>> metrix[6] >> metrix[7] >> metrix[8];
 
+				metrix_V[0] = array_O[3]*metrix[0] + array_O[4]*metrix[1] + array_O[5]*metrix[2] + array_O[0];
+				metrix_V[1] = array_O[6]*metrix[0] + array_O[7]*metrix[1] + array_O[8]*metrix[2] + array_O[1];
+				metrix_V[2] = array_O[9]*metrix[0] + array_O[10]*metrix[1] + array_O[11]*metrix[2] + array_O[2];
+
+				metrix[0] = metrix_V[0]*rate;
+				metrix[1] = metrix_V[1]*rate;
+				metrix[2] = metrix_V[2]*rate;
+
+				metrix_V[0] = array_O[3]*metrix[3] + array_O[4]*metrix[4] + array_O[5]*metrix[5] + array_O[0];
+				metrix_V[1] = array_O[6]*metrix[3] + array_O[7]*metrix[4] + array_O[8]*metrix[5] + array_O[1];
+				metrix_V[2] = array_O[9]*metrix[3] + array_O[10]*metrix[4] + array_O[11]*metrix[5] + array_O[2];
+
+				metrix[3] = metrix_V[0]*rate;
+				metrix[4] = metrix_V[1]*rate;
+				metrix[5] = metrix_V[2]*rate;
+
+				metrix_V[0] = array_O[3]*metrix[6] + array_O[4]*metrix[7] + array_O[5]*metrix[8] + array_O[0];
+				metrix_V[1] = array_O[6]*metrix[6] + array_O[7]*metrix[7] + array_O[8]*metrix[8] + array_O[1];
+				metrix_V[2] = array_O[9]*metrix[6] + array_O[10]*metrix[7] + array_O[11]*metrix[8] + array_O[2];
+
+				metrix[6] = metrix_V[0]*rate;
+				metrix[7] = metrix_V[1]*rate;
+				metrix[8] = metrix_V[2]*rate;
+
 				dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
 				dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
 				dot3.x = metrix[6];		dot3.y = metrix[7];		dot3.z = metrix[8]; // dot3 = x3y3z3
@@ -310,14 +365,49 @@ void search_or_read( char *part_name, bool SorR, float array_O[12]/*true:search 
 				tri.v2 = dot2;
 				tri.v3 = dot3;
 
+				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 				//push_back
 				parttmp.tpfp.push_back(tri);
+				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
+				//metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
 			}
 			if(type==4){
 				//Quadrilateral
 				iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
 					>> metrix[6] >> metrix[7] >> metrix[8] >> metrix[9] >> metrix[10] >> metrix[11];
 
+				metrix_V[0] = array_O[3]*metrix[0] + array_O[4]*metrix[1] + array_O[5]*metrix[2] + array_O[0];
+				metrix_V[1] = array_O[6]*metrix[0] + array_O[7]*metrix[1] + array_O[8]*metrix[2] + array_O[1];
+				metrix_V[2] = array_O[9]*metrix[0] + array_O[10]*metrix[1] + array_O[11]*metrix[2] + array_O[2];
+
+				metrix[0] = metrix_V[0]*rate;
+				metrix[1] = metrix_V[1]*rate;
+				metrix[2] = metrix_V[2]*rate;
+
+				metrix_V[0] = array_O[3]*metrix[3] + array_O[4]*metrix[4] + array_O[5]*metrix[5] + array_O[0];
+				metrix_V[1] = array_O[6]*metrix[3] + array_O[7]*metrix[4] + array_O[8]*metrix[5] + array_O[1];
+				metrix_V[2] = array_O[9]*metrix[3] + array_O[10]*metrix[4] + array_O[11]*metrix[5] + array_O[2];
+
+				metrix[3] = metrix_V[0]*rate;
+				metrix[4] = metrix_V[1]*rate;
+				metrix[5] = metrix_V[2]*rate;
+
+				metrix_V[0] = array_O[3]*metrix[6] + array_O[4]*metrix[7] + array_O[5]*metrix[8] + array_O[0];
+				metrix_V[1] = array_O[6]*metrix[6] + array_O[7]*metrix[7] + array_O[8]*metrix[8] + array_O[1];
+				metrix_V[2] = array_O[9]*metrix[6] + array_O[10]*metrix[7] + array_O[11]*metrix[8] + array_O[2];
+
+				metrix[6] = metrix_V[0]*rate;
+				metrix[7] = metrix_V[1]*rate;
+				metrix[8] = metrix_V[2]*rate;
+
+				metrix_V[0] = array_O[3]*metrix[9] + array_O[4]*metrix[10] + array_O[5]*metrix[11] + array_O[0];
+				metrix_V[1] = array_O[6]*metrix[9] + array_O[7]*metrix[10] + array_O[8]*metrix[11] + array_O[1];
+				metrix_V[2] = array_O[9]*metrix[9] + array_O[10]*metrix[10] + array_O[11]*metrix[11] + array_O[2];
+
+				metrix[9] = metrix_V[0]*rate;
+				metrix[10] = metrix_V[1]*rate;
+				metrix[11] = metrix_V[2]*rate;
+
 				dot1.x = metrix[0];		dot1.y = metrix[1];		dot1.z = metrix[2]; // dot1 = x1y1z1
 				dot2.x = metrix[3];		dot2.y = metrix[4];		dot2.z = metrix[5]; // dot2 = x2y2z2
 				dot3.x = metrix[6];		dot3.y = metrix[7];		dot3.z = metrix[8]; // dot3 = x3y3z3
@@ -325,6 +415,8 @@ void search_or_read( char *part_name, bool SorR, float array_O[12]/*true:search 
 				tri.v1 = dot1;
 				tri.v2 = dot2;
 				tri.v3 = dot3;
+
+				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 
 				//push_back
 				parttmp.tpfp.push_back(tri);
@@ -337,14 +429,19 @@ void search_or_read( char *part_name, bool SorR, float array_O[12]/*true:search 
 				tri.v2 = dot2;
 				tri.v3 = dot3;
 
+				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
+
 				//push_back
 				parttmp.tpfp.push_back(tri);
+				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
+				//metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
+
 			}
+			//cout<<type<<endl;
 		}
 
+		}
 		parts.push_back(parttmp);
-
-		}
 	}
 //---- else end -------------------------------------
 }
@@ -352,12 +449,12 @@ void search_or_read( char *part_name, bool SorR, float array_O[12]/*true:search 
 void load_lego_parts_list( char *part_list ){ //load lego parts from the list
 
 	string line;
-	char name[15];
+	string name;
 
 	ifstream inf(part_list);	// read the file with ifstream and save to inf
 
 	if(!inf){
-		cerr<<"Error: can't read part. 01"<<endl;
+		cerr<<"Error: can't got the list."<<endl;
 		exit(1);
 	}
 	else{
@@ -365,10 +462,9 @@ void load_lego_parts_list( char *part_list ){ //load lego parts from the list
 	}
 	// read, save
 	while(getline(inf, line)){	// use getline to save each line from 'inf' to 'line', one at a time.
-		cout<<"We are on the list."<<endl;
 		istringstream iss(line);
 		iss >> name;
-		search_or_read(name, true);
+		search_or_read(name, true, metrix_O);
 	}
 }
 
@@ -594,10 +690,11 @@ void read_obj(){
 
 	cout<< "size of voxel: " << voxel_center_vPool.size() <<"\n";
 	//cout<< obj_vPool[0].y <<"\n";
+	/*
 	for(int i=0; i<20; i++){
 		cout<< voxel_center_vPool[i].y <<"\n";
-	}
-	cout<< voxel_center_vPool[ voxel_center_vPool.size()-1 ].y <<"\n";
+	}*/
+	//cout<< voxel_center_vPool[ voxel_center_vPool.size()-1 ].y <<"\n";
 
 	//resize voxel_center_vPool;
 }
@@ -637,8 +734,11 @@ void init(void)
 	char* list = "40234_Rooster_reduced.txt";
 	load_lego_parts_list(list);
 */
-	char* partt = "3005.dat";
-	search_or_read(partt, true, );
+	for(int i=0; i<12; i++){
+		metrix_O[i] = metrix_O[i]*rate;
+	}
+	string partt = "3070b.dat";//"3005.dat";3024 3070b
+	search_or_read(partt, false, metrix_O);
 }
 
 void CubeOrigin(void)
@@ -833,9 +933,10 @@ void display(void)
 
     // drawPart
     glPushMatrix();
-    	glRotatef(-16.0, 0.0, 1.0, 0.0);
-		glRotatef(0.0, 1.0, 0.0, 0.0);
-    	glTranslatef(1.2, 0.0, 0.0);
+
+    	glTranslatef(0.0, -0.5, 0.0);
+    	glRotatef(0.0, 0.0, 1.0, 0.0);
+		glRotatef(180.0, 1.0, 0.0, 0.0);
 
     	for(int i=0; i<parts.size(); i++){
     		drawPart(i);
@@ -858,10 +959,18 @@ void reshape (int w, int h)
 void keyboard(unsigned char key, int x, int y)
 {
 	switch (key) {
-case 27:
-	exit(0);
-	break;
+		case 'a':
+			g_fAngle += 2.0;
+			break;
+
+		case 'd':
+			g_fAngle -= 2.0;
+			break;
+		case 27:
+			exit(0);
+			break;
 	}
+	glutPostRedisplay();
 }
 
 void mouse(int button, int state, int x, int y)
@@ -874,15 +983,15 @@ void mouse(int button, int state, int x, int y)
 			//printf("Mouse pos : %d/t%d/n", x, -500-y);
 			if( pBtn->OnMouseDown(x, y) ){
 				g_fAngle += 2.0;
-				cout<<"button_1"<<"\n";
+				//cout<<"button_1"<<"\n";
 			}
 			else if( pBtn2->OnMouseDown(x, y) ){
 				g_fAngle -= 2.0;
-            	cout<<"button_2"<<"\n";
+            	//cout<<"button_2"<<"\n";
             }
 			else if( pBtn3->OnMouseDown(x, y) ){
 				g_fAngle = .0;
-				cout<<"button_3"<<"\n";
+				//cout<<"button_3"<<"\n";
 			}
 			break;
 
