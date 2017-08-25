@@ -39,6 +39,11 @@ float metrix_V[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
 
 float rate = 0.15;
 
+
+float add=2.4;
+float oheight=-1.6;
+float upp = 0.0;
+
 struct vertex
 {
     GLfloat x;
@@ -328,8 +333,8 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
 				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 				//push_back
-				//trianglePool.push_back(tri);
-				parttmp.tpfp.push_back(tri);
+				trianglePool.push_back(tri);
+				//parttmp.tpfp.push_back(tri);
 				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
 				//metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
 			}
@@ -372,8 +377,8 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
 				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 				//push_back
-				//trianglePool.push_back(tri);
-				parttmp.tpfp.push_back(tri);
+				trianglePool.push_back(tri);
+				//parttmp.tpfp.push_back(tri);
 				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
 				//metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
 			}
@@ -425,8 +430,8 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 
 				//push_back
-				//trianglePool.push_back(tri);
-				parttmp.tpfp.push_back(tri);
+				trianglePool.push_back(tri);
+				//parttmp.tpfp.push_back(tri);
 
 				dot1.x = metrix[6];		dot1.y = metrix[7];		dot1.z = metrix[8]; // dot1 = x3y3z3
 				dot2.x = metrix[9];		dot2.y = metrix[10];	dot2.z = metrix[11];// dot2 = x4y4z4
@@ -439,8 +444,8 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 
 				//push_back
-				//trianglePool.push_back(tri);
-				parttmp.tpfp.push_back(tri);
+				trianglePool.push_back(tri);
+				//parttmp.tpfp.push_back(tri);
 				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
 				//metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
 
@@ -449,7 +454,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 		}
 
 		}
-		parts.push_back(parttmp);
+		//parts.push_back(parttmp);
 	}
 //---- else end -------------------------------------
 }
@@ -745,8 +750,37 @@ void init(void)
 	for(int i=0; i<12; i++){
 		metrix_O[i] = metrix_O[i]*rate;
 	}
-	string partt = "11477.dat";//"3005.dat";3024 3070b
+
+	part_v1 part0;
+
+	string partt = "3024.dat";//"3005.dat";3024 3070b
 	search_or_read(partt, false, metrix_O);
+	for(int i=0; i<trianglePool.size(); i++){
+		part0.tpfp.push_back(trianglePool[i]);
+	}
+	parts.push_back(part0);
+	trianglePool.clear();
+
+
+	part0.tpfp.clear();
+	partt = "11477.dat";//"3005.dat";3024 3070b
+	search_or_read(partt, false, metrix_O);
+	for(int i=0; i<trianglePool.size(); i++){
+		part0.tpfp.push_back(trianglePool[i]);
+	}
+	parts.push_back(part0);
+	trianglePool.clear();
+
+	part0.tpfp.clear();
+	partt = "3005.dat";//"3005.dat";3024 3070b
+	search_or_read(partt, false, metrix_O);
+	for(int i=0; i<trianglePool.size(); i++){
+		part0.tpfp.push_back(trianglePool[i]);
+	}
+	parts.push_back(part0);
+	trianglePool.clear();
+
+
 }
 
 void CubeOrigin(void)
@@ -858,6 +892,8 @@ void drawVoxel()
 }
 
 void drawPart(int p_number){
+	glColor3f(0.0f,0.0f,1.0f);
+
 	for(int i=0; i < parts[p_number].tpfp.size() ; i++){
 		glBegin(GL_LINE_LOOP);
 			glVertex3f( parts[p_number].tpfp[i].v1.x, parts[p_number].tpfp[i].v1.y, parts[p_number].tpfp[i].v1.z);
@@ -941,12 +977,15 @@ void display(void)
 
     // drawPart
     glPushMatrix();
-
-    	glTranslatef(0.0, -0.5, 0.0);
-    	glRotatef(0.0, 0.0, 1.0, 0.0);
-		glRotatef(180.0, 1.0, 0.0, 0.0);
-
+    	glRotatef(30.0, 0.0, 1.0, 0.0);
+    	glRotatef(180, 1.0, 0.0, 0.0);
+		
+    	glTranslatef(0.0, oheight, 0.0);
+    	
     	for(int i=0; i<parts.size(); i++){
+    		//glRotatef(upp, 1.0, 0.0, 0.0);
+    		glTranslatef(0.0, add, 0.0);
+
     		drawPart(i);
     	}
     glPopMatrix();
@@ -974,6 +1013,33 @@ void keyboard(unsigned char key, int x, int y)
 		case 'd':
 			g_fAngle -= 2.0;
 			break;
+
+		case 's':
+			g_fAngle = .0;
+			upp = .0;
+			oheight=-1.6;
+			break;
+
+		case 'w':
+			upp += 0.5;
+			break;
+
+		case 'i':
+			oheight -= 0.1;
+			break;
+
+		case 'k':
+			oheight += 0.1;
+			break;
+
+		case 't':
+			add += 0.1;
+			break;
+
+		case 'g':
+			add -= 0.1;
+			break;
+
 		case 27:
 			exit(0);
 			break;
