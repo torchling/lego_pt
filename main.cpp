@@ -91,6 +91,8 @@ struct part_v1 //This is part struct Ver.01 .
 */
 
 	std::vector< vertex > vertexPool; // all vertices in this part (maybe, we don't need this)
+
+	std::vector< vertex > normal_pool;
 	std::vector< triangle > tpfp; // triangle pool for part
 
 	//vertex[8] approximate_shape;//For now. It's still a box, designed for border detection.
@@ -106,6 +108,7 @@ vector< edge > bricks ;		//just store shapes for drawing, not for matching.
 // 02
 vector< part_v1 > parts  ;	//For real math stuffs. Prepare for assembling possibility
 
+vector< vertex > tmpNormalPool  ;
 vector< triangle > trianglePool  ;
 /*----------------------------------------------------------------*/
 
@@ -249,6 +252,8 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 	vertex dot3;
 	triangle tri; // line, triangle, quad. They all been saved as a triangle formate.
 
+	vertex normalt;
+
     part_v1 parttmp;
 
 // function list:
@@ -331,8 +336,12 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 				tri.v2 = dot2;
 				tri.v3 = dot2; // if it's a line, v2=v3.
 
+				normalt.x = 0.0;
+				normalt.y = 0.0;
+				normalt.z = 0.0;
 				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 				//push_back
+				tmpNormalPool.push_back(normalt);
 				trianglePool.push_back(tri);
 				//parttmp.tpfp.push_back(tri);
 				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
@@ -375,8 +384,13 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 				tri.v2 = dot2;
 				tri.v3 = dot3;
 
+				normalt.x = (dot2.y-dot1.y)*(dot3.z-dot1.z)-(dot3.y-dot1.y)*(dot2.z-dot1.z);
+				normalt.y = (dot2.z-dot1.z)*(dot3.x-dot1.x)-(dot3.z-dot1.z)*(dot2.x-dot1.x);
+				normalt.z = (dot2.x-dot1.x)*(dot3.y-dot1.y)-(dot3.x-dot1.x)*(dot2.y-dot1.y);
+
 				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 				//push_back
+				tmpNormalPool.push_back(normalt);
 				trianglePool.push_back(tri);
 				//parttmp.tpfp.push_back(tri);
 				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
@@ -427,9 +441,14 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 				tri.v2 = dot2;
 				tri.v3 = dot3;
 
+				normalt.x = (dot2.y-dot1.y)*(dot3.z-dot1.z)-(dot3.y-dot1.y)*(dot2.z-dot1.z);
+				normalt.y = (dot2.z-dot1.z)*(dot3.x-dot1.x)-(dot3.z-dot1.z)*(dot2.x-dot1.x);
+				normalt.z = (dot2.x-dot1.x)*(dot3.y-dot1.y)-(dot3.x-dot1.x)*(dot2.y-dot1.y);
+
 				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 
 				//push_back
+				tmpNormalPool.push_back(normalt);
 				trianglePool.push_back(tri);
 				//parttmp.tpfp.push_back(tri);
 
@@ -441,9 +460,14 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 				tri.v2 = dot2;
 				tri.v3 = dot3;
 
+				normalt.x = (dot2.y-dot1.y)*(dot3.z-dot1.z)-(dot3.y-dot1.y)*(dot2.z-dot1.z);
+				normalt.y = (dot2.z-dot1.z)*(dot3.x-dot1.x)-(dot3.z-dot1.z)*(dot2.x-dot1.x);
+				normalt.z = (dot2.x-dot1.x)*(dot3.y-dot1.y)-(dot3.x-dot1.x)*(dot2.y-dot1.y);
+
 				//cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
 
 				//push_back
+				tmpNormalPool.push_back(normalt);
 				trianglePool.push_back(tri);
 				//parttmp.tpfp.push_back(tri);
 				//metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
@@ -757,29 +781,33 @@ void init(void)
 	search_or_read(partt, false, metrix_O);
 	for(int i=0; i<trianglePool.size(); i++){
 		part0.tpfp.push_back(trianglePool[i]);
+		part0.normal_pool.push_back(tmpNormalPool[i]);
 	}
 	parts.push_back(part0);
 	trianglePool.clear();
-
+	tmpNormalPool.clear();
 
 	part0.tpfp.clear();
 	partt = "11477.dat";//"3005.dat";3024 3070b
 	search_or_read(partt, false, metrix_O);
 	for(int i=0; i<trianglePool.size(); i++){
 		part0.tpfp.push_back(trianglePool[i]);
+		part0.normal_pool.push_back(tmpNormalPool[i]);
 	}
 	parts.push_back(part0);
 	trianglePool.clear();
+	tmpNormalPool.clear();
 
 	part0.tpfp.clear();
 	partt = "3005.dat";//"3005.dat";3024 3070b
 	search_or_read(partt, false, metrix_O);
 	for(int i=0; i<trianglePool.size(); i++){
 		part0.tpfp.push_back(trianglePool[i]);
+		part0.normal_pool.push_back(tmpNormalPool[i]);
 	}
 	parts.push_back(part0);
 	trianglePool.clear();
-
+	tmpNormalPool.clear();
 
 }
 
@@ -892,14 +920,21 @@ void drawVoxel()
 }
 
 void drawPart(int p_number){
-	glColor3f(0.0f,0.0f,1.0f);
-
 	for(int i=0; i < parts[p_number].tpfp.size() ; i++){
-		glBegin(GL_LINE_LOOP);
+		glColor3f(0.0f,0.0f,1.0f);
+		glBegin(GL_TRIANGLES);
+			glNormal3f( parts[p_number].normal_pool[i].x, parts[p_number].normal_pool[i].y, parts[p_number].normal_pool[i].z );
 			glVertex3f( parts[p_number].tpfp[i].v1.x, parts[p_number].tpfp[i].v1.y, parts[p_number].tpfp[i].v1.z);
 			glVertex3f( parts[p_number].tpfp[i].v2.x, parts[p_number].tpfp[i].v2.y, parts[p_number].tpfp[i].v2.z);
 			glVertex3f( parts[p_number].tpfp[i].v3.x, parts[p_number].tpfp[i].v3.y, parts[p_number].tpfp[i].v3.z);
-		glEnd();
+		glEnd();/*
+		glColor3f(1.0f,1.0f,1.0f);
+		glBegin(GL_LINE_LOOP);
+			glNormal3f( parts[p_number].normal_pool[i].x, parts[p_number].normal_pool[i].y, parts[p_number].normal_pool[i].z );
+			glVertex3f( parts[p_number].tpfp[i].v1.x, parts[p_number].tpfp[i].v1.y, parts[p_number].tpfp[i].v1.z);
+			glVertex3f( parts[p_number].tpfp[i].v2.x, parts[p_number].tpfp[i].v2.y, parts[p_number].tpfp[i].v2.z);
+			glVertex3f( parts[p_number].tpfp[i].v3.x, parts[p_number].tpfp[i].v3.y, parts[p_number].tpfp[i].v3.z);
+		glEnd();*/
 	}
 }
 
@@ -937,9 +972,9 @@ void display(void)
     	glTranslatef(1.2,0.0,0.0);//1.2, 0.0, 0.0
 
     	glColor3f(1.0f,1.0f,1.0f);
-   		glBegin(GL_QUADS);
+   		/*glBegin(GL_QUADS);
     	glutWireCube (1.5);
-    	glEnd();
+    	glEnd();*/
     glPopMatrix();
 
     glPushMatrix();			//The cube on the left hand
@@ -947,9 +982,9 @@ void display(void)
     	glTranslatef(-1.2,0.0,0.0);//1.2, 0.0, 0.0
 
     	glColor3f(1.0f,1.0f,1.0f);
-   		glBegin(GL_QUADS);
+   		/*glBegin(GL_QUADS);
     	glutWireCube (1.5);
-    	glEnd();
+    	glEnd();*/
     glPopMatrix();
 
 	glPushMatrix();			//Obj model points
@@ -1078,6 +1113,16 @@ void mouse(int button, int state, int x, int y)
 	glutPostRedisplay();
 }
 
+const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
+const GLfloat light_diffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
+const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+const GLfloat light_position[] = { 20.0f, 20.0f, -80.0f, 0.0f };
+
+const GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f };
+const GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
+const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
+const GLfloat high_shininess[] = { 100.0f };
+
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -1090,6 +1135,28 @@ int main(int argc, char** argv)
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
 	glutMouseFunc( mouse );
+
+	//glEnable(GL_CULL_FACE);
+    //glCullFace(GL_BACK);
+
+    //glEnable(GL_DEPTH_TEST);
+    //glDepthFunc(GL_LESS);
+
+    glEnable(GL_LIGHT0);
+    glEnable(GL_NORMALIZE);
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_LIGHTING);
+
+    glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+    glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
+
 	glutMainLoop();
 	return 0;
 }
