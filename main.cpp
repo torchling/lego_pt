@@ -31,7 +31,7 @@ float g_fHeight = 500;
 float g_fDepth = 100;
 float g_fAngle = .0;
 
-float voxel_length = 0.2;
+float voxel_length = 0.1;
 float voxel_length_half = voxel_length*0.5;//
 
 float metrix_O[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -43,6 +43,8 @@ float rate = 0.15;
 float add=2.4;
 float oheight=-1.6;
 float upp = 0.0;
+
+bool drawlegoFrame = false;
 
 struct vertex
 {
@@ -163,6 +165,7 @@ Button* pBtn;
 Button* pBtn2;
 Button* pBtn3;
 
+//char* p = "frog.obj";
 char* p = "suzanne.obj";
 //char* p = "GermanShephardLowPoly.obj";
 //char* p = "panther.obj";
@@ -180,7 +183,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
 		DIR *dir;
     	struct dirent *ent;
-    	if ((dir = opendir ("C:\\Users\\user\\Desktop\\button_test\\parts")) != NULL) {
+    	if ((dir = opendir ("C:\\Users\\luke\\Desktop\\button_test\\parts")) != NULL) {
     		//C:\Users\luke\Desktop\button_test
     		//C:\Users\user\Desktop\button_test
         	// sear all the files and directories within directory
@@ -200,7 +203,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
         	//return EXIT_FAILURE;
     	}
 
-    	if ((dir = opendir ("C:\\Users\\user\\Desktop\\button_test\\parts\\s")) != NULL) {
+    	if ((dir = opendir ("C:\\Users\\luke\\Desktop\\button_test\\parts\\s")) != NULL) {
     		//C:\Users\luke\Desktop\button_test
     		//C:\Users\user\Desktop\button_test
         	// search all the files and directories within directory
@@ -504,6 +507,8 @@ void load_lego_parts_list( char *part_list ){ //load lego parts from the list
 		search_or_read(name, true, metrix_O);
 	}
 }
+
+void load(){}
 
 //Storage vectors list of ABCD.obj input
 std::vector<vertex> obj_vPool;
@@ -859,6 +864,7 @@ void drawObj_t()
 
 	for(int i=0; i<obj_tPool.size(); i++){
 		glBegin(GL_LINE_LOOP);
+			glNormal3f( 1.0f, 1.0f, 1.0f );
 			glVertex3f( obj_tPool[i].v1.x, obj_tPool[i].v1.y, obj_tPool[i].v1.z);
 			glVertex3f( obj_tPool[i].v2.x, obj_tPool[i].v2.y, obj_tPool[i].v2.z);
 			glVertex3f( obj_tPool[i].v3.x, obj_tPool[i].v3.y, obj_tPool[i].v3.z);
@@ -881,36 +887,42 @@ void drawVoxel()
 	glColor3f(0.0f,1.0f,0.0f);
 	for(int i=0; i<voxel_center_vPool.size(); i++){
 		glBegin(GL_LINE_LOOP);
+			glNormal3f( 1.0f, 0.0f, 0.0f );//right
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 		glEnd();
 		glBegin(GL_LINE_LOOP);
+			glNormal3f( -1.0f, 0.0f, 0.0f );//left
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 		glEnd();
 		glBegin(GL_LINE_LOOP);
+			glNormal3f( 0.0f, 1.0f, 0.0f );//up
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 		glEnd();
 		glBegin(GL_LINE_LOOP);
+			glNormal3f( 0.0f, -1.0f, 0.0f );//down
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 		glEnd();
 		glBegin(GL_LINE_LOOP);
+			glNormal3f( 0.0f, 0.0f, 1.0f );//front
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z + voxel_length_half);
 		glEnd();
 		glBegin(GL_LINE_LOOP);
+			glNormal3f( 0.0f, 0.0f, -1.0f );//hind
 			glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
 			glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
@@ -927,14 +939,16 @@ void drawPart(int p_number){
 			glVertex3f( parts[p_number].tpfp[i].v1.x, parts[p_number].tpfp[i].v1.y, parts[p_number].tpfp[i].v1.z);
 			glVertex3f( parts[p_number].tpfp[i].v2.x, parts[p_number].tpfp[i].v2.y, parts[p_number].tpfp[i].v2.z);
 			glVertex3f( parts[p_number].tpfp[i].v3.x, parts[p_number].tpfp[i].v3.y, parts[p_number].tpfp[i].v3.z);
-		glEnd();/*
+		glEnd();
+		if(drawlegoFrame){
 		glColor3f(1.0f,1.0f,1.0f);
 		glBegin(GL_LINE_LOOP);
 			glNormal3f( parts[p_number].normal_pool[i].x, parts[p_number].normal_pool[i].y, parts[p_number].normal_pool[i].z );
 			glVertex3f( parts[p_number].tpfp[i].v1.x, parts[p_number].tpfp[i].v1.y, parts[p_number].tpfp[i].v1.z);
 			glVertex3f( parts[p_number].tpfp[i].v2.x, parts[p_number].tpfp[i].v2.y, parts[p_number].tpfp[i].v2.z);
 			glVertex3f( parts[p_number].tpfp[i].v3.x, parts[p_number].tpfp[i].v3.y, parts[p_number].tpfp[i].v3.z);
-		glEnd();*/
+		glEnd();
+		}
 	}
 }
 
@@ -1014,9 +1028,9 @@ void display(void)
     glPushMatrix();
     	glRotatef(30.0, 0.0, 1.0, 0.0);
     	glRotatef(180, 1.0, 0.0, 0.0);
-		
+
     	glTranslatef(0.0, oheight, 0.0);
-    	
+
     	for(int i=0; i<parts.size(); i++){
     		//glRotatef(upp, 1.0, 0.0, 0.0);
     		glTranslatef(0.0, add, 0.0);
@@ -1073,6 +1087,14 @@ void keyboard(unsigned char key, int x, int y)
 
 		case 'g':
 			add -= 0.1;
+			break;
+
+		case 'f':
+			if(drawlegoFrame){
+				drawlegoFrame=false;
+			}else{
+				drawlegoFrame=true;
+			}
 			break;
 
 		case 27:
