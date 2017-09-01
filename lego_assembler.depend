@@ -1,9 +1,18 @@
 # depslib dependency file v1.0
-1490906681 source:c:\users\luke\desktop\lego331\main.cpp
+1504258864 source:c:\users\luke\desktop\lego_assembler\main.cpp
 	<GLUT/glut.h>
 	<windows.h>
 	<GL/glut.h>
+	<iostream>
 	<stdlib.h>
+	<cmath>
+	<ctime>
+	<fstream>
+	<sstream>
+	<string>
+	<dirent.h>
+	<cstdlib>
+	<vector>
 
 1481816764 c:\program files\codeblocks\mingw\include\windows.h
 	<winresrc.h>
@@ -219,4 +228,16 @@
 1481816765 c:\program files\codeblocks\mingw\include\gl\glu.h
 	<stddef.h>
 	<GL/gl.h>
+
+1481816761 c:\program files\codeblocks\mingw\include\dirent.h
+	<_mingw.h>
+	<io.h>
+
+1481816762 c:\program files\codeblocks\mingw\include\io.h
+	<_mingw.h>
+	<sys/types.h>
+
+1481816765 c:\program files\codeblocks\mingw\include\sys\types.h
+	<_mingw.h>
+	<stddef.h>
 
