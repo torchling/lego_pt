@@ -464,12 +464,17 @@ void load_lego_parts_list( char *part_list ){ //load lego parts from the list
 void load(){}
 
 //Storage vectors list of ABCD.obj input
-std::vector<vertex> obj_vPool;
-std::vector<face> obj_fPool;
-std::vector<triangle> obj_tPool;
-std::vector<vertex> obj_normals;
+std::vector<vertex> obj_vPool;		//all vertex in obj
+std::vector<vertex> obj_vNormal;	//all vertex normal of obj
+std::vector<face> obj_fPool;		//all faces in obj [face: A plane shape that has 4 or 3 point.]
+
+std::vector<triangle> obj_tPool;	//all triangles in obj
+std::vector<face> obj_f3Pool;		//all faces in obj [based on the triangles in obj_tPool]
+std::vector<vertex> obj_normals;	//normals of triangles in obj_tPool
 
 //Storage vector of Voxel
+std::vector< vector<vertex> > all_z_layer;
+std::vector<vertex> z_layer;
 std::vector<vertex> voxel_center_vPool;
 
 bool in_voxel(vertex test, vertex voxel_center, float radius){
@@ -581,6 +586,7 @@ void read_obj(){
     cout<< "Size of vertex is "<< obj_vPool.size() << '\n';
     cout<< "Size of faces is "<< obj_fPool.size() << '\n';
     
+    face f3tmp;
     for(int i=0; i<obj_fPool.size(); i++){
         if(obj_fPool[i].v4!=0){
             tri.v1 = obj_vPool[ obj_fPool[i].v1-1 ];
@@ -589,11 +595,24 @@ void read_obj(){
             
             obj_tPool.push_back(tri);
             
+            f3tmp.v1 = obj_fPool[i].v1 ;
+            f3tmp.v2 = obj_fPool[i].v2 ;
+            f3tmp.v3 = obj_fPool[i].v3 ;
+
+            obj_f3Pool.push_back(f3tmp);
+
+
             tri.v1 = obj_vPool[ obj_fPool[i].v1-1 ];
             tri.v2 = obj_vPool[ obj_fPool[i].v3-1 ];
             tri.v3 = obj_vPool[ obj_fPool[i].v4-1 ];
             
             obj_tPool.push_back(tri);
+
+            f3tmp.v1 = obj_fPool[i].v1 ;
+            f3tmp.v2 = obj_fPool[i].v3 ;
+            f3tmp.v3 = obj_fPool[i].v4 ;
+
+            obj_f3Pool.push_back(f3tmp);
         }
         else{
             
@@ -602,13 +621,18 @@ void read_obj(){
             tri.v3 = obj_vPool[ obj_fPool[i].v3-1 ];
             
             obj_tPool.push_back(tri);
+
+            f3tmp.v1 = obj_fPool[i].v1 ;
+            f3tmp.v2 = obj_fPool[i].v2 ;
+            f3tmp.v3 = obj_fPool[i].v3 ;
+
+            obj_f3Pool.push_back(f3tmp);
         }
     }
     
-    
     //creat normal from obj model
     vertex normal;
-    
+    	//creat normal for each triangle
     for(int i=0; i<obj_tPool.size(); i++){
         normal.x = (obj_tPool[i].v2.y-obj_tPool[i].v1.y)*(obj_tPool[i].v3.z-obj_tPool[i].v1.z)
         -(obj_tPool[i].v3.y-obj_tPool[i].v1.y)*(obj_tPool[i].v2.z-obj_tPool[i].v1.z);
@@ -618,7 +642,18 @@ void read_obj(){
         -(obj_tPool[i].v3.x-obj_tPool[i].v1.x)*(obj_tPool[i].v2.y-obj_tPool[i].v1.y);
         obj_normals.push_back(normal);
     }
+
+    	//creat normal for each vertex
+    for(int i=0; i<obj_vPool.size(); i++){
+    	obj_vNormal.push_back(obj_vPool[i].v1);
+    }
+    for(int i=0; i<obj_f3Pool.size(); i++){
+    	obj_vNormal[obj_f3Pool[i].v1-1] = obj_normals[obj_f3Pool[i].v1-1];
+    	obj_vNormal[obj_f3Pool[i].v2-1] = obj_normals[obj_f3Pool[i].v2-1];
+    	obj_vNormal[obj_f3Pool[i].v3-1] = obj_normals[obj_f3Pool[i].v3-1];
+    }
     
+
     //voxelize the model
     float max_x = 0.0;
     float min_x = 0.0;
@@ -669,6 +704,17 @@ void read_obj(){
     
     vertex voxel_center_test;
     
+    for(int i=0; i<zn; i++){
+    	for(int j=0; j<obj_vPool.size()-1; j++){
+    		if( (min_z + i*voxel_length) <= obj_vPool[j].z 
+    			&& obj_vPool[j].z < (min_z + (i+1)*voxel_length) ){
+    			z_layer.push_back(obj_vPool.[j]);
+    		}
+    		all_z_layer.push_back(z_layer);
+    		z_layer.clear();
+    	}
+    }
+
     for(int i=0; i<xn; i++){
         for(int j=0; j<yn; j++){
             for(int k=0; k<zn; k++){
