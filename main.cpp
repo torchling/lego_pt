@@ -473,9 +473,11 @@ std::vector<face> obj_f3Pool;		//all faces in obj [based on the triangles in obj
 std::vector<vertex> obj_normals;	//normals of triangles in obj_tPool
 
 //Storage vector of Voxel
-std::vector< vector<vertex> > all_z_layer;
-std::vector<vertex> z_layer;
-std::vector<vertex> voxel_center_vPool;
+std::vector< vector <vertex> > all_y_layer;
+std::vector< vertex > y_layer;
+std::vector< vertex > voxel_center_vPool;
+std::vector< vertex > x_strap;
+std::vector< vector <vertex> > all_x_strap;
 
 bool in_voxel(vertex test, vertex voxel_center, float radius){
     //float radius = edge_length*0.5;
@@ -704,17 +706,37 @@ void read_obj(){
     
     vertex voxel_center_test;
     
-    for(int i=0; i<zn; i++){
+    for(int i=0; i<yn; i++){
     	for(int j=0; j<obj_vPool.size()-1; j++){
-    		if( (min_z + i*voxel_length) <= obj_vPool[j].z 
-    			&& obj_vPool[j].z < (min_z + (i+1)*voxel_length) ){
-    			z_layer.push_back(obj_vPool.[j]);
+    		if( (min_y + i*voxel_length) <= obj_vPool[j].z 
+    			&& obj_vPool[j].z < (min_y + (i+1)*voxel_length) ){
+    			y_layer.push_back(obj_vPool.[j]);
     		}
-    		all_z_layer.push_back(z_layer);
-    		z_layer.clear();
+    		all_y_layer.push_back(y_layer);
+    		y_layer.clear();
     	}
     }
-
+    for(int i=0; i<all_y_layer.size(); i++){
+        for(int j=0; j<xn; j++){
+            for(int k=0; k<all_z_layer[i].size(); k++){
+                if( (min_x + j*voxel_length) <= all_y_layer[i][k].x 
+                    && all_y_layer[i][k].x < (min_x + (j+1)*voxel_length) ){
+                    x_strap.push_back(all_y_layer[i][k]);
+                }
+            }
+            all_x_strap.push_back(x_strap);// (y, x)
+            x_strap.clear();
+        }
+    }
+    for(int i=0; i<all_x_strap.size(); i++){
+        for(int j=0; j<zn; j++){
+            if( (min_z + j*voxel_length) <= all_x_strap[i].z 
+                && all_x_strap[i].z < (min_z + (j+1)*voxel_length) ){
+                voxel_center_vPool.push_back(min_z + j*voxel_length + voxel_length_half);
+            }
+        }
+    }
+/*
     for(int i=0; i<xn; i++){
         for(int j=0; j<yn; j++){
             for(int k=0; k<zn; k++){
@@ -729,7 +751,7 @@ void read_obj(){
             }
         }
     }
-    
+*/
     cout<< "size of voxel: " << voxel_center_vPool.size() <<"\n";
     
 }
