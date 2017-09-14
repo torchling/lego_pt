@@ -1,3 +1,10 @@
+/*
+    Lego
+    Jui-Cheng,Sung. R.O.C.
+    Lyre Mellark.
+    Started from 2017.Feb.10
+*/
+
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
@@ -17,8 +24,9 @@
 #include <dirent.h>
 
 #include <cstdlib>
-
 #include <vector>
+
+#include "helpteddy.h"
 
 
 using namespace std;
@@ -26,7 +34,7 @@ using namespace std;
 //////////////////////////////////////////////////
 //global
 
-float voxel_length = 0.05;
+float voxel_length = 0.1;
 float voxel_length_half = voxel_length/2;//
 
 float metrix_O[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -42,7 +50,7 @@ float upp = 0.0;
 bool drawlegoFrame = false;
 
 float rotate1 = 0.0;
-
+/*
 struct vertex
 {
     float x;
@@ -63,7 +71,7 @@ struct triangle
     vertex v2;
     vertex v3;
 };
-
+*/
 struct face //max to 4 points
 {
     int v1;
@@ -475,11 +483,12 @@ std::vector<face> obj_f3Pool;		//all faces in obj [based on the triangles in obj
 std::vector<vertex> obj_normals;	//normals of triangles in obj_tPool
 
 //Storage vector of Voxel
-std::vector< vector <vertex> > all_y_layer;
-std::vector< vertex > y_layer;
-std::vector< vertex > voxel_center_vPool;
-std::vector< vertex > x_strap;
-std::vector< vector <vertex> > all_xy_strap;
+std::vector< vertex > voxel_candidate; 		//ver 3.0
+std::vector< vector <vertex> > all_y_layer; //ver 		2.0
+std::vector< vertex > y_layer;				//ver 		2.0
+std::vector< vertex > voxel_center_vPool;	//ver 		2.0 & 1.0
+std::vector< vertex > x_strap;				//ver 3.0 & 2.0
+std::vector< vector <vertex> > all_xy_strap;//ver 3.0 & 2.0
 
 bool in_voxel(vertex test, vertex voxel_center, float radius){
     //float radius = edge_length*0.5;
@@ -706,8 +715,8 @@ void read_obj(){
     int yn = max_y/voxel_length + 1;
     int zn = max_z/voxel_length + 1;
 
-cout<<endl;
-cout<< xn <<" "<< yn <<" "<< zn <<endl;
+	cout<<endl;
+	cout<< xn <<" "<< yn <<" "<< zn <<endl;
 
     min_x = min_x - voxel_length_half;
     min_y = min_y - voxel_length_half;
@@ -715,49 +724,137 @@ cout<< xn <<" "<< yn <<" "<< zn <<endl;
 
     vertex voxel_center_test;
 
-    //Voxel Ver.3
+	//Voxel Ver.3
 
-    //y_layer.clear();
-    for(int i=0; i<yn; i++){//creat enough space for all_y_layer
-    	all_y_layer.push_back(y_layer);
-    }
-    cout<< "\n" <<"problem" <<endl;
-    int layer;
-    for(int i=0; i<obj_vPool.size(); i++){
-    	layer = (obj_vPool[i].y-min_y) / voxel_length;
-        obj_vPool[i].num = i;
-        //cout<< "\n" <<"1" <<endl;
-        if(layer < all_y_layer.size())
-    	all_y_layer[layer].push_back(obj_vPool[i]);
-        //cout<< "\n" <<"2" <<endl;
-    }
-
-    //x_strap.clear();
-    for(int i=0; i<(xn*yn); i++){//creat enough space for all_xy_strap
+	for(int i=0; i<(xn*yn); i++){//creat enough space for all_xy_strap
     	all_xy_strap.push_back(x_strap);
     }
-    //cout<< "\n" <<"problem start" <<endl;
-    int layer2;
-    for(int i=0; i<all_y_layer.size(); i++){
-    	for(int j=0; j<all_y_layer[i].size(); j++){
-    		layer  = (all_y_layer[i][j].x-min_x) / voxel_length;
-    		layer2 = i;
-            //cout<< "\n" <<"1" <<endl;
-            if(layer < xn && layer2 < yn)
-    		all_xy_strap[ layer + layer2*xn ].push_back(all_y_layer[i][j]);
-            //cout<< "\n" <<"2" <<endl;
+    for(int i=0; i<obj_tPool.size(); i++){
+    //get voxel line
+
+    	float max_tx, max_ty, max_tz, min_tx, min_ty, min_tz;
+    	max_tx = obj_tPool[i].v1.x;if(max_tx < obj_tPool[i].v2.x) max_tx = obj_tPool[i].v2.x;if(max_tx < obj_tPool[i].v3.x) max_tx = obj_tPool[i].v3.x;
+    	max_ty = obj_tPool[i].v1.y;if(max_ty < obj_tPool[i].v2.y) max_ty = obj_tPool[i].v2.y;if(max_ty < obj_tPool[i].v3.y) max_ty = obj_tPool[i].v3.y;
+    	max_tz = obj_tPool[i].v1.z;if(max_tz < obj_tPool[i].v2.z) max_tz = obj_tPool[i].v2.z;if(max_tz < obj_tPool[i].v3.z) max_tz = obj_tPool[i].v3.z;
+    	min_tx = obj_tPool[i].v1.x;if(min_tx > obj_tPool[i].v2.x) min_tx = obj_tPool[i].v2.x;if(min_tx > obj_tPool[i].v3.x) min_tx = obj_tPool[i].v3.x;
+    	min_ty = obj_tPool[i].v1.y;if(min_ty > obj_tPool[i].v2.y) min_ty = obj_tPool[i].v2.y;if(min_ty > obj_tPool[i].v3.y) min_ty = obj_tPool[i].v3.y;
+    	min_tz = obj_tPool[i].v1.z;if(min_tz > obj_tPool[i].v2.z) min_tz = obj_tPool[i].v2.z;if(min_tz > obj_tPool[i].v3.z) min_tz = obj_tPool[i].v3.z;
+
+    	vertex vc12;
+    	vc12.x = obj_tPool[i].v2.x-obj_tPool[i].v1.x;
+    	vc12.y = obj_tPool[i].v2.y-obj_tPool[i].v1.y;
+    	vc12.z = obj_tPool[i].v2.z-obj_tPool[i].v1.z;
+
+    	vertex vc13;
+    	vc13.x = obj_tPool[i].v3.x-obj_tPool[i].v1.x;
+    	vc13.y = obj_tPool[i].v3.y-obj_tPool[i].v1.y;
+    	vc13.z = obj_tPool[i].v3.z-obj_tPool[i].v1.z;
+
+		vertex vc23;
+		vc23.x = obj_tPool[i].v3.x-obj_tPool[i].v2.x;
+    	vc23.y = obj_tPool[i].v3.y-obj_tPool[i].v2.y;
+    	vc23.z = obj_tPool[i].v3.z-obj_tPool[i].v2.z;
+
+    	float max;
+    	int time;
+    	int col, row;
+    	vertex vonline;
+		//line 1 to 2
+    	max=abs(vc12.x); if(max < abs(vc12.y))max = abs(vc12.y); if(max < abs(vc12.z))max = abs(vc12.z);
+    	time = max/voxel_length + 1;
+    	vc12.x = vc12.x / time;
+    	vc12.y = vc12.y / time;
+    	vc12.z = vc12.z / time;
+    	//cout<<vc12.x<<"\n";
+
+    	for(int j=0; j<time-1;j++){
+    		vonline.x = obj_tPool[i].v1.x + vc12.x*j;
+    		vonline.y = obj_tPool[i].v1.y + vc12.y*j;
+    		vonline.z = obj_tPool[i].v1.z + vc12.z*j;
+
+    		col = (vonline.x - min_x)/voxel_length;// x
+    		row = (vonline.y - min_y)/voxel_length;// y
+
+    		if( (col + row * xn) < all_xy_strap.size() )
+    		all_xy_strap[ col + row * xn ].push_back(vonline);
     	}
-    }
-    //cout<< "\n" <<"problem end" <<endl;
+    	//line 3 to 1
+    	max=abs(vc13.x); if(max < abs(vc13.y))max = abs(vc13.y); if(max < abs(vc13.z))max = abs(vc13.z);
+    	time = max/voxel_length + 1;
+    	vc13.x = vc13.x / time;
+    	vc13.y = vc13.y / time;
+    	vc13.z = vc13.z / time;
+
+    	for(int j=0; j<time-1;j++){
+    		vonline.x = obj_tPool[i].v3.x - vc13.x*j;
+    		vonline.y = obj_tPool[i].v3.y - vc13.y*j;
+    		vonline.z = obj_tPool[i].v3.z - vc13.z*j;
+
+    		col = (vonline.x - min_x)/voxel_length;// x
+    		row = (vonline.y - min_y)/voxel_length;// y
+
+    		if( (col + row * xn) < all_xy_strap.size() )
+    		all_xy_strap[ col + row * xn ].push_back(vonline);
+    	}
+    	//line 2 to 3
+
+    	max=abs(vc23.x); if(max < abs(vc23.y))max = abs(vc23.y); if(max < abs(vc23.z))max = abs(vc23.z);
+    	time = max/voxel_length + 1;
+    	vc23.x = vc23.x / time;
+    	vc23.y = vc23.y / time;
+    	vc23.z = vc23.z / time;
+
+    	for(int j=0; j<time-1;j++){
+    		vonline.x = obj_tPool[i].v2.x + vc23.x*j;
+    		vonline.y = obj_tPool[i].v2.y + vc23.y*j;
+    		vonline.z = obj_tPool[i].v2.z + vc23.z*j;
+
+    		col = (vonline.x - min_x)/voxel_length;// x
+    		row = (vonline.y - min_y)/voxel_length;// y
+
+    		if( (col + row * xn) < all_xy_strap.size() )
+    		all_xy_strap[ col + row * xn ].push_back(vonline);
+    	}
+
+    //get voxel face
 /*
-    for(int i=0; i<all_xy_strap.size(); i++){
-        for(int j=0; j<all_xy_strap[i].size(); j++){
-            for(int k=0; k<all_xy_strap[i].size()-j; k++){
-                ;
-            }
-        }
+    	max_tx = max_tx - min_tx;//use max to replace range of whole model
+    	max_ty = max_ty - min_ty;//..
+    	max_tz = max_tz - min_tz;//..
+
+    	int xt = max_tx/voxel_length + 1;
+    	int yt = max_ty/voxel_length + 1;
+
+    	int xtt= (min_tx - min_x)/voxel_length;
+    	int ytt= (min_ty - min_y)/voxel_length;
+    	//xtt 並不是多算，而是利用float轉int的特性，去對齊voxel，ytt 也是如此
+    	min_tx = min_x + xtt*voxel_length + voxel_length_half;
+    	min_ty = min_y + ytt*voxel_length + voxel_length_half;
+
+    	vertex candidate;
+
+    	for(int j=0; j<xt*yt; j++){
+    		candidate.x = min_tx + (j%xt)*voxel_length;
+    		candidate.y = min_ty + (j/xt)*voxel_length;
+    		voxel_candidate.push_back(candidate);
+    	}
+    	for(int j=0; j<voxel_candidate.size(); j++){
+    		if( !outsideTheTriangle(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) 
+    			&& obj_normals[i].z != 0 ){
+    			float nxz = obj_normals[i].x / obj_normals[i].z;
+    			float nyz = obj_normals[i].y / obj_normals[i].z;
+    			voxel_candidate[j].z =
+    			(obj_tPool[i].v1.x - voxel_candidate[j].x)*nxz +
+    			(obj_tPool[i].v1.y - voxel_candidate[j].y)*nyz +
+    			obj_tPool[i].v1.z;
+    			//push
+    			if((xtt+j%xt) + (ytt+j/xt)*xn < all_xy_strap.size() )
+    			all_xy_strap[ (xtt+j%xt) + (ytt+j/xt)*xn ].push_back(voxel_candidate[j]);
+    		}
+    	}*/
     }
-*/
+
+    //fill all voxel
     int start;
     int end;
     bool recording = false;
@@ -797,39 +894,63 @@ cout<< xn <<" "<< yn <<" "<< zn <<endl;
         end = 0;
     }
 
+    //Voxel Ver.2
 /*
-	//Voxel Ver.2
-    for(int i=0; i<yn; i++){
-    	for(int j=0; j<obj_vPool.size()-1; j++){
-    		if( (min_y + i*voxel_length) <= obj_vPool[j].y
-    			&& obj_vPool[j].y < (min_y + (i+1)*voxel_length) ){
-    			y_layer.push_back(obj_vPool[j]);
-    		}
-    		all_y_layer.push_back(y_layer);
-    		y_layer.clear();
+    //y_layer.clear();
+    for(int i=0; i<yn; i++){//creat enough space for all_y_layer
+    	all_y_layer.push_back(y_layer);
+    }
+    cout<< "\n" <<"problem" <<endl;
+    int layer;
+    for(int i=0; i<obj_vPool.size(); i++){
+    	layer = (obj_vPool[i].y-min_y) / voxel_length;
+        obj_vPool[i].num = i;
+        //cout<< "\n" <<"1" <<endl;
+        if(layer < all_y_layer.size())
+    	all_y_layer[layer].push_back(obj_vPool[i]);
+        //cout<< "\n" <<"2" <<endl;
+    }
+
+    //x_strap.clear();
+    for(int i=0; i<(xn*yn); i++){//creat enough space for all_xy_strap
+    	all_xy_strap.push_back(x_strap);
+    }
+    //cout<< "\n" <<"problem start" <<endl;
+    int layer2;
+    for(int i=0; i<all_y_layer.size(); i++){
+    	for(int j=0; j<all_y_layer[i].size(); j++){
+    		layer  = (all_y_layer[i][j].x-min_x) / voxel_length;
+    		layer2 = i;
+            //cout<< "\n" <<"1" <<endl;
+            if(layer < xn && layer2 < yn)
+    		all_xy_strap[ layer + layer2*xn ].push_back(all_y_layer[i][j]);
+            //cout<< "\n" <<"2" <<endl;
     	}
     }
-    for(int i=0; i<all_y_layer.size(); i++){
-        for(int j=0; j<xn; j++){
-            for(int k=0; k<all_y_layer[i].size(); k++){
-                if( (min_x + j*voxel_length) <= all_y_layer[i][k].x
-                    && all_y_layer[i][k].x < (min_x + (j+1)*voxel_length) ){
-                    x_strap.push_back(all_y_layer[i][k]);
-                }
-            }
-            all_x_strap.push_back(x_strap);// (y, x)
-            x_strap.clear();
+    //cout<< "\n" <<"problem end" <<endl;
+
+    int start;
+    int end;
+    bool recording = false;
+    vertex voxel_center_tmp;
+    for(int i=0; i<all_xy_strap.size(); i++){
+    	for(int j=0; j<all_xy_strap[i].size(); j++){
+
+            int k;
+            k = (all_xy_strap[i][j].z- min_z) / voxel_length;
+            //define the voxel's position
+            voxel_center_tmp.x = (i%xn)*voxel_length + min_x + voxel_length_half;
+            voxel_center_tmp.y = (i/xn)*voxel_length + min_y + voxel_length_half;
+            voxel_center_tmp.z =      k*voxel_length + min_z + voxel_length_half;
+            //push the voxel into voxel pool
+            voxel_center_vPool.push_back(voxel_center_tmp);
         }
-    }
-    for(int i=0; i<all_x_strap.size(); i++){
-        for(int k=0 ; k<all_x_strap[i].size(); k++){
-            if( (min_z + j*voxel_length) <= all_x_strap[i][].z
-               	&& all_x_strap[i][].z < (min_z + (j+1)*voxel_length) ){
-                voxel_center_vPool.push_back(min_z + j*voxel_length + voxel_length_half);
-            }
-        }
+        recording = false;
+        start = 0;
+        end = 0;
     }
 */
+
 	//Voxel  Ver.1
 /*
     for(int i=0; i<xn; i++){
