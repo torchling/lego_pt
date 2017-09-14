@@ -26,8 +26,8 @@ using namespace std;
 //////////////////////////////////////////////////
 //global
 
-float voxel_length = 0.3;
-float voxel_length_half = voxel_length*0.5;//
+float voxel_length = 0.05;
+float voxel_length_half = voxel_length/2;//
 
 float metrix_O[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
 float metrix_V[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -721,30 +721,34 @@ cout<< xn <<" "<< yn <<" "<< zn <<endl;
     for(int i=0; i<yn; i++){//creat enough space for all_y_layer
     	all_y_layer.push_back(y_layer);
     }
+    cout<< "\n" <<"problem" <<endl;
     int layer;
     for(int i=0; i<obj_vPool.size(); i++){
     	layer = (obj_vPool[i].y-min_y) / voxel_length;
         obj_vPool[i].num = i;
+        //cout<< "\n" <<"1" <<endl;
+        if(layer < all_y_layer.size())
     	all_y_layer[layer].push_back(obj_vPool[i]);
+        //cout<< "\n" <<"2" <<endl;
     }
-    //cout<< "\n" <<"problem" <<endl;
 
     //x_strap.clear();
     for(int i=0; i<(xn*yn); i++){//creat enough space for all_xy_strap
     	all_xy_strap.push_back(x_strap);
     }
-    cout<< "\n" <<"problem start" <<endl;
+    //cout<< "\n" <<"problem start" <<endl;
     int layer2;
     for(int i=0; i<all_y_layer.size(); i++){
     	for(int j=0; j<all_y_layer[i].size(); j++){
     		layer  = (all_y_layer[i][j].x-min_x) / voxel_length;
     		layer2 = i;
             //cout<< "\n" <<"1" <<endl;
+            if(layer < xn && layer2 < yn)
     		all_xy_strap[ layer + layer2*xn ].push_back(all_y_layer[i][j]);
             //cout<< "\n" <<"2" <<endl;
     	}
     }
-    cout<< "\n" <<"problem end" <<endl;
+    //cout<< "\n" <<"problem end" <<endl;
 /*
     for(int i=0; i<all_xy_strap.size(); i++){
         for(int j=0; j<all_xy_strap[i].size(); j++){
