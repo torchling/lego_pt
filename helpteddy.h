@@ -63,10 +63,14 @@ std::vector< triangle > trianglePool ;*/
 
 //help teddy
 bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
+bool onTheSameSidezy(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
+bool onTheSameSidexz(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
 bool onTheSameSideCDT(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
 bool onTheEdge(vertex test_point, vertex line_start, vertex line_end);
 bool onTheEdgeMid(vertex test_point, vertex line_start, vertex line_end);
 bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3);
+bool outsideTheTrianglezy(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3);
+bool outsideTheTrianglexz(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3);
 bool onTheTriangleEdges(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3);
 bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius);
 vertex centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3);

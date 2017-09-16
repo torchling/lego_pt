@@ -34,7 +34,7 @@ using namespace std;
 //////////////////////////////////////////////////
 //global
 
-float voxel_length = 0.1;
+float voxel_length = 0.15;
 float voxel_length_half = voxel_length/2;//
 
 float metrix_O[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -47,8 +47,9 @@ float add=-2.2;
 float oheight=0.0;
 float upp = 0.0;
 
-bool drawlegoFrame = false;
+bool drawlegoFrame = true;
 
+float rota = 0.0;
 float rotate1 = 0.0;
 /*
 struct vertex
@@ -138,7 +139,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts")) != NULL) {
+        if ((dir = opendir ("/Users/luke/desktop/legomac/parts")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts
             // /Users/luke/desktop/legomac/parts
@@ -159,7 +160,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s")) != NULL) {
+        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/s")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
             // /Users/luke/desktop/legomac/parts/s
@@ -492,17 +493,17 @@ std::vector< vector <vertex> > all_xy_strap;//ver 3.0 & 2.0
 
 bool in_voxel(vertex test, vertex voxel_center, float radius){
     //float radius = edge_length*0.5;
-    /*
-     if( ((test.x - voxel_center.x)<=radius || (voxel_center.x - test.x)<=radius)
-     && ((test.y - voxel_center.y)<=radius || (voxel_center.y - test.y)<=radius)
-     && ((test.z - voxel_center.z)<=radius || (voxel_center.z - test.z)<=radius)
-     )return true;
-     */
     if( abs(test.x - voxel_center.x)<=radius
        && abs(test.y - voxel_center.y)<=radius
        && abs(test.z - voxel_center.z)<=radius
        )return true;
 
+    return false;
+}
+
+bool areSameVertex(vertex v1, vertex v2){
+    if(v1.x==v2.x && v1.y==v2.y && v1.z==v2.z)
+        return true;
     return false;
 }
 
@@ -731,7 +732,6 @@ void read_obj(){
     }
     for(int i=0; i<obj_tPool.size(); i++){
     //get voxel line
-
     	float max_tx, max_ty, max_tz, min_tx, min_ty, min_tz;
     	max_tx = obj_tPool[i].v1.x;if(max_tx < obj_tPool[i].v2.x) max_tx = obj_tPool[i].v2.x;if(max_tx < obj_tPool[i].v3.x) max_tx = obj_tPool[i].v3.x;
     	max_ty = obj_tPool[i].v1.y;if(max_ty < obj_tPool[i].v2.y) max_ty = obj_tPool[i].v2.y;if(max_ty < obj_tPool[i].v3.y) max_ty = obj_tPool[i].v3.y;
@@ -757,8 +757,9 @@ void read_obj(){
 
     	float max;
     	int time;
-    	int col, row;
+    	int col, row, dep;
     	vertex vonline;
+        vertex vonloop;
 		//line 1 to 2
     	max=abs(vc12.x); if(max < abs(vc12.y))max = abs(vc12.y); if(max < abs(vc12.z))max = abs(vc12.z);
     	time = max/voxel_length + 1;
@@ -774,9 +775,11 @@ void read_obj(){
 
     		col = (vonline.x - min_x)/voxel_length;// x
     		row = (vonline.y - min_y)/voxel_length;// y
+            dep = (vonline.z - min_z)/voxel_length;// z
 
     		if( (col + row * xn) < all_xy_strap.size() )
     		all_xy_strap[ col + row * xn ].push_back(vonline);
+            
     	}
     	//line 3 to 1
     	max=abs(vc13.x); if(max < abs(vc13.y))max = abs(vc13.y); if(max < abs(vc13.z))max = abs(vc13.z);
@@ -792,10 +795,12 @@ void read_obj(){
 
     		col = (vonline.x - min_x)/voxel_length;// x
     		row = (vonline.y - min_y)/voxel_length;// y
+            dep = (vonline.z - min_z)/voxel_length;// z
 
     		if( (col + row * xn) < all_xy_strap.size() )
     		all_xy_strap[ col + row * xn ].push_back(vonline);
-    	}
+            
+            }
     	//line 2 to 3
 
     	max=abs(vc23.x); if(max < abs(vc23.y))max = abs(vc23.y); if(max < abs(vc23.z))max = abs(vc23.z);
@@ -811,47 +816,74 @@ void read_obj(){
 
     		col = (vonline.x - min_x)/voxel_length;// x
     		row = (vonline.y - min_y)/voxel_length;// y
+            dep = (vonline.z - min_z)/voxel_length;// z
 
     		if( (col + row * xn) < all_xy_strap.size() )
     		all_xy_strap[ col + row * xn ].push_back(vonline);
+            
     	}
 
+
     //get voxel face
-/*
-    	max_tx = max_tx - min_tx;//use max to replace range of whole model
+        max_tx = max_tx - min_tx;//use max to replace range of whole model
     	max_ty = max_ty - min_ty;//..
     	max_tz = max_tz - min_tz;//..
 
     	int xt = max_tx/voxel_length + 1;
     	int yt = max_ty/voxel_length + 1;
+        int zt = max_tz/voxel_length + 1;
 
     	int xtt= (min_tx - min_x)/voxel_length;
     	int ytt= (min_ty - min_y)/voxel_length;
+        int ztt= (min_tz - min_z)/voxel_length;
     	//xtt 並不是多算，而是利用float轉int的特性，去對齊voxel，ytt 也是如此
     	min_tx = min_x + xtt*voxel_length + voxel_length_half;
     	min_ty = min_y + ytt*voxel_length + voxel_length_half;
+        min_tz = min_z + ztt*voxel_length + voxel_length_half;
 
     	vertex candidate;
 
-    	for(int j=0; j<xt*yt; j++){
-    		candidate.x = min_tx + (j%xt)*voxel_length;
-    		candidate.y = min_ty + (j/xt)*voxel_length;
-    		voxel_candidate.push_back(candidate);
-    	}
+    	for(int j=0; j<xt; j++){
+        for(int k=0; k<yt; k++){
+        for(int l=0; l<zt; l++){
+    		//candidate.x = min_tx + (j%xt)*voxel_length;
+    		//candidate.y = min_ty + (j/xt)*voxel_length;
+            //candidate.z = min_tz + (j/(xt*yt))*voxel_length;
+    		//voxel_candidate.push_back(candidate);
+            
+            candidate.x = min_tx + j*voxel_length;
+            candidate.y = min_ty + k*voxel_length;
+            candidate.z = min_tz + l*voxel_length;
+            voxel_candidate.push_back(candidate);
+            //voxel_center_vPool.push_back(candidate);
+        }
+        }
+        }
     	for(int j=0; j<voxel_candidate.size(); j++){
-    		if( !outsideTheTriangle(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) 
-    			&& obj_normals[i].z != 0 ){
+    		if(
+               (!outsideTheTriangle(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && !outsideTheTrianglezy(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3)) ||
+               (!outsideTheTrianglexz(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && !outsideTheTrianglezy(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3)) ||
+               (!outsideTheTriangle(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && !outsideTheTrianglexz(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3)) ||
+               ( xt<2 && !outsideTheTrianglezy(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && abs( voxel_candidate[j].x - obj_tPool[i].v1.x )<=voxel_length_half ) ||
+               ( yt<2 && !outsideTheTrianglexz(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && abs( voxel_candidate[j].y - obj_tPool[i].v1.y )<=voxel_length_half ) ||
+               ( zt<2 && !outsideTheTriangle(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && abs( voxel_candidate[j].z - obj_tPool[i].v1.z )<=voxel_length_half )
+               ){
+                /*
     			float nxz = obj_normals[i].x / obj_normals[i].z;
     			float nyz = obj_normals[i].y / obj_normals[i].z;
     			voxel_candidate[j].z =
     			(obj_tPool[i].v1.x - voxel_candidate[j].x)*nxz +
     			(obj_tPool[i].v1.y - voxel_candidate[j].y)*nyz +
-    			obj_tPool[i].v1.z;
+    			obj_tPool[i].v1.z;*/
     			//push
-    			if((xtt+j%xt) + (ytt+j/xt)*xn < all_xy_strap.size() )
-    			all_xy_strap[ (xtt+j%xt) + (ytt+j/xt)*xn ].push_back(voxel_candidate[j]);
+                
+                voxel_center_vPool.push_back(voxel_candidate[j]);
+    			
+                //if((xtt+j%xt) + (ytt+j/xt)*xn < all_xy_strap.size() )
+    			//all_xy_strap[ (xtt+j%xt) + (ytt+j/xt)*xn ].push_back(voxel_candidate[j]);
     		}
-    	}*/
+    	}
+        
     }
 
     //fill all voxel
@@ -1029,8 +1061,15 @@ void init(void)
 void drawObj_p()
 {
     glColor3f(1.0f,0.0f,0.0f);
-    for(int i=0; i<obj_vPool.size(); i++){
-        glVertex3f( obj_vPool[i].x, obj_vPool[i].y, obj_vPool[i].z);
+    if(drawlegoFrame){
+        for(int i=0; i<obj_vPool.size(); i++){
+            glVertex3f( obj_vPool[i].x, obj_vPool[i].y, obj_vPool[i].z);
+        }
+    }
+    else{
+        for(int i=0; i<voxel_center_vPool.size(); i++){
+            glVertex3f( voxel_center_vPool[i].x, voxel_center_vPool[i].y, voxel_center_vPool[i].z);
+        }
     }
 }
 
@@ -1046,15 +1085,15 @@ void drawObj_t(bool drawTri)//true: draw Triangles ; false: draw loops
             glVertex3f( obj_tPool[i].v3.x, obj_tPool[i].v3.y, obj_tPool[i].v3.z);
             glEnd();
         }else{
-            glColor3f(0.2f,0.6f,0.2f);
+            glColor3f(1.0f,0.0f,0.0f);
             glBegin(GL_LINE_LOOP);
-            glNormal3f( 0.0f, 1.0f, 0.0f );//up
+            glNormal3f( 0.0f, 1.0f, 1.0f );//up
             glVertex3f( obj_tPool[i].v1.x, obj_tPool[i].v1.y, obj_tPool[i].v1.z);
             glVertex3f( obj_tPool[i].v2.x, obj_tPool[i].v2.y, obj_tPool[i].v2.z);
             glVertex3f( obj_tPool[i].v3.x, obj_tPool[i].v3.y, obj_tPool[i].v3.z);
             glEnd();
         }
-        if(drawlegoFrame){
+        if(!drawlegoFrame){
             glColor3f(1.0f,1.0f,1.0f);
             glBegin(GL_LINE_LOOP);
             glNormal3f( 1.0f, 1.0f, 1.0f );
@@ -1070,7 +1109,7 @@ void drawObj_t(bool drawTri)//true: draw Triangles ; false: draw loops
 void drawVoxel()
 {
 
-    glColor3f(1.0f,0.0f,0.0f);
+    glColor3f(1.0f,1.0f,1.0f);
     for(int i=0; i<voxel_center_vPool.size(); i++){
         glBegin(GL_LINE_LOOP);
         glNormal3f( 1.0f, 0.0f, 0.0f );//right
@@ -1126,7 +1165,7 @@ void drawPart(int p_number){
         glVertex3f( parts[p_number].tpfp[i].v2.x, parts[p_number].tpfp[i].v2.y, parts[p_number].tpfp[i].v2.z);
         glVertex3f( parts[p_number].tpfp[i].v3.x, parts[p_number].tpfp[i].v3.y, parts[p_number].tpfp[i].v3.z);
         glEnd();
-        if(drawlegoFrame){
+        if(!drawlegoFrame){
             glColor3f(1.0f,1.0f,1.0f);
             glBegin(GL_LINE_LOOP);
             glNormal3f( parts[p_number].normal_pool[i].x, parts[p_number].normal_pool[i].y, parts[p_number].normal_pool[i].z );
@@ -1163,7 +1202,7 @@ static void display(void)
     glPushMatrix();
     glTranslated(-2.8,0.0, dis);//glTranslated(-2.4,1.2,-6);
 
-    glRotated(-90,1,0,0);
+    glRotated(-90 + rota,1,0,0);
     glRotated(25 + rotate1,0,0,1);
 
     drawObj_t(true);
@@ -1171,12 +1210,13 @@ static void display(void)
     glPopMatrix();
 
     glPushMatrix();
-    glTranslated(0.0,0.0, dis);//glTranslated(-2.4,1.2,-6);
+    glTranslated(0,0.0, dis);//glTranslated(-2.4,1.2,-6);
 
-    glRotated(-90,1,0,0);
+    glRotated(-90.0 + rota,1,0,0);
     glRotated(0 + rotate1,0,0,1);
 
     drawObj_t(false);
+    if(!drawlegoFrame)
     drawVoxel();
     //glutSolidSphere(1,slices,stacks);
     glPopMatrix();
@@ -1184,13 +1224,14 @@ static void display(void)
     glPushMatrix();
     glTranslated(2.8,0.0, dis);//glTranslated(2.4,1.2,-6);
 
-    glRotated(-90,1,0,0);
+    glRotated(-90 + rota,1,0,0);
     glRotated(-25 + rotate1,0,0,1);
 
     glBegin(GL_POINTS);
     drawObj_p();
     glEnd();
-    //drawVoxel();
+    if(drawlegoFrame)
+    drawVoxel();
     //glutSolidTorus(0.2,0.8,slices,stacks);
     glPopMatrix();
 
@@ -1244,17 +1285,24 @@ static void key(unsigned char key, int x, int y)
             //            g_fAngle -= 2.0;
             rotate1 -= 2.0;
             break;
-
+            
+        case 'w':
+            //            g_fAngle += 2.0;
+            rota += 2.0;
+            break;
+            
         case 's':
-            //            g_fAngle = .0;
-            rotate1 = 0.0;
-            upp = .0;
-            oheight=.0;
-            dis = -4.5;
+            //            g_fAngle -= 2.0;
+            rota -= 2.0;
             break;
 
-        case 'w':
-            upp += 0.5;
+        case 'x':
+            //            g_fAngle = .0;
+            rota = 0.0;
+            rotate1 = 0.0;
+            
+            oheight=.0;
+            dis = -4.5;
             break;
 
         case 'i':
@@ -1322,10 +1370,10 @@ int main(int argc, char *argv[])
     glClearColor(0.0,0.0,0.0,1);
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
-/*
+
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-
+/*
     glEnable(GL_LIGHT0);
     glEnable(GL_NORMALIZE);
     glEnable(GL_COLOR_MATERIAL);
@@ -1340,7 +1388,7 @@ int main(int argc, char *argv[])
     glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
     glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
-    */
+*/
     glutMainLoop();
 
     return EXIT_SUCCESS;

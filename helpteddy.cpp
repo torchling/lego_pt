@@ -81,7 +81,57 @@ bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex
 
         return true;
     }
-
+    return false;
+}
+bool onTheSameSidezy(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
+{
+    //calculate y distance from test point to line.
+    if(line_start.z!=line_end.z)
+    {
+        float vz = line_start.z-line_end.z;
+        float vy = line_start.y-line_end.y;
+        
+        if( (test_point.y - ( line_start.y + vy*(test_point.z-line_start.z)/vz))*
+           (compare_point.y - (line_start.y + vy*(compare_point.z-line_start.z)/vz)) <= 0 )
+            return false;
+        
+        return true;
+    }
+    
+    //calculate x distance from test point to line.
+    if(line_start.z==line_end.z)
+    {
+        if( (test_point.z-line_start.z)*(compare_point.z-line_start.z) <= 0 )
+            return false;
+        
+        return true;
+    }
+    return false;
+}
+bool onTheSameSidexz(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
+{
+    //calculate y distance from test point to line.
+    if(line_start.x!=line_end.x)
+    {
+        float vx = line_start.x-line_end.x;
+        float vz = line_start.z-line_end.z;
+        
+        if( (test_point.z - ( line_start.z + vz*(test_point.x-line_start.x)/vx))*
+           (compare_point.z - (line_start.z + vz*(compare_point.x-line_start.x)/vx)) <= 0 )
+            return false;
+        
+        return true;
+    }
+    
+    //calculate x distance from test point to line.
+    if(line_start.x==line_end.x)
+    {
+        if( (test_point.x-line_start.x)*(compare_point.x-line_start.x) <= 0 )
+            return false;
+        
+        return true;
+    }
+    return false;
 }
 
 bool onTheSameSideCDT(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
@@ -107,7 +157,7 @@ bool onTheSameSideCDT(vertex test_point, vertex line_start, vertex line_end, ver
 
         return true;
     }
-
+    return false;
 }
 
 bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3)
@@ -117,6 +167,25 @@ bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, verte
         onTheSameSide(testvertex, vertex2, vertex3, vertex1) )
         return false;
 
+    return true;
+}
+
+bool outsideTheTrianglezy(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3)
+{
+    if( onTheSameSidezy(testvertex, vertex1, vertex2, vertex3) &&
+       onTheSameSidezy(testvertex, vertex3, vertex1, vertex2) &&
+       onTheSameSidezy(testvertex, vertex2, vertex3, vertex1) )
+        return false;
+    
+    return true;
+}
+bool outsideTheTrianglexz(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3)
+{
+    if( onTheSameSidexz(testvertex, vertex1, vertex2, vertex3) &&
+       onTheSameSidexz(testvertex, vertex3, vertex1, vertex2) &&
+       onTheSameSidexz(testvertex, vertex2, vertex3, vertex1) )
+        return false;
+    
     return true;
 }
 
@@ -143,6 +212,7 @@ bool onTheEdge(vertex test_point, vertex line_start, vertex line_end)
 
         return false;
     }
+    return false;
 
 }
 
