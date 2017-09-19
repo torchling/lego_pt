@@ -34,7 +34,7 @@ using namespace std;
 //////////////////////////////////////////////////
 //global
 
-float voxel_length = 0.15;
+float voxel_length = 0.1;
 float voxel_length_half = voxel_length/2;//
 
 float metrix_O[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -139,7 +139,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir ("/Users/luke/desktop/legomac/parts")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts
             // /Users/luke/desktop/legomac/parts
@@ -160,7 +160,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/s")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
             // /Users/luke/desktop/legomac/parts/s
@@ -711,6 +711,14 @@ void read_obj(){
     max_z = max_z - min_z;//..
 
     //float voxel_length;
+    float midx, midy, midz;
+    midx = min_x + max_x*0.5;
+    midy = min_y + max_y*0.5;
+    midz = min_z + max_z*0.5;
+
+    int hxn = (midx-min_x)/voxel_length;
+    int hyn = (midy-min_y)/voxel_length;
+    int hzn = (midz-min_z)/voxel_length;
 
     int xn = max_x/voxel_length + 1;
     int yn = max_y/voxel_length + 1;
@@ -719,10 +727,22 @@ void read_obj(){
 	cout<<endl;
 	cout<< xn <<" "<< yn <<" "<< zn <<endl;
 
+	if( (midx - hxn*voxel_length - min_x) < voxel_length_half )
+    {	min_x = midx - hxn*voxel_length - voxel_length_half; }
+    else{	min_x = midx - (hxn+1)*voxel_length; }
+
+    if( (midy - hyn*voxel_length - min_y) < voxel_length_half )
+    {	min_y = midy - hyn*voxel_length - voxel_length_half; }
+    else{	min_y = midy - (hyn+1)*voxel_length; }
+
+    if( (midz - hzn*voxel_length - min_z) < voxel_length_half )
+    {	min_z = midz - hzn*voxel_length - voxel_length_half; }
+    else{	min_z = midz - (hzn+1)*voxel_length; }
+/*
     min_x = min_x - voxel_length_half;
     min_y = min_y - voxel_length_half;
     min_z = min_z - voxel_length_half;
-
+*/
     vertex voxel_center_test;
 
 	//Voxel Ver.3
@@ -779,7 +799,7 @@ void read_obj(){
 
     		if( (col + row * xn) < all_xy_strap.size() )
     		all_xy_strap[ col + row * xn ].push_back(vonline);
-            
+
     	}
     	//line 3 to 1
     	max=abs(vc13.x); if(max < abs(vc13.y))max = abs(vc13.y); if(max < abs(vc13.z))max = abs(vc13.z);
@@ -799,7 +819,7 @@ void read_obj(){
 
     		if( (col + row * xn) < all_xy_strap.size() )
     		all_xy_strap[ col + row * xn ].push_back(vonline);
-            
+
             }
     	//line 2 to 3
 
@@ -820,7 +840,7 @@ void read_obj(){
 
     		if( (col + row * xn) < all_xy_strap.size() )
     		all_xy_strap[ col + row * xn ].push_back(vonline);
-            
+
     	}
 
 
@@ -850,7 +870,7 @@ void read_obj(){
     		//candidate.y = min_ty + (j/xt)*voxel_length;
             //candidate.z = min_tz + (j/(xt*yt))*voxel_length;
     		//voxel_candidate.push_back(candidate);
-            
+
             candidate.x = min_tx + j*voxel_length;
             candidate.y = min_ty + k*voxel_length;
             candidate.z = min_tz + l*voxel_length;
@@ -876,14 +896,14 @@ void read_obj(){
     			(obj_tPool[i].v1.y - voxel_candidate[j].y)*nyz +
     			obj_tPool[i].v1.z;*/
     			//push
-                
+
                 voxel_center_vPool.push_back(voxel_candidate[j]);
-    			
+
                 //if((xtt+j%xt) + (ytt+j/xt)*xn < all_xy_strap.size() )
     			//all_xy_strap[ (xtt+j%xt) + (ytt+j/xt)*xn ].push_back(voxel_candidate[j]);
     		}
     	}
-        
+
     }
 
     //fill all voxel
@@ -1285,12 +1305,12 @@ static void key(unsigned char key, int x, int y)
             //            g_fAngle -= 2.0;
             rotate1 -= 2.0;
             break;
-            
+
         case 'w':
             //            g_fAngle += 2.0;
             rota += 2.0;
             break;
-            
+
         case 's':
             //            g_fAngle -= 2.0;
             rota -= 2.0;
@@ -1300,7 +1320,7 @@ static void key(unsigned char key, int x, int y)
             //            g_fAngle = .0;
             rota = 0.0;
             rotate1 = 0.0;
-            
+
             oheight=.0;
             dis = -4.5;
             break;
