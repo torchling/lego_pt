@@ -47,32 +47,11 @@ float add=-2.2;
 float oheight=0.0;
 float upp = 0.0;
 
-bool drawlegoFrame = true;
+bool drawlegoFrame = false;
 
 float rota = 0.0;
 float rotate1 = 0.0;
-/*
-struct vertex
-{
-    float x;
-    float y;
-    float z;
-    int num;
-};
 
-struct edge
-{
-    vertex v1;
-    vertex v2;
-};
-
-struct triangle
-{
-    vertex v1;
-    vertex v2;
-    vertex v3;
-};
-*/
 struct face //max to 4 points
 {
     int v1;
@@ -139,7 +118,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts
             // /Users/luke/desktop/legomac/parts
@@ -160,7 +139,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
             // /Users/luke/desktop/legomac/parts/s
@@ -490,6 +469,7 @@ std::vector< vertex > y_layer;				//ver 		2.0
 std::vector< vertex > voxel_center_vPool;	//ver 		2.0 & 1.0
 std::vector< vertex > x_strap;				//ver 3.0 & 2.0
 std::vector< vector <vertex> > all_xy_strap;//ver 3.0 & 2.0
+std::vector< vertex > voxel_bone_position;      //ver 3.0
 
 bool in_voxel(vertex test, vertex voxel_center, float radius){
     //float radius = edge_length*0.5;
@@ -657,7 +637,7 @@ void read_obj(){
         obj_normals.push_back(normal);
     }
 
-    	//creat normal for each vertex
+        //creat normal for each vertex
     for(int i=0; i<obj_vPool.size(); i++){
     	obj_vNormal.push_back(obj_vPool[i]);
     }
@@ -906,7 +886,7 @@ void read_obj(){
 
     }
 
-    //fill all voxel
+    //fill shell voxel
     int start;
     int end;
     bool recording = false;
@@ -945,6 +925,84 @@ void read_obj(){
         start = 0;
         end = 0;
     }
+
+    //fill inside part
+    int top, buttom, left, right, front, hind;
+    bool t_found = false;
+    bool b_found = false;
+    bool l_found = false;
+    bool r_found = false;
+    bool f_found = false;
+    bool h_found = false;
+    float alert_range = 2.5;
+    cout<< xn <<" "<< yn <<" "<< zn <<endl;
+    cout<< voxel_center_vPool.size() <<endl;
+    for(int i=0; i<xn; i++){
+        for(int j=0; j<voxel_center_vPool.size(); j++){
+            if( abs( midx + i*voxel_length - voxel_center_vPool[j].x )<voxel_length &&
+                abs( midy - voxel_center_vPool[j].y )<alert_range*voxel_length &&
+                abs( midz - voxel_center_vPool[j].z )<alert_range*voxel_length &&
+                (r_found==false)){
+                cout<<" yeah" <<endl;
+                right=i;
+                r_found=true;
+            }
+            if( abs( midx - i*voxel_length - voxel_center_vPool[j].x )<voxel_length &&
+                abs( midy - voxel_center_vPool[j].y )<alert_range*voxel_length &&
+                abs( midz - voxel_center_vPool[j].z )<alert_range*voxel_length &&
+                (l_found==false)){
+                left=i;
+                l_found=true;
+            }
+        }
+    }
+    for(int i=0; i<yn; i++){
+        for(int j=0; j<voxel_center_vPool.size(); j++){
+            if( abs( midx - voxel_center_vPool[j].x )<alert_range*voxel_length &&
+                abs( midy + i*voxel_length - voxel_center_vPool[j].y )<voxel_length &&
+                abs( midz - voxel_center_vPool[j].z )<alert_range*voxel_length &&
+                (t_found==false)){
+                top=i;
+                t_found=true;
+            }
+            if( abs( midx - voxel_center_vPool[j].x )<alert_range*voxel_length &&
+                abs( midy - i*voxel_length - voxel_center_vPool[j].y )<voxel_length &&
+                abs( midz - voxel_center_vPool[j].z )<alert_range*voxel_length &&
+                (b_found==false)){
+                buttom=i;
+                b_found=true;
+            }
+        }
+    }
+    for(int i=0; i<zn; i++){
+        for(int j=0; j<voxel_center_vPool.size(); j++){
+            if( abs( midx - voxel_center_vPool[j].x )<alert_range*voxel_length &&
+                abs( midy - voxel_center_vPool[j].y )<alert_range*voxel_length &&
+                abs( midz + i*voxel_length - voxel_center_vPool[j].z )<voxel_length &&
+                (f_found==false)){
+                front=i;
+                f_found=true;
+            }
+            if( abs( midx - voxel_center_vPool[j].x )<alert_range*voxel_length &&
+                abs( midy - voxel_center_vPool[j].y )<alert_range*voxel_length &&
+                abs( midz - i*voxel_length - voxel_center_vPool[j].z )<voxel_length &&
+                (h_found==false)){
+                hind=i;
+                h_found=true;
+            }
+        }
+    }
+    cout<< top <<" "<< buttom <<"\n";
+    cout<< right <<" "<< left <<"\n";
+    cout<< front <<" "<< hind <<"\n";
+    vertex voxel_bone;
+    for(int i=0; i<(top+ buttom)*(right+ left)*(front+ hind); i++){
+        voxel_bone.x = voxel_length_half + midx - left*voxel_length + (i%(right+ left))*voxel_length;
+        voxel_bone.y = voxel_length_half + midy - buttom*voxel_length + ((i/(right+ left))%(top+buttom))*voxel_length;
+        voxel_bone.z = voxel_length_half + midz - hind*voxel_length + (i/((right+ left)*(top+ buttom)))*voxel_length;
+        voxel_bone_position.push_back(voxel_bone);
+    }
+    cout<< voxel_bone_position.size() <<"\n";
 
     //Voxel Ver.2
 /*
@@ -1041,7 +1099,7 @@ void init(void)
 
     part_v1 part0;
 
-    string partt = "3024.dat";//"3005.dat";3024 3070b
+    string partt = "87087.dat";//"3005.dat";3024 3070b
     search_or_read(partt, false, metrix_O);
     for(int i=0; i<trianglePool.size(); i++){
         part0.tpfp.push_back(trianglePool[i]);
@@ -1052,7 +1110,7 @@ void init(void)
     tmpNormalPool.clear();
 
     part0.tpfp.clear();
-    partt = "11477.dat";//"3005.dat";3024 3070b
+    partt = "3024.dat";//"3005.dat";3024 3070b; 11477
     search_or_read(partt, false, metrix_O);
     for(int i=0; i<trianglePool.size(); i++){
         part0.tpfp.push_back(trianglePool[i]);
@@ -1090,6 +1148,14 @@ void drawObj_p()
         for(int i=0; i<voxel_center_vPool.size(); i++){
             glVertex3f( voxel_center_vPool[i].x, voxel_center_vPool[i].y, voxel_center_vPool[i].z);
         }
+    }
+}
+
+void drawObj_in_p()
+{
+    glColor3f(0.0f,1.0f,0.0f);
+    for(int i=0; i<voxel_bone_position.size(); i++){
+            glVertex3f( voxel_bone_position[i].x, voxel_bone_position[i].y, voxel_bone_position[i].z);
     }
 }
 
@@ -1249,6 +1315,7 @@ static void display(void)
 
     glBegin(GL_POINTS);
     drawObj_p();
+    drawObj_in_p();
     glEnd();
     if(drawlegoFrame)
     drawVoxel();
