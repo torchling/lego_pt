@@ -34,8 +34,10 @@ using namespace std;
 //////////////////////////////////////////////////
 //global
 
-float voxel_length = 0.1;
+float voxel_length = 0.07;
 float voxel_length_half = voxel_length/2;//
+
+float alert_range = 3.0; //for interier stuff
 
 float metrix_O[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
 float metrix_V[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -934,7 +936,7 @@ void read_obj(){
     bool r_found = false;
     bool f_found = false;
     bool h_found = false;
-    float alert_range = 2.5;
+
     cout<< xn <<" "<< yn <<" "<< zn <<endl;
     cout<< voxel_center_vPool.size() <<endl;
     for(int i=0; i<xn; i++){
@@ -1138,7 +1140,7 @@ void init(void)
 
 void drawObj_p()
 {
-    glColor3f(1.0f,0.0f,0.0f);
+    glColor3f(1.0f,1.0f,1.0f);
     if(drawlegoFrame){
         for(int i=0; i<obj_vPool.size(); i++){
             glVertex3f( obj_vPool[i].x, obj_vPool[i].y, obj_vPool[i].z);
@@ -1153,9 +1155,51 @@ void drawObj_p()
 
 void drawObj_in_p()
 {
-    glColor3f(0.0f,1.0f,0.0f);
+    glColor3f(1.0f,0.0f,0.0f);
     for(int i=0; i<voxel_bone_position.size(); i++){
-            glVertex3f( voxel_bone_position[i].x, voxel_bone_position[i].y, voxel_bone_position[i].z);
+        //glVertex3f( voxel_bone_position[i].x, voxel_bone_position[i].y, voxel_bone_position[i].z);
+        glBegin(GL_LINE_LOOP);
+        glNormal3f( 1.0f, 0.0f, 0.0f );//right
+        glVertex3f( voxel_bone_position[i].x + voxel_length_half, voxel_bone_position[i].y + voxel_length_half, voxel_bone_position[i].z + voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x + voxel_length_half, voxel_bone_position[i].y - voxel_length_half, voxel_bone_position[i].z + voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x + voxel_length_half, voxel_bone_position[i].y - voxel_length_half, voxel_bone_position[i].z - voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x + voxel_length_half, voxel_bone_position[i].y + voxel_length_half, voxel_bone_position[i].z - voxel_length_half);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glNormal3f( -1.0f, 0.0f, 0.0f );//left
+        glVertex3f( voxel_bone_position[i].x - voxel_length_half, voxel_bone_position[i].y + voxel_length_half, voxel_bone_position[i].z + voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x - voxel_length_half, voxel_bone_position[i].y - voxel_length_half, voxel_bone_position[i].z + voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x - voxel_length_half, voxel_bone_position[i].y - voxel_length_half, voxel_bone_position[i].z - voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x - voxel_length_half, voxel_bone_position[i].y + voxel_length_half, voxel_bone_position[i].z - voxel_length_half);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glNormal3f( 0.0f, 1.0f, 0.0f );//up
+        glVertex3f( voxel_bone_position[i].x + voxel_length_half, voxel_bone_position[i].y + voxel_length_half, voxel_bone_position[i].z + voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x - voxel_length_half, voxel_bone_position[i].y + voxel_length_half, voxel_bone_position[i].z + voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x - voxel_length_half, voxel_bone_position[i].y + voxel_length_half, voxel_bone_position[i].z - voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x + voxel_length_half, voxel_bone_position[i].y + voxel_length_half, voxel_bone_position[i].z - voxel_length_half);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glNormal3f( 0.0f, -1.0f, 0.0f );//down
+        glVertex3f( voxel_bone_position[i].x + voxel_length_half, voxel_bone_position[i].y - voxel_length_half, voxel_bone_position[i].z + voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x - voxel_length_half, voxel_bone_position[i].y - voxel_length_half, voxel_bone_position[i].z + voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x - voxel_length_half, voxel_bone_position[i].y - voxel_length_half, voxel_bone_position[i].z - voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x + voxel_length_half, voxel_bone_position[i].y - voxel_length_half, voxel_bone_position[i].z - voxel_length_half);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glNormal3f( 0.0f, 0.0f, 1.0f );//front
+        glVertex3f( voxel_bone_position[i].x + voxel_length_half, voxel_bone_position[i].y + voxel_length_half, voxel_bone_position[i].z + voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x - voxel_length_half, voxel_bone_position[i].y + voxel_length_half, voxel_bone_position[i].z + voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x - voxel_length_half, voxel_bone_position[i].y - voxel_length_half, voxel_bone_position[i].z + voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x + voxel_length_half, voxel_bone_position[i].y - voxel_length_half, voxel_bone_position[i].z + voxel_length_half);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glNormal3f( 0.0f, 0.0f, -1.0f );//hind
+        glVertex3f( voxel_bone_position[i].x + voxel_length_half, voxel_bone_position[i].y + voxel_length_half, voxel_bone_position[i].z - voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x - voxel_length_half, voxel_bone_position[i].y + voxel_length_half, voxel_bone_position[i].z - voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x - voxel_length_half, voxel_bone_position[i].y - voxel_length_half, voxel_bone_position[i].z - voxel_length_half);
+        glVertex3f( voxel_bone_position[i].x + voxel_length_half, voxel_bone_position[i].y - voxel_length_half, voxel_bone_position[i].z - voxel_length_half);
+        glEnd();
     }
 }
 
@@ -1171,7 +1215,7 @@ void drawObj_t(bool drawTri)//true: draw Triangles ; false: draw loops
             glVertex3f( obj_tPool[i].v3.x, obj_tPool[i].v3.y, obj_tPool[i].v3.z);
             glEnd();
         }else{
-            glColor3f(1.0f,0.0f,0.0f);
+            glColor3f(0.0f,1.0f,0.0f);
             glBegin(GL_LINE_LOOP);
             glNormal3f( 0.0f, 1.0f, 1.0f );//up
             glVertex3f( obj_tPool[i].v1.x, obj_tPool[i].v1.y, obj_tPool[i].v1.z);
@@ -1195,7 +1239,7 @@ void drawObj_t(bool drawTri)//true: draw Triangles ; false: draw loops
 void drawVoxel()
 {
 
-    glColor3f(1.0f,1.0f,1.0f);
+    glColor3f(1.0f,0.0f,0.0f);
     for(int i=0; i<voxel_center_vPool.size(); i++){
         glBegin(GL_LINE_LOOP);
         glNormal3f( 1.0f, 0.0f, 0.0f );//right
