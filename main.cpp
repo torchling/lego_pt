@@ -120,7 +120,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts")) != NULL) {
+        if ((dir = opendir ("/Users/luke/desktop/legomac/parts")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts
             // /Users/luke/desktop/legomac/parts
@@ -141,7 +141,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s")) != NULL) {
+        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/s")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
             // /Users/luke/desktop/legomac/parts/s
@@ -150,7 +150,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             while ((ent = readdir (dir)) != NULL) {
                 string d_name;      // ent->d_name: 3005.dat
                 string ss="s\\";      // ss: s
-                string sdname = ss + ent->d_name; // s3005.dat
+                string sdname = ss + ent->d_name; // s\ + 3005.dat
 
                 if(sdname == part_name){// part_name: s\3005.dat (backslash was escaped.)
 
@@ -162,6 +162,56 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
         } else {
             // could not open directory
             cerr<<"Can't search the part in \\parts\\s"<<endl;
+            exit(1);
+            //return EXIT_FAILURE;
+        }
+        
+        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/48")) != NULL) {
+            // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
+            // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
+            // /Users/luke/desktop/legomac/parts/s
+            // search all the files and directories within directory
+            
+            while ((ent = readdir (dir)) != NULL) {
+                string d_name;      // ent->d_name: 3005.dat
+                string s48="48\\";      // s48: 48\;
+                string sdname = s48 + ent->d_name; // 48\ + 3005.dat
+                
+                if(sdname == part_name){// part_name: s\3005.dat (backslash was escaped.)
+                    
+                    //cout<<"Found "<< ent->d_name <<" in \\parts\\s"<<endl;
+                    search_or_read( ent->d_name, false, array_O );
+                }
+            }
+            closedir (dir);
+        } else {
+            // could not open directory
+            cerr<<"Can't search the part in \\parts\\48"<<endl;
+            exit(1);
+            //return EXIT_FAILURE;
+        }
+        
+        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/8")) != NULL) {
+            // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
+            // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
+            // /Users/luke/desktop/legomac/parts/s
+            // search all the files and directories within directory
+            
+            while ((ent = readdir (dir)) != NULL) {
+                string d_name;      // ent->d_name: 3005.dat
+                string s8="8\\";      // s8: 8\;
+                string sdname = s8 + ent->d_name; // 8\3005.dat
+                
+                if(sdname == part_name){// part_name: s\3005.dat (backslash was escaped.)
+                    
+                    //cout<<"Found "<< ent->d_name <<" in \\parts\\s"<<endl;
+                    search_or_read( ent->d_name, false, array_O );
+                }
+            }
+            closedir (dir);
+        } else {
+            // could not open directory
+            cerr<<"Can't search the part in \\parts\\8"<<endl;
             exit(1);
             //return EXIT_FAILURE;
         }
@@ -204,23 +254,33 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
         //string pathToS   = "parts\\s\\";
         string path      = "parts/";        // on Mac
         string pathToS   = "parts/s/";      // on Mac
+        string path8    = "parts/8/";     // on Mac
+        string path48     = "parts/48/";      // on Mac
 
         string pathName  = path + part_name;
         string pathsName = pathToS + part_name;
+        string path8Name = path8 + part_name;
+        string path48Name= path48 + part_name;
         char *dat_name = new char[ pathName.length() + 1 ];
         strcpy(dat_name, pathName.c_str());
         char *s_dat_name = new char[ pathsName.length() + 1 ];
         strcpy(s_dat_name, pathsName.c_str());
+        char *dat_name8 = new char[ path8Name.length() + 1 ];
+        strcpy(dat_name8, path8Name.c_str());
+        char *dat_name48 = new char[ path48Name.length() + 1 ];
+        strcpy(dat_name48, path48Name.c_str());
 
         ifstream inf(dat_name); // read the file with ifstream and save to inf
         ifstream infs(s_dat_name);  // read the file with ifstream and save to inf
+        ifstream inf8(dat_name8); // read the file with ifstream and save to inf
+        ifstream inf48(dat_name48); // read the file with ifstream and save to inf
 
-        if( !inf && !infs ){
+        if( !inf && !infs && !inf8 && !inf48 ){
             cerr<<"Error: can't read part. 02"<<endl;
             exit(1);
         }
         // read, save
-        while( getline(inf, line)||getline(infs, line) ){   // use getline to save each line from 'inf' to 'line', one at a time.
+        while( getline(inf, line)||getline(infs, line)||getline(inf8, line)||getline(inf48, line) ){   // use getline to save each line from 'inf' to 'line', one at a time.
             istringstream iss(line);// istringstream helps 'line'(string) transform into 'iss'(stream).
             if (iss >> type >> color) {
 
@@ -1112,7 +1172,7 @@ void init(void)
     tmpNormalPool.clear();
 
     part0.tpfp.clear();
-    partt = "3024.dat";//"3005.dat";3024 3070b; 11477
+    partt = "11477.dat";//"3005.dat";3024 3070b; 11477
     search_or_read(partt, false, metrix_O);
     for(int i=0; i<trianglePool.size(); i++){
         part0.tpfp.push_back(trianglePool[i]);
