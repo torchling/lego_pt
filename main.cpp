@@ -104,6 +104,7 @@ vector< triangle > trianglePool  ;
 
 //char* p = "frog.obj";
 char* p = "suzanne.obj";
+char* ma = "bug20.ma";
 //char* p = "GermanShephardLowPoly.obj";
 //char* p = "panther.obj";
 std::ifstream infile(p);
@@ -120,7 +121,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir ("/Users/luke/desktop/legomac/parts")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts
             // /Users/luke/desktop/legomac/parts
@@ -141,7 +142,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/s")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
             // /Users/luke/desktop/legomac/parts/s
@@ -165,20 +166,20 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             exit(1);
             //return EXIT_FAILURE;
         }
-        
-        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/48")) != NULL) {
-            // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
-            // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
-            // /Users/luke/desktop/legomac/parts/s
+
+        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\48")) != NULL) {
+            // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\48
+            // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\48
+            // /Users/luke/desktop/legomac/parts/48
             // search all the files and directories within directory
-            
+
             while ((ent = readdir (dir)) != NULL) {
                 string d_name;      // ent->d_name: 3005.dat
                 string s48="48\\";      // s48: 48\;
                 string sdname = s48 + ent->d_name; // 48\ + 3005.dat
-                
+
                 if(sdname == part_name){// part_name: s\3005.dat (backslash was escaped.)
-                    
+
                     //cout<<"Found "<< ent->d_name <<" in \\parts\\s"<<endl;
                     search_or_read( ent->d_name, false, array_O );
                 }
@@ -190,20 +191,20 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             exit(1);
             //return EXIT_FAILURE;
         }
-        
-        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/8")) != NULL) {
-            // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
-            // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
-            // /Users/luke/desktop/legomac/parts/s
+
+        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\8")) != NULL) {
+            // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\8
+            // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\8
+            // /Users/luke/desktop/legomac/parts/8
             // search all the files and directories within directory
-            
+
             while ((ent = readdir (dir)) != NULL) {
                 string d_name;      // ent->d_name: 3005.dat
                 string s8="8\\";      // s8: 8\;
                 string sdname = s8 + ent->d_name; // 8\3005.dat
-                
+
                 if(sdname == part_name){// part_name: s\3005.dat (backslash was escaped.)
-                    
+
                     //cout<<"Found "<< ent->d_name <<" in \\parts\\s"<<endl;
                     search_or_read( ent->d_name, false, array_O );
                 }
@@ -996,7 +997,7 @@ void read_obj(){
     bool r_found = false;
     bool f_found = false;
     bool h_found = false;
-
+/*
     cout<< xn <<" "<< yn <<" "<< zn <<endl;
     cout<< voxel_center_vPool.size() <<endl;
     for(int i=0; i<xn; i++){
@@ -1065,6 +1066,7 @@ void read_obj(){
         voxel_bone_position.push_back(voxel_bone);
     }
     cout<< voxel_bone_position.size() <<"\n";
+*/
 
     //Voxel Ver.2
 /*
@@ -1145,6 +1147,54 @@ void read_obj(){
 
 }
 
+std::vector< vertex > ma_vPool;
+std::vector< triangle > ma_ePool;
+std::vector< triangle > ma_fPool;
+
+void readMa(char *fileName){
+    ifstream inMa(fileName);
+    string line;
+    string type;
+    int nOv, nOe, nOf;
+    int one, two, three;
+    float mmx, mmy, mmz, rds;
+    bool fileread = false;
+    vertex vtx;
+    triangle triMa;
+
+    while(getline(inMa, line)){
+        std::istringstream iss(line);
+        if(fileread==false){
+            iss >> nOv >> nOe >> nOf;
+            fileread = true;
+        }
+        iss >> type;
+        if(type[0] == 'v'){
+            iss >> mmx >> mmy >> mmz >> rds;
+            vtx.x = mmx;
+            vtx.y = mmy;
+            vtx.z = mmz;
+            ma_vPool.push_back(vtx);
+        }
+        if(type[0] == 'e'){
+            iss >> one >> two;
+            triMa.v1 = ma_vPool[one];//ma檔是從0開始算，不像OBJ是從1開始
+            triMa.v2 = ma_vPool[two];
+            ma_ePool.push_back(triMa);
+        }
+        if(type[0] == 'f'){
+            iss >> one >> two >> three;
+            triMa.v1 = ma_vPool[one];
+            triMa.v2 = ma_vPool[two];
+            triMa.v3 = ma_vPool[three];
+            ma_fPool.push_back(triMa);
+        }
+
+    }
+
+    cout<<".ma size: "<< ma_vPool.size() <<" "<< ma_ePool.size() <<" "<< ma_fPool.size() <<"\n";
+}
+
 void init(void)
 {
 
@@ -1153,7 +1203,7 @@ void init(void)
      char* list = "40234_Rooster_reduced.txt";
      load_lego_parts_list(list);
      */
-
+    readMa(ma);
 
     for(int i=0; i<12; i++){
         metrix_O[i] = metrix_O[i]*rate;
@@ -1367,6 +1417,24 @@ void drawPart(int p_number){
     }
 }
 
+void drawMa(){
+    for(int i=0; i < ma_ePool.size() ; i++){
+        glColor3f(0.0f,1.0f,0.0f);
+        glBegin(GL_LINES);
+        glVertex3f( ma_ePool[i].v1.x, ma_ePool[i].v1.y, ma_ePool[i].v1.z );
+        glVertex3f( ma_ePool[i].v2.x, ma_ePool[i].v2.y, ma_ePool[i].v2.z );
+        glEnd();
+    }
+    for(int i=0; i < ma_fPool.size() ; i++){
+        glColor3f(1.0f,0.0f,0.0f);
+        glBegin(GL_TRIANGLES);
+        glVertex3f( ma_fPool[i].v1.x, ma_fPool[i].v1.y, ma_fPool[i].v1.z );
+        glVertex3f( ma_fPool[i].v2.x, ma_fPool[i].v2.y, ma_fPool[i].v2.z );
+        glVertex3f( ma_fPool[i].v3.x, ma_fPool[i].v3.y, ma_fPool[i].v3.z );
+        glEnd();
+    }
+}
+
 /* GLUT callback Handlers */
 static void resize(int width, int height)
 {
@@ -1388,17 +1456,18 @@ static void display(void)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(1,0,0);
-
+//-----------------------------------------------------/
     glPushMatrix();
     glTranslated(-2.8,0.0, dis);//glTranslated(-2.4,1.2,-6);
 
     glRotated(-90 + rota,1,0,0);
     glRotated(25 + rotate1,0,0,1);
 
-    drawObj_t(true);
+    //drawObj_t(true);
+    drawMa();
     //glutSolidSphere(1,slices,stacks);
     glPopMatrix();
-
+//-----------------------------------------------------/
     glPushMatrix();
     glTranslated(0,0.0, dis);//glTranslated(-2.4,1.2,-6);
 
@@ -1410,7 +1479,7 @@ static void display(void)
     drawVoxel();
     //glutSolidSphere(1,slices,stacks);
     glPopMatrix();
-
+//-----------------------------------------------------/
     glPushMatrix();
     glTranslated(2.8,0.0, dis);//glTranslated(2.4,1.2,-6);
 
@@ -1425,7 +1494,7 @@ static void display(void)
     drawVoxel();
     //glutSolidTorus(0.2,0.8,slices,stacks);
     glPopMatrix();
-
+//-----------------------------------------------------/
     for(int i=0; i<parts.size(); i++){
         glPushMatrix();
         glTranslated(1.4,-1+oheight,-4);//glTranslated(0,1.2,-6);
