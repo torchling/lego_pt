@@ -39,20 +39,27 @@ float voxel_length_half = voxel_length/2;//
 
 float alert_range = 3.0; //for interier stuff
 
+float metrix_OO[12]= {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
 float metrix_O[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
 float metrix_V[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
 
-float rate = 0.2; //scale of parts (Square root) [0.2 to watch] [0.08 to obj]
+float rate = 0.08; //scale of parts (Square root) [0.2 to watch] [0.08 to obj]
 float dis = -4.5;  //position of OBJ in z axis
 
 float add=-2.2;
 float oheight=0.0;
 float upp = 0.0;
 
-bool drawlegoFrame = false;
+bool drawlegoFrame = true;
 
 float rota = 0.0;
 float rotate1 = 0.0;
+
+float dark[3]={0.2,0.2,0.2};
+float lightgrey[3]={0.65,0.65,0.65};
+float grey[3]={0.5,0.5,0.5};
+float blue[3]={0,0,1.0};
+float yellow[3]={0.7,0.7,0.2};
 
 struct face //max to 4 points
 {
@@ -1198,7 +1205,7 @@ void readMa(char *fileName){
 void init(void)
 {
 
-    read_obj();
+    //read_obj();
     /*
      char* list = "40234_Rooster_reduced.txt";
      load_lego_parts_list(list);
@@ -1211,7 +1218,10 @@ void init(void)
 
     part_v1 part0;
 
-    string partt = "87087.dat";//"3005.dat";3024 3070b
+    //bone bricks:  87087 4733 4070 3005 ;
+    //joint:        14419 14704 ;
+    //smooth:       11477 ;
+    string partt = "4733.dat";//"3005.dat";3024 3070b
     search_or_read(partt, false, metrix_O);
     for(int i=0; i<trianglePool.size(); i++){
         part0.tpfp.push_back(trianglePool[i]);
@@ -1221,8 +1231,10 @@ void init(void)
     trianglePool.clear();
     tmpNormalPool.clear();
 
+    cout<<"time eater1"<<"\n";
+    
     part0.tpfp.clear();
-    partt = "11477.dat";//"3005.dat";3024 3070b; 11477
+    partt = "87087.dat";//"3005.dat";3024 3070b; 11477
     search_or_read(partt, false, metrix_O);
     for(int i=0; i<trianglePool.size(); i++){
         part0.tpfp.push_back(trianglePool[i]);
@@ -1231,6 +1243,8 @@ void init(void)
     parts.push_back(part0);
     trianglePool.clear();
     tmpNormalPool.clear();
+
+    cout<<"time eater2"<<"\n";
 
     part0.tpfp.clear();
     partt = "3005.dat";//"3005.dat";3024 3070b
@@ -1243,9 +1257,11 @@ void init(void)
     trianglePool.clear();
     tmpNormalPool.clear();
 
+    cout<<"time eater3"<<"\n";
+
     cout<< "\n";
     cout<< "size of parts: " << parts.size() << " " <<endl;
-    cout<< "size of part 11477 : " << parts[1].tpfp.size() << " " <<endl;
+    cout<< "size of part 11477 : " << parts[0].tpfp.size() << " " <<endl;
 }
 
 void drawObj_p()
@@ -1396,30 +1412,85 @@ void drawVoxel()
     }
 }
 
-void drawPart(int p_number){
+void drawPart(int p_number, float place[12], float color[3]){
     for(int i=0; i < parts[p_number].tpfp.size() ; i++){
-        glColor3f(0.0f,0.0f,1.0f);
+        glColor3f(color[0],color[1],color[2]);
         glBegin(GL_TRIANGLES);
         glNormal3f( parts[p_number].normal_pool[i].x, parts[p_number].normal_pool[i].y, parts[p_number].normal_pool[i].z );
-        glVertex3f( parts[p_number].tpfp[i].v1.x, parts[p_number].tpfp[i].v1.y, parts[p_number].tpfp[i].v1.z);
-        glVertex3f( parts[p_number].tpfp[i].v2.x, parts[p_number].tpfp[i].v2.y, parts[p_number].tpfp[i].v2.z);
-        glVertex3f( parts[p_number].tpfp[i].v3.x, parts[p_number].tpfp[i].v3.y, parts[p_number].tpfp[i].v3.z);
+        glVertex3f( parts[p_number].tpfp[i].v1.x + place[0]
+                  , parts[p_number].tpfp[i].v1.y + place[1]
+                  , parts[p_number].tpfp[i].v1.z + place[2]);
+        glVertex3f( parts[p_number].tpfp[i].v2.x + place[0]
+                  , parts[p_number].tpfp[i].v2.y + place[1]
+                  , parts[p_number].tpfp[i].v2.z + place[2]);
+        glVertex3f( parts[p_number].tpfp[i].v3.x + place[0]
+                  , parts[p_number].tpfp[i].v3.y + place[1]
+                  , parts[p_number].tpfp[i].v3.z + place[2]);
         glEnd();
         if(!drawlegoFrame){
             glColor3f(1.0f,1.0f,1.0f);
             glBegin(GL_LINE_LOOP);
             glNormal3f( parts[p_number].normal_pool[i].x, parts[p_number].normal_pool[i].y, parts[p_number].normal_pool[i].z );
-            glVertex3f( parts[p_number].tpfp[i].v1.x, parts[p_number].tpfp[i].v1.y, parts[p_number].tpfp[i].v1.z);
-            glVertex3f( parts[p_number].tpfp[i].v2.x, parts[p_number].tpfp[i].v2.y, parts[p_number].tpfp[i].v2.z);
-            glVertex3f( parts[p_number].tpfp[i].v3.x, parts[p_number].tpfp[i].v3.y, parts[p_number].tpfp[i].v3.z);
+            glVertex3f( parts[p_number].tpfp[i].v1.x + place[0]
+                      , parts[p_number].tpfp[i].v1.y + place[1]
+                      , parts[p_number].tpfp[i].v1.z + place[2]);
+            glVertex3f( parts[p_number].tpfp[i].v2.x + place[0]
+                      , parts[p_number].tpfp[i].v2.y + place[1]
+                      , parts[p_number].tpfp[i].v2.z + place[2]);
+            glVertex3f( parts[p_number].tpfp[i].v3.x + place[0]
+                      , parts[p_number].tpfp[i].v3.y + place[1]
+                      , parts[p_number].tpfp[i].v3.z + place[2]);
             glEnd();
         }
     }
 }
 
+float divv=24*pow(0.08,0.5);
+void drawBonewithLego()
+{
+    for(int i=0; i<ma_fPool.size(); i++){
+        //draw 4733
+        vertex center;
+        center = centerOfCircumscribedCircle(ma_fPool[i].v1, ma_fPool[i].v2, ma_fPool[i].v3);
+        float m_for_f[12]={ center.x, center.y, ma_fPool[i].v1.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+        drawPart(0, m_for_f, dark);
+    }
+
+    for(int i=0; i<ma_ePool.size(); i++){
+        //draw 87087
+        /*
+        int time =pow(
+              pow(ma_ePool[i].v1.x-ma_ePool[i].v2.x ,2.0)
+            + pow(ma_ePool[i].v1.y-ma_ePool[i].v2.y ,2.0)
+            + pow(ma_ePool[i].v1.z-ma_ePool[i].v2.z ,2.0)
+            , 0.5)/divv;
+        */
+        int time=2;
+        vertex vct;
+        vct.x = (ma_ePool[i].v1.x - ma_ePool[i].v2.x)/time;
+        vct.y = (ma_ePool[i].v1.y - ma_ePool[i].v2.y)/time;       
+        vct.z = (ma_ePool[i].v1.z - ma_ePool[i].v2.z)/time;
+        //cout<< time <<"\n";
+        for(int j=0; j<time+1; j++){
+            float m_for_e[12]
+            ={
+            ma_ePool[i].v2.x + vct.x
+            , ma_ePool[i].v2.y + vct.y
+            , ma_ePool[i].v2.z + vct.z
+            , 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+            drawPart(1, m_for_e, lightgrey);
+        }
+
+    }
+    for(int i=0; i<ma_vPool.size(); i++){
+        float m_for_v[12]={ ma_vPool[i].x, ma_vPool[i].y, ma_vPool[i].z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+        drawPart(2, m_for_v, yellow);
+    }
+}
+
 void drawMa(){
     for(int i=0; i < ma_ePool.size() ; i++){
-        glColor3f(0.0f,1.0f,0.0f);
+        glColor3f(0.0f,0.7f,0.0f);
         glBegin(GL_LINES);
         glVertex3f( ma_ePool[i].v1.x, ma_ePool[i].v1.y, ma_ePool[i].v1.z );
         glVertex3f( ma_ePool[i].v2.x, ma_ePool[i].v2.y, ma_ePool[i].v2.z );
@@ -1465,6 +1536,7 @@ static void display(void)
 
     //drawObj_t(true);
     drawMa();
+    
     //glutSolidSphere(1,slices,stacks);
     glPopMatrix();
 //-----------------------------------------------------/
@@ -1473,6 +1545,9 @@ static void display(void)
 
     glRotated(-90.0 + rota,1,0,0);
     glRotated(0 + rotate1,0,0,1);
+
+    drawMa();
+    drawBonewithLego();
 
     drawObj_t(false);
     if(!drawlegoFrame)
@@ -1486,6 +1561,8 @@ static void display(void)
     glRotated(-90 + rota,1,0,0);
     glRotated(-25 + rotate1,0,0,1);
 
+    drawBonewithLego();
+
     glBegin(GL_POINTS);
     drawObj_p();
     drawObj_in_p();
@@ -1495,17 +1572,20 @@ static void display(void)
     //glutSolidTorus(0.2,0.8,slices,stacks);
     glPopMatrix();
 //-----------------------------------------------------/
+    /*
     for(int i=0; i<parts.size(); i++){
         glPushMatrix();
         glTranslated(1.4,-1+oheight,-4);//glTranslated(0,1.2,-6);
         glTranslatef(0.0, add*i, 0.0);
         glRotated(30 + rotate1,0,1,0);
         glRotated(180,1,0,0);
-        drawPart(i);
+        drawPart(i, metrix_OO, blue);
 
         //glutSolidCone(1,1,slices,stacks);
         glPopMatrix();
     }
+    */
+
     /*
      glTranslated(-2.4,1.2,-6);
      glTranslated(0,1.2,-6);
@@ -1626,8 +1706,8 @@ int main(int argc, char *argv[])
     glutKeyboardFunc(key);
     glutIdleFunc(idle);
 
-    //glClearColor(0.5,0.5,0.5,1);
-    glClearColor(0.0,0.0,0.0,1);
+    glClearColor(0.8,0.8,0.8,1);
+    //glClearColor(0.0,0.0,0.0,1);
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
 
