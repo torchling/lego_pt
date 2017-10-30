@@ -116,6 +116,40 @@ char* ma = "bug20.ma";
 //char* p = "panther.obj";
 std::ifstream infile(p);
 
+//rotate from any angle
+vertex normalize(vertex vec){
+    vertex re; //result
+    float length = pow(vec.x, 2.0) + pow(vec.x, 2.0) + pow(vec.x, 2.0);
+    length = pow(length, 0.5);
+    re.x = vec.x/length;
+    re.y = vec.y/length;
+    re.z = vec.z/length;
+    return re;
+}
+
+vertex matrixRotate(float t, vertex normalr, vertex originalVertex){//t is degree,
+    vertex rV = originalVertex; //rV = resultV
+    vertex normal = normalize(normalr);
+    float u = normal.x;
+    float v = normal.y;
+    float w = normal.z;
+    float a = originalVertex.x;
+    float b = originalVertex.y;
+    float c = originalVertex.z;
+    rV.x = a* u*u+(v*v+w*w)*cos(t) + b* u*v*(1-cos(t))-w*sin(t) + c* u*w*(1-cos(t))+v*sin(t) + (a*(v*v+w*w)-u*(b*v+c*w))*(1-cos(t))+(b*w-c*v)*sin(t);
+    rV.y = a* u*v*(1-cos(t))+w*sin(t) + b* v*v+(u*u+w*w)*cos(t) + c* v*w*(1-cos(t))-u*sin(t) + (b*(u*u+w*w)-v*(a*u+c*w))*(1-cos(t))+(c*u-a*w)*sin(t);
+    rV.z = a* u*w*(1-cos(t))-v*sin(t) + b* v*w*(1-cos(t))+u*sin(t) + c* w*w+(u*u+v*v)*cos(t) + (c*(u*u+v*v)-w*(a*u+b*v))*(1-cos(t))+(a*v-b*u)*sin(t);
+    /*
+     u*u+(v*v+w*w)*cos(t), u*v*(1-cos(t))-w*sin(t), u*w*(1-cos(t))+v*sin(t),
+     (a*(v*v+w*w)-u*(b*v+c*w))*(1-cos(t))+(b*w-c*v)*sin(t),
+     u*v*(1-cos(t))+w*sin(t), v*v+(u*u+w*w)*cos(t), v*w*(1-cos(t))-u*sin(t),
+     (b*(u*u+w*w)-v*(a*u+c*w))*(1-cos(t))+(c*u-a*w)*sin(t),
+     u*w*(1-cos(t))-v*sin(t), v*w*(1-cos(t))+u*sin(t), w*w+(u*u+v*v)*cos(t),
+     (c*(u*u+v*v)-w*(a*u+b*v))*(1-cos(t))+(a*v-b*u)*sin(t),
+     0,                       0,                       0,                       1
+     */
+    return rV; //resultV
+}
 
 // 超該死，C++不能循環呼叫所以只好把 read_one_lego_part_and_save_it() 和 searchfile() 合在一起------------/
 
@@ -128,7 +162,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts")) != NULL) {
+        if ((dir = opendir ("/Users/luke/desktop/legomac/parts")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts
             // /Users/luke/desktop/legomac/parts
@@ -149,7 +183,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s")) != NULL) {
+        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/s")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
             // /Users/luke/desktop/legomac/parts/s
@@ -174,7 +208,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\48")) != NULL) {
+        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/48")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\48
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\48
             // /Users/luke/desktop/legomac/parts/48
@@ -199,7 +233,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\8")) != NULL) {
+        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/8")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\8
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\8
             // /Users/luke/desktop/legomac/parts/8
@@ -284,7 +318,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
         ifstream inf48(dat_name48); // read the file with ifstream and save to inf
 
         if( !inf && !infs && !inf8 && !inf48 ){
-            cerr<<"Error: can't read part. 02"<<endl;
+            cerr<<"Error: can't read part. place 02"<<endl;
             exit(1);
         }
         // read, save
