@@ -69,6 +69,11 @@ struct face //max to 4 points
     int v4;
 };
 
+struct matri
+{
+    float m[12];
+};
+
 struct part_v1 //This is part struct Ver.01 .
 {
     std::vector< vertex > connection_1_x ; // x means Convex
@@ -107,6 +112,7 @@ vector< part_v1 > parts  ;  //For real math stuffs. Prepare for assembling possi
 
 vector< vertex > tmpNormalPool  ;
 vector< triangle > trianglePool  ;
+vector< matri > bricksLocation ;
 /*----------------------------------------------------------------*/
 
 //char* p = "frog.obj";
@@ -116,19 +122,68 @@ char* ma = "bug20.ma";
 //char* p = "panther.obj";
 std::ifstream infile(p);
 
-//rotate from any angle
-vertex normalize(vertex vec){
-    vertex re; //result
-    float length = pow(vec.x, 2.0) + pow(vec.x, 2.0) + pow(vec.x, 2.0);
-    length = pow(length, 0.5);
-    re.x = vec.x/length;
-    re.y = vec.y/length;
-    re.z = vec.z/length;
-    return re;
+
+//matrix operations start----------------------------------------------------------/
+float angleCovert(float degree){
+    float result;
+    result = degree * M_PI/180;
+    return result;
 }
 
-vertex matrixRotate(float t, vertex normalr, vertex originalVertex){//t is degree,
-    vertex rV = originalVertex; //rV = resultV
+vertex normalize(vertex vec){
+    vertex re; //result
+    float length = pow(vec.x, 2.0) + pow(vec.y, 2.0) + pow(vec.z, 2.0);
+    if(length > 0.0){
+        length = pow(length, 0.5);
+        re.x = vec.x/length;
+        re.y = vec.y/length;
+        re.z = vec.z/length;
+        return re;
+    }
+    else{
+        re.x = 0.0;
+        re.y = 0.0;
+        re.z = 0.0;
+        return re;
+    }
+}
+
+vertex  matrixVertexMotiply(float a[12], vertex v){
+    vertex result;
+
+    result.x = a[3]*v.x + a[4]*v.y + a[5]*v.z + a[0];
+    result.y = a[6]*v.x + a[7]*v.y + a[8]*v.z + a[1];
+    result.z = a[9]*v.x + a[10]*v.y + a[11]*v.z + a[2];
+    return result;
+}
+
+matri matrixMotiply(float a[12], float m[12]){ //[ A ][ B ][v]=[v]
+    matri result;
+    result.m[3] = a[3]*m[3] + a[4]*m[6] + a[5]*m[9];
+    result.m[4] = a[3]*m[4] + a[4]*m[7] + a[5]*m[10];
+    result.m[5] = a[3]*m[5] + a[4]*m[8] + a[5]*m[11];
+    result.m[0] = a[3]*m[0] + a[4]*m[1] + a[5]*m[2] + a[0];
+    result.m[6] = a[6]*m[3] + a[7]*m[6] + a[8]*m[9];
+    result.m[7] = a[6]*m[4] + a[7]*m[7] + a[8]*m[10];
+    result.m[8] = a[6]*m[5] + a[7]*m[8] + a[8]*m[11];
+    result.m[1] = a[6]*m[0] + a[7]*m[1] + a[8]*m[2] + a[1];
+    result.m[9]  = a[9]*m[3] + a[10]*m[6] + a[11]*m[9];
+    result.m[10] = a[9]*m[4] + a[10]*m[7] + a[11]*m[10];
+    result.m[11] = a[9]*m[5] + a[10]*m[8] + a[11]*m[11];
+    result.m[2]  = a[9]*m[0] + a[10]*m[1] + a[11]*m[2] + a[2];
+    for(int i=0; i<12; i++){
+        if(abs(result.m[i])<0.0000001) result.m[i]=0.0;
+    }
+    return result;
+}
+
+	//Returns the rotation matrix around the vector v placed at point p, rotate by angle a
+matri matrixRotate(float angle, vertex normalr, vertex originalVertex){
+
+    matri m_result;
+
+    float t = angleCovert(angle);
+
     vertex normal = normalize(normalr);
     float u = normal.x;
     float v = normal.y;
@@ -136,9 +191,20 @@ vertex matrixRotate(float t, vertex normalr, vertex originalVertex){//t is degre
     float a = originalVertex.x;
     float b = originalVertex.y;
     float c = originalVertex.z;
-    rV.x = a* u*u+(v*v+w*w)*cos(t) + b* u*v*(1-cos(t))-w*sin(t) + c* u*w*(1-cos(t))+v*sin(t) + (a*(v*v+w*w)-u*(b*v+c*w))*(1-cos(t))+(b*w-c*v)*sin(t);
-    rV.y = a* u*v*(1-cos(t))+w*sin(t) + b* v*v+(u*u+w*w)*cos(t) + c* v*w*(1-cos(t))-u*sin(t) + (b*(u*u+w*w)-v*(a*u+c*w))*(1-cos(t))+(c*u-a*w)*sin(t);
-    rV.z = a* u*w*(1-cos(t))-v*sin(t) + b* v*w*(1-cos(t))+u*sin(t) + c* w*w+(u*u+v*v)*cos(t) + (c*(u*u+v*v)-w*(a*u+b*v))*(1-cos(t))+(a*v-b*u)*sin(t);
+    cout<<u<<" "<<v<<" "<<w<<" "<<a<<" "<<b<<" "<<c<<"\n";
+
+    m_result.m[3] = u*u+(v*v+w*w)*cos(t);
+    m_result.m[4] = u*v*(1-cos(t))-w*sin(t);
+    m_result.m[5] = u*w*(1-cos(t))+v*sin(t);
+    m_result.m[0] = (a*(v*v+w*w)-u*(b*v+c*w))*(1-cos(t))+(b*w-c*v)*sin(t);
+    m_result.m[6] = u*v*(1-cos(t))+w*sin(t);
+    m_result.m[7] = v*v+(u*u+w*w)*cos(t);
+    m_result.m[8] = v*w*(1-cos(t))-u*sin(t);
+    m_result.m[1] = (b*(u*u+w*w)-v*(a*u+c*w))*(1-cos(t))+(c*u-a*w)*sin(t);
+    m_result.m[9] = u*w*(1-cos(t))-v*sin(t);
+    m_result.m[10] = v*w*(1-cos(t))+u*sin(t);
+    m_result.m[11] = w*w+(u*u+v*v)*cos(t);
+    m_result.m[2] = (c*(u*u+v*v)-w*(a*u+b*v))*(1-cos(t))+(a*v-b*u)*sin(t);
     /*
      u*u+(v*v+w*w)*cos(t), u*v*(1-cos(t))-w*sin(t), u*w*(1-cos(t))+v*sin(t),
      (a*(v*v+w*w)-u*(b*v+c*w))*(1-cos(t))+(b*w-c*v)*sin(t),
@@ -148,11 +214,15 @@ vertex matrixRotate(float t, vertex normalr, vertex originalVertex){//t is degre
      (c*(u*u+v*v)-w*(a*u+b*v))*(1-cos(t))+(a*v-b*u)*sin(t),
      0,                       0,                       0,                       1
      */
-    return rV; //resultV
+    for(int i=0; i<12; i++){
+        if(abs(m_result.m[i])<0.0000001) m_result.m[i]=0.0;
+    }
+    return m_result; //resultV
 }
+//matrix operations end-------------------------------------------------------------------------/
+
 
 // 超該死，C++不能循環呼叫所以只好把 read_one_lego_part_and_save_it() 和 searchfile() 合在一起------------/
-
 // search_or_read() <-- read_one_lego_part_and_save_it() + searchfile()
 
 void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /*true:search false:read*/){
@@ -1448,32 +1518,38 @@ void drawVoxel()
 
 void drawPart(int p_number, float place[12], float color[3]){
     for(int i=0; i < parts[p_number].tpfp.size() ; i++){
+    	vertex normal = matrixVertexMotiply(place, parts[p_number].normal_pool[i]);
+    	triangle tri;
+    	tri.v1 = matrixVertexMotiply(place, parts[p_number].tpfp[i].v1);
+    	tri.v2 = matrixVertexMotiply(place, parts[p_number].tpfp[i].v2);
+    	tri.v3 = matrixVertexMotiply(place, parts[p_number].tpfp[i].v3);
+
         glColor3f(color[0],color[1],color[2]);
         glBegin(GL_TRIANGLES);
-        glNormal3f( parts[p_number].normal_pool[i].x, parts[p_number].normal_pool[i].y, parts[p_number].normal_pool[i].z );
-        glVertex3f( parts[p_number].tpfp[i].v1.x + place[0]
-                  , parts[p_number].tpfp[i].v1.y + place[1]
-                  , parts[p_number].tpfp[i].v1.z + place[2]);
-        glVertex3f( parts[p_number].tpfp[i].v2.x + place[0]
-                  , parts[p_number].tpfp[i].v2.y + place[1]
-                  , parts[p_number].tpfp[i].v2.z + place[2]);
-        glVertex3f( parts[p_number].tpfp[i].v3.x + place[0]
-                  , parts[p_number].tpfp[i].v3.y + place[1]
-                  , parts[p_number].tpfp[i].v3.z + place[2]);
+        glNormal3f( normal.x, normal.y, normal.z );
+        glVertex3f( tri.v1.x 
+                  , tri.v1.y 
+                  , tri.v1.z );
+        glVertex3f( tri.v2.x 
+                  , tri.v2.y 
+                  , tri.v2.z );
+        glVertex3f( tri.v3.x 
+                  , tri.v3.y 
+                  , tri.v3.z );
         glEnd();
         if(!drawlegoFrame){
             glColor3f(1.0f,1.0f,1.0f);
             glBegin(GL_LINE_LOOP);
-            glNormal3f( parts[p_number].normal_pool[i].x, parts[p_number].normal_pool[i].y, parts[p_number].normal_pool[i].z );
-            glVertex3f( parts[p_number].tpfp[i].v1.x + place[0]
-                      , parts[p_number].tpfp[i].v1.y + place[1]
-                      , parts[p_number].tpfp[i].v1.z + place[2]);
-            glVertex3f( parts[p_number].tpfp[i].v2.x + place[0]
-                      , parts[p_number].tpfp[i].v2.y + place[1]
-                      , parts[p_number].tpfp[i].v2.z + place[2]);
-            glVertex3f( parts[p_number].tpfp[i].v3.x + place[0]
-                      , parts[p_number].tpfp[i].v3.y + place[1]
-                      , parts[p_number].tpfp[i].v3.z + place[2]);
+            glNormal3f( normal.x, normal.y, normal.z );
+            glVertex3f( tri.v1.x 
+                      , tri.v1.y 
+                      , tri.v1.z );
+            glVertex3f( tri.v2.x 
+                      , tri.v2.y 
+                      , tri.v2.z );
+            glVertex3f( tri.v3.x 
+                      , tri.v3.y 
+                      , tri.v3.z );
             glEnd();
         }
     }
