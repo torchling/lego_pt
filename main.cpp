@@ -118,15 +118,42 @@ vector< matri > bricksLocation ;
 //char* p = "frog.obj";
 char* p = "suzanne.obj";
 char* ma = "bug20.ma";
+//char* ma = "dog30.ma";
+//char* ma = "spider25.ma";
 //char* p = "GermanShephardLowPoly.obj";
 //char* p = "panther.obj";
 std::ifstream infile(p);
 
 
 //matrix operations start----------------------------------------------------------/
+
 float angleCovert(float degree){
     float result;
     result = degree * M_PI/180;
+    return result;
+}
+
+float angleBetween2Vector(vertex v1, vertex v2){
+    float dot = v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+    float length1 = pow(v1.x, 2.0) + pow(v1.y, 2.0) + pow(v1.z, 2.0);
+    float length2 = pow(v2.x, 2.0) + pow(v2.y, 2.0) + pow(v2.z, 2.0);
+    length1 = pow(length1, 0.5);
+    length2 = pow(length2, 0.5);
+    return acos(dot/(length1*length2))*180/M_PI;
+}
+
+bool testInRightSpaceOfVector(vertex test, vertex vec){
+    if(false){
+        return false;
+    }
+    return true;
+}
+
+vertex normalOf2Vector(vertex t, vertex v){
+    vertex result;
+    result.x = t.y*v.z-v.y*t.z;
+    result.y = t.z*v.x-v.z*t.x;
+    result.z = t.x*v.y-v.x*t.y;
     return result;
 }
 
@@ -171,9 +198,10 @@ matri matrixMotiply(float a[12], float m[12]){ //[ A ][ B ][v]=[v]
     result.m[10] = a[9]*m[4] + a[10]*m[7] + a[11]*m[10];
     result.m[11] = a[9]*m[5] + a[10]*m[8] + a[11]*m[11];
     result.m[2]  = a[9]*m[0] + a[10]*m[1] + a[11]*m[2] + a[2];
+    /*
     for(int i=0; i<12; i++){
         if(abs(result.m[i])<0.0000001) result.m[i]=0.0;
-    }
+    }*/
     return result;
 }
 
@@ -191,7 +219,7 @@ matri matrixRotate(float angle, vertex normalr, vertex originalVertex){
     float a = originalVertex.x;
     float b = originalVertex.y;
     float c = originalVertex.z;
-    cout<<u<<" "<<v<<" "<<w<<" "<<a<<" "<<b<<" "<<c<<"\n";
+    //cout<<u<<" "<<v<<" "<<w<<" "<<a<<" "<<b<<" "<<c<<"\n";
 
     m_result.m[3] = u*u+(v*v+w*w)*cos(t);
     m_result.m[4] = u*v*(1-cos(t))-w*sin(t);
@@ -232,7 +260,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir ("/Users/luke/desktop/legomac/parts")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts
             // /Users/luke/desktop/legomac/parts
@@ -253,7 +281,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/s")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
             // /Users/luke/desktop/legomac/parts/s
@@ -278,7 +306,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/48")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\48")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\48
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\48
             // /Users/luke/desktop/legomac/parts/48
@@ -303,7 +331,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("/Users/luke/desktop/legomac/parts/8")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\8")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\8
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\8
             // /Users/luke/desktop/legomac/parts/8
@@ -1562,7 +1590,10 @@ void drawBonewithLego()
         //draw 4733
         vertex center;
         center = centerOfCircumscribedCircle(ma_fPool[i].v1, ma_fPool[i].v2, ma_fPool[i].v3);
-        float m_for_f[12]={ center.x, center.y, ma_fPool[i].v1.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+        float x = (ma_fPool[i].v1.x + ma_fPool[i].v2.x + ma_fPool[i].v3.x)/3.0;
+        float y = (ma_fPool[i].v1.y + ma_fPool[i].v2.y + ma_fPool[i].v3.y)/3.0;
+        float z = (ma_fPool[i].v1.z + ma_fPool[i].v2.z + ma_fPool[i].v3.z)/3.0;
+        float m_for_f[12]={ x, y, z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
         drawPart(0, m_for_f, dark);
     }
 
@@ -1581,21 +1612,30 @@ void drawBonewithLego()
         vct.y = (ma_ePool[i].v1.y - ma_ePool[i].v2.y)/time;       
         vct.z = (ma_ePool[i].v1.z - ma_ePool[i].v2.z)/time;
         //cout<< time <<"\n";
-        for(int j=0; j<time+1; j++){
-            float m_for_e[12]
-            ={
-            ma_ePool[i].v2.x + vct.x
-            , ma_ePool[i].v2.y + vct.y
-            , ma_ePool[i].v2.z + vct.z
-            , 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-            drawPart(1, m_for_e, lightgrey);
+        for(int j=0; j<time; j++){
+            vertex ny;
+            ny.x = 0.0;
+            ny.y = 1.0;
+            ny.z = 0.0;
+            vertex o;
+            o.x = 0.0;
+            o.y = 0.0;
+            o.z = 0.0;
+            vertex o2;
+            o2.x = ma_ePool[i].v2.x + j*vct.x;
+            o2.y = ma_ePool[i].v2.y + j*vct.y;
+            o2.z = ma_ePool[i].v2.z + j*vct.z;
+            float mp[12]={ o2.x, o2.y, o2.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+            matri m_for_e = matrixRotate( angleBetween2Vector(vct ,ny), normalOf2Vector(ny, vct), o );
+            m_for_e=matrixMotiply(mp, m_for_e.m);
+            drawPart(1, m_for_e.m, lightgrey);
         }
 
-    }
+    }/*
     for(int i=0; i<ma_vPool.size(); i++){
         float m_for_v[12]={ ma_vPool[i].x, ma_vPool[i].y, ma_vPool[i].z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
         drawPart(2, m_for_v, yellow);
-    }
+    }*/
 }
 
 void drawMa(){
