@@ -696,7 +696,7 @@ void read_obj(){
     vertex v;
     face f;
     triangle tri;
-    cout<<"Start to get line"<<'\n';
+    cout<<"Start to get obj"<<'\n';
     while (std::getline(infile, line))
     {
         std::istringstream iss(line);
@@ -1026,7 +1026,7 @@ void read_obj(){
     	}
 
 
-    //get voxel face
+    //get voxel for triangle's face
         max_tx = max_tx - min_tx;//use max to replace range of whole model
     	max_ty = max_ty - min_ty;//..
     	max_tz = max_tz - min_tz;//..
@@ -1088,7 +1088,7 @@ void read_obj(){
 
     }
 
-    //fill shell voxel
+    //define voxels on obj shell (officially)
     int start;
     int end;
     bool recording = false;
@@ -1128,7 +1128,7 @@ void read_obj(){
         end = 0;
     }
 
-    //fill inside part
+    //find inside frame
     int top, buttom, left, right, front, hind;
     bool t_found = false;
     bool b_found = false;
@@ -1286,6 +1286,13 @@ void read_obj(){
 
 }
 
+void surface_arrange(){
+    for(int i=0; i<voxel_center_vPool.size(); i++){
+        ;
+    }
+}
+
+
 std::vector< vertex > ma_vPool;
 std::vector< triangle > ma_ePool;
 std::vector< triangle > ma_fPool;
@@ -1337,7 +1344,7 @@ void readMa(char *fileName){
 void init(void)
 {
 
-    //read_obj();
+    read_obj();
     /*
      char* list = "40234_Rooster_reduced.txt";
      load_lego_parts_list(list);
@@ -1545,6 +1552,7 @@ void drawVoxel()
 }
 
 void drawPart(int p_number, float place[12], float color[3]){
+    
     for(int i=0; i < parts[p_number].tpfp.size() ; i++){
     	vertex normal = matrixVertexMotiply(place, parts[p_number].normal_pool[i]);
     	triangle tri;
