@@ -43,8 +43,8 @@ float metrix_OO[12]= {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
 float metrix_O[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
 float metrix_V[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1};
 
-float rate = 0.08; //scale of parts (Square root) [0.2 to watch] [0.08 to obj]
-float dis = -4.5;  //position of OBJ in z axis
+float rate = 0.05658; //scale of parts (Square root) [0.2 to watch] [0.08 to obj] [0.05658 to obj]
+float dis = -3.0;  //position of OBJ in z axis //-4.5 2017.11.8
 
 float add=-2.2;
 float oheight=0.0;
@@ -1286,12 +1286,6 @@ void read_obj(){
 
 }
 
-void surface_arrange(){
-    for(int i=0; i<voxel_center_vPool.size(); i++){
-        ;
-    }
-}
-
 
 std::vector< vertex > ma_vPool;
 std::vector< triangle > ma_ePool;
@@ -1341,10 +1335,21 @@ void readMa(char *fileName){
     cout<<".ma size: "<< ma_vPool.size() <<" "<< ma_ePool.size() <<" "<< ma_fPool.size() <<"\n";
 }
 
+
+void surface_arrange(){
+    for(int i=0; ; i++){
+        ;
+    }
+    for(int i=0; i<voxel_center_vPool.size(); i++){
+        ;
+    }
+}
+
+
 void init(void)
 {
 
-    read_obj();
+    //read_obj();
     /*
      char* list = "40234_Rooster_reduced.txt";
      load_lego_parts_list(list);
@@ -1370,7 +1375,7 @@ void init(void)
     trianglePool.clear();
     tmpNormalPool.clear();
 
-    cout<<"time eater1"<<"\n";
+    cout<<"part 4733"<<"\n";
     
     part0.tpfp.clear();
     partt = "87087.dat";//"3005.dat";3024 3070b; 11477
@@ -1383,7 +1388,7 @@ void init(void)
     trianglePool.clear();
     tmpNormalPool.clear();
 
-    cout<<"time eater2"<<"\n";
+    cout<<"part 87087"<<"\n";
 
     part0.tpfp.clear();
     partt = "3005.dat";//"3005.dat";3024 3070b
@@ -1396,11 +1401,11 @@ void init(void)
     trianglePool.clear();
     tmpNormalPool.clear();
 
-    cout<<"time eater3"<<"\n";
+    cout<<"part 3005"<<"\n";
 
     cout<< "\n";
-    cout<< "size of parts: " << parts.size() << " " <<endl;
-    cout<< "size of part 11477 : " << parts[0].tpfp.size() << " " <<endl;
+    cout<< "size of parts pool: " << parts.size() << " " <<endl;
+    
 }
 
 void drawObj_p()
@@ -1591,7 +1596,7 @@ void drawPart(int p_number, float place[12], float color[3]){
     }
 }
 
-float divv=24*pow(0.08,0.5);
+float divv=0.075;// 0.15 ; 0.15/2
 void drawBonewithLego()
 {
     for(int i=0; i<ma_fPool.size(); i++){
@@ -1607,36 +1612,73 @@ void drawBonewithLego()
 
     for(int i=0; i<ma_ePool.size(); i++){
         //draw 87087
-        /*
-        int time =pow(
-              pow(ma_ePool[i].v1.x-ma_ePool[i].v2.x ,2.0)
-            + pow(ma_ePool[i].v1.y-ma_ePool[i].v2.y ,2.0)
-            + pow(ma_ePool[i].v1.z-ma_ePool[i].v2.z ,2.0)
-            , 0.5)/divv;
-        */
-        int time=2;
-        vertex vct;
-        vct.x = (ma_ePool[i].v1.x - ma_ePool[i].v2.x)/time;
-        vct.y = (ma_ePool[i].v1.y - ma_ePool[i].v2.y)/time;       
-        vct.z = (ma_ePool[i].v1.z - ma_ePool[i].v2.z)/time;
-        //cout<< time <<"\n";
-        for(int j=0; j<time; j++){
-            vertex ny;
-            ny.x = 0.0;
-            ny.y = 1.0;
-            ny.z = 0.0;
-            vertex o;
-            o.x = 0.0;
-            o.y = 0.0;
-            o.z = 0.0;
-            vertex o2;
-            o2.x = ma_ePool[i].v2.x + j*vct.x;
-            o2.y = ma_ePool[i].v2.y + j*vct.y;
-            o2.z = ma_ePool[i].v2.z + j*vct.z;
-            float mp[12]={ o2.x, o2.y, o2.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-            matri m_for_e = matrixRotate( angleBetween2Vector(vct ,ny), normalOf2Vector(ny, vct), o );
-            m_for_e=matrixMotiply(mp, m_for_e.m);
-            drawPart(1, m_for_e.m, lightgrey);
+        bool edgeNotFace = true;
+        for(int j=0; j<ma_fPool.size(); j++){
+            if( areSameVertex(ma_fPool[j].v1, ma_ePool[i].v1) ){
+                if( areSameVertex(ma_fPool[j].v2, ma_ePool[i].v2) ){
+                    edgeNotFace = false;
+                }
+                if( areSameVertex(ma_fPool[j].v3, ma_ePool[i].v2) ){
+                    edgeNotFace = false;
+                }
+            }
+            if( areSameVertex(ma_fPool[j].v2, ma_ePool[i].v1) ){
+                if( areSameVertex(ma_fPool[j].v1, ma_ePool[i].v2) ){
+                    edgeNotFace = false;
+                }
+                if( areSameVertex(ma_fPool[j].v3, ma_ePool[i].v2) ){
+                    edgeNotFace = false;
+                }
+            }
+            if( areSameVertex(ma_fPool[j].v3, ma_ePool[i].v1) ){
+                if( areSameVertex(ma_fPool[j].v2, ma_ePool[i].v2) ){
+                    edgeNotFace = false;
+                }
+                if( areSameVertex(ma_fPool[j].v1, ma_ePool[i].v2) ){
+                    edgeNotFace = false;
+                }
+            }
+        }
+
+        if(edgeNotFace){
+            //float lego_height = 24*rate;
+            int time =pow(
+                  pow(ma_ePool[i].v1.x-ma_ePool[i].v2.x ,2.0)
+                + pow(ma_ePool[i].v1.y-ma_ePool[i].v2.y ,2.0)
+                + pow(ma_ePool[i].v1.z-ma_ePool[i].v2.z ,2.0)
+                , 0.5)/divv;
+            if(time==0)time=1;
+            
+            /*int time=2;*/
+            vertex vct;
+            
+            vct.x = (ma_ePool[i].v1.x - ma_ePool[i].v2.x);
+            vct.y = (ma_ePool[i].v1.y - ma_ePool[i].v2.y);       
+            vct.z = (ma_ePool[i].v1.z - ma_ePool[i].v2.z);
+            
+            vct = normalize( vct );
+            vct.x = vct.x*divv;
+            vct.y = vct.y*divv;       
+            vct.z = vct.z*divv;
+            //cout<< time <<"\n";
+            for(int j=0; j<time; j++){
+                vertex ny;
+                ny.x = 0.0;
+                ny.y = 1.0;
+                ny.z = 0.0;
+                vertex o;
+                o.x = 0.0;
+                o.y = 0.0;
+                o.z = 0.0;
+                vertex o2;
+                o2.x = ma_ePool[i].v2.x + j*vct.x;
+                o2.y = ma_ePool[i].v2.y + j*vct.y;
+                o2.z = ma_ePool[i].v2.z + j*vct.z;
+                float mp[12]={ o2.x, o2.y, o2.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+                matri m_for_e = matrixRotate( angleBetween2Vector(vct ,ny), normalOf2Vector(ny, vct), o );
+                m_for_e=matrixMotiply(mp, m_for_e.m);
+                drawPart(1, m_for_e.m, lightgrey);
+            }
         }
 
     }/*
@@ -1687,10 +1729,10 @@ static void display(void)
     glColor3d(1,0,0);
 //-----------------------------------------------------/
     glPushMatrix();
-    glTranslated(-2.8,0.0, dis);//glTranslated(-2.4,1.2,-6);
+    glTranslated(-1.8,0.0, dis);//glTranslated(-2.4,1.2,-6);
 
     glRotated(-90 + rota,1,0,0);
-    glRotated(25 + rotate1,0,0,1);
+    glRotated(10 + rotate1,0,0,1);//glRotated(25 + rotate1,0,0,1) 2017.11.08;
 
     //drawObj_t(true);
     drawMa();
@@ -1699,7 +1741,7 @@ static void display(void)
     glPopMatrix();
 //-----------------------------------------------------/
     glPushMatrix();
-    glTranslated(0,0.0, dis);//glTranslated(-2.4,1.2,-6);
+    glTranslated(0,0.0, dis);//glTranslated(-2.4,1.2,-6); 
 
     glRotated(-90.0 + rota,1,0,0);
     glRotated(0 + rotate1,0,0,1);
@@ -1707,23 +1749,23 @@ static void display(void)
     drawMa();
     drawBonewithLego();
 
-    drawObj_t(false);
+    //drawObj_t(false);
     if(!drawlegoFrame)
     drawVoxel();
     //glutSolidSphere(1,slices,stacks);
     glPopMatrix();
 //-----------------------------------------------------/
     glPushMatrix();
-    glTranslated(2.8,0.0, dis);//glTranslated(2.4,1.2,-6);
+    glTranslated(1.8,0.0, dis);//glTranslated(2.4,1.2,-6); //glTranslated(2.8,0.0, dis)2017.11.08;
 
     glRotated(-90 + rota,1,0,0);
-    glRotated(-25 + rotate1,0,0,1);
+    glRotated(-10 + rotate1,0,0,1);//glRotated(-25 + rotate1,0,0,1) 2017.11.08;
 
     drawBonewithLego();
 
     glBegin(GL_POINTS);
-    drawObj_p();
-    drawObj_in_p();
+    //drawObj_p();
+    //drawObj_in_p();
     glEnd();
     if(drawlegoFrame)
     drawVoxel();
@@ -1800,7 +1842,7 @@ static void key(unsigned char key, int x, int y)
             rotate1 = 0.0;
 
             oheight=.0;
-            dis = -4.5;
+            dis = -3.0;//4.5 2017.11.08;
             break;
 
         case 'i':
