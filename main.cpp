@@ -1286,7 +1286,6 @@ void read_obj(){
 
 }
 
-
 std::vector< vertex > ma_vPool;
 std::vector< triangle > ma_ePool;
 std::vector< triangle > ma_fPool;
@@ -1335,6 +1334,16 @@ void readMa(char *fileName){
     cout<<".ma size: "<< ma_vPool.size() <<" "<< ma_ePool.size() <<" "<< ma_fPool.size() <<"\n";
 }
 
+vector<vertex> randomlyPicked;
+void randomPick_even(){
+    for(int i=0; i<voxel_center_vPool.size(); i = i+rand()%20+ 10){ //10~30
+        randomlyPicked.push_back(voxel_center_vPool[i]);
+    }
+    cout<< "size of randomly picked: " << randomlyPicked.size() <<"\n";
+}
+void randomPick_symmetric(){
+    ;
+}
 
 void surface_arrange(){
     for(int i=0; ; i++){
@@ -1349,12 +1358,14 @@ void surface_arrange(){
 void init(void)
 {
 
-    //read_obj();
+    read_obj();
+    randomPick_even();
+    readMa(ma);
+
     /*
      char* list = "40234_Rooster_reduced.txt";
      load_lego_parts_list(list);
      */
-    readMa(ma);
 
     for(int i=0; i<12; i++){
         metrix_O[i] = metrix_O[i]*rate;
@@ -1552,6 +1563,52 @@ void drawVoxel()
         glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y + voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
         glVertex3f( voxel_center_vPool[i].x - voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
         glVertex3f( voxel_center_vPool[i].x + voxel_length_half, voxel_center_vPool[i].y - voxel_length_half, voxel_center_vPool[i].z - voxel_length_half);
+        glEnd();
+    }
+
+    glColor3f(0.1f,0.7f,0.3f);
+    for(int i=0; i<randomlyPicked.size(); i++){
+        glBegin(GL_QUADS);
+        glNormal3f( 1.0f, 0.0f, 0.0f );//right
+        glVertex3f( randomlyPicked[i].x + voxel_length_half, randomlyPicked[i].y + voxel_length_half, randomlyPicked[i].z + voxel_length_half);
+        glVertex3f( randomlyPicked[i].x + voxel_length_half, randomlyPicked[i].y - voxel_length_half, randomlyPicked[i].z + voxel_length_half);
+        glVertex3f( randomlyPicked[i].x + voxel_length_half, randomlyPicked[i].y - voxel_length_half, randomlyPicked[i].z - voxel_length_half);
+        glVertex3f( randomlyPicked[i].x + voxel_length_half, randomlyPicked[i].y + voxel_length_half, randomlyPicked[i].z - voxel_length_half);
+        glEnd();
+        glBegin(GL_QUADS);
+        glNormal3f( -1.0f, 0.0f, 0.0f );//left
+        glVertex3f( randomlyPicked[i].x - voxel_length_half, randomlyPicked[i].y + voxel_length_half, randomlyPicked[i].z + voxel_length_half);
+        glVertex3f( randomlyPicked[i].x - voxel_length_half, randomlyPicked[i].y - voxel_length_half, randomlyPicked[i].z + voxel_length_half);
+        glVertex3f( randomlyPicked[i].x - voxel_length_half, randomlyPicked[i].y - voxel_length_half, randomlyPicked[i].z - voxel_length_half);
+        glVertex3f( randomlyPicked[i].x - voxel_length_half, randomlyPicked[i].y + voxel_length_half, randomlyPicked[i].z - voxel_length_half);
+        glEnd();
+        glBegin(GL_QUADS);
+        glNormal3f( 0.0f, 1.0f, 0.0f );//up
+        glVertex3f( randomlyPicked[i].x + voxel_length_half, randomlyPicked[i].y + voxel_length_half, randomlyPicked[i].z + voxel_length_half);
+        glVertex3f( randomlyPicked[i].x - voxel_length_half, randomlyPicked[i].y + voxel_length_half, randomlyPicked[i].z + voxel_length_half);
+        glVertex3f( randomlyPicked[i].x - voxel_length_half, randomlyPicked[i].y + voxel_length_half, randomlyPicked[i].z - voxel_length_half);
+        glVertex3f( randomlyPicked[i].x + voxel_length_half, randomlyPicked[i].y + voxel_length_half, randomlyPicked[i].z - voxel_length_half);
+        glEnd();
+        glBegin(GL_QUADS);
+        glNormal3f( 0.0f, -1.0f, 0.0f );//down
+        glVertex3f( randomlyPicked[i].x + voxel_length_half, randomlyPicked[i].y - voxel_length_half, randomlyPicked[i].z + voxel_length_half);
+        glVertex3f( randomlyPicked[i].x - voxel_length_half, randomlyPicked[i].y - voxel_length_half, randomlyPicked[i].z + voxel_length_half);
+        glVertex3f( randomlyPicked[i].x - voxel_length_half, randomlyPicked[i].y - voxel_length_half, randomlyPicked[i].z - voxel_length_half);
+        glVertex3f( randomlyPicked[i].x + voxel_length_half, randomlyPicked[i].y - voxel_length_half, randomlyPicked[i].z - voxel_length_half);
+        glEnd();
+        glBegin(GL_QUADS);
+        glNormal3f( 0.0f, 0.0f, 1.0f );//front
+        glVertex3f( randomlyPicked[i].x + voxel_length_half, randomlyPicked[i].y + voxel_length_half, randomlyPicked[i].z + voxel_length_half);
+        glVertex3f( randomlyPicked[i].x - voxel_length_half, randomlyPicked[i].y + voxel_length_half, randomlyPicked[i].z + voxel_length_half);
+        glVertex3f( randomlyPicked[i].x - voxel_length_half, randomlyPicked[i].y - voxel_length_half, randomlyPicked[i].z + voxel_length_half);
+        glVertex3f( randomlyPicked[i].x + voxel_length_half, randomlyPicked[i].y - voxel_length_half, randomlyPicked[i].z + voxel_length_half);
+        glEnd();
+        glBegin(GL_QUADS);
+        glNormal3f( 0.0f, 0.0f, -1.0f );//hind
+        glVertex3f( randomlyPicked[i].x + voxel_length_half, randomlyPicked[i].y + voxel_length_half, randomlyPicked[i].z - voxel_length_half);
+        glVertex3f( randomlyPicked[i].x - voxel_length_half, randomlyPicked[i].y + voxel_length_half, randomlyPicked[i].z - voxel_length_half);
+        glVertex3f( randomlyPicked[i].x - voxel_length_half, randomlyPicked[i].y - voxel_length_half, randomlyPicked[i].z - voxel_length_half);
+        glVertex3f( randomlyPicked[i].x + voxel_length_half, randomlyPicked[i].y - voxel_length_half, randomlyPicked[i].z - voxel_length_half);
         glEnd();
     }
 }
