@@ -116,7 +116,7 @@ vector< matri > bricksLocation ;
 /*----------------------------------------------------------------*/
 
 //char* p = "frog.obj";
-char* p = "suzanne.obj";
+char* p = "bug.obj";
 char* ma = "bug20.ma";
 //char* ma = "dog30.ma";
 //char* ma = "spider25.ma";
