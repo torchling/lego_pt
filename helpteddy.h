@@ -15,6 +15,7 @@
 #include <GL/glut.h>
 #endif
 
+//#include <vector>
 using namespace std;
 
 struct vertex
@@ -23,13 +24,13 @@ struct vertex
     float y;
     float z;
     int num;
+    //vector<int> trip;//triangle pool
 };
 
 struct edge
 {
     vertex v1;
     vertex v2;
-
 };
 
 struct triangle
@@ -37,6 +38,9 @@ struct triangle
     vertex v1;
     vertex v2;
     vertex v3;
+    int n1;
+    int n2;
+    int n3;
 };
 
 struct node
@@ -62,6 +66,7 @@ std::vector< edge >		edgePool ;
 std::vector< triangle > trianglePool ;*/
 
 //help teddy
+float distanceBetween2V(vertex v1, vertex v2);
 bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
 bool onTheSameSidezy(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
 bool onTheSameSidexz(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
@@ -74,6 +79,7 @@ bool outsideTheTrianglexz(vertex testvertex, vertex vertex1, vertex vertex2, ver
 bool onTheTriangleEdges(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3);
 bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius);
 vertex centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3);
+vertex centerOfCircumscribedCircleXZ(vertex vertex_1, vertex vertex_2, vertex vertex_3);
 GLfloat radiusOfCCircle(vertex testvertex, vertex center);
 /*
 bool isBadTriangle(vertex test_point, vertex center, float radius);

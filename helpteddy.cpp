@@ -26,6 +26,7 @@ struct vertex
     float y;
     float z;
     int num;
+    //vector<int> trip;//triangle pool
 };
 
 struct edge
@@ -39,6 +40,9 @@ struct triangle
     vertex v1;
     vertex v2;
     vertex v3;
+    int n1;
+    int n2;
+    int n3;
 };
 
 struct node
@@ -50,13 +54,21 @@ struct node
 
     int start;      //data
     int end;        //data
-    
+
     bool root;
-    bool ls;        //is left son 
+    bool ls;        //is left son
     bool rs;        //is right son
     bool alive;     //useful:TRUE; useless:FALSE
     bool leaf;      //is leaf:TRUE; not leaf:FALSE
 };
+
+float distanceBetween2V(vertex v1, vertex v2)
+{
+    float result;
+    result = pow(v1.x-v2.x, 2.0) + pow(v1.y-v2.y, 2.0) + pow(v1.z-v2.z, 2.0);
+    result = pow(result, 0.5);
+    return result;
+}
 
 bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
 {
@@ -90,20 +102,20 @@ bool onTheSameSidezy(vertex test_point, vertex line_start, vertex line_end, vert
     {
         float vz = line_start.z-line_end.z;
         float vy = line_start.y-line_end.y;
-        
+
         if( (test_point.y - ( line_start.y + vy*(test_point.z-line_start.z)/vz))*
            (compare_point.y - (line_start.y + vy*(compare_point.z-line_start.z)/vz)) <= 0 )
             return false;
-        
+
         return true;
     }
-    
+
     //calculate x distance from test point to line.
     if(line_start.z==line_end.z)
     {
         if( (test_point.z-line_start.z)*(compare_point.z-line_start.z) <= 0 )
             return false;
-        
+
         return true;
     }
     return false;
@@ -115,20 +127,20 @@ bool onTheSameSidexz(vertex test_point, vertex line_start, vertex line_end, vert
     {
         float vx = line_start.x-line_end.x;
         float vz = line_start.z-line_end.z;
-        
+
         if( (test_point.z - ( line_start.z + vz*(test_point.x-line_start.x)/vx))*
            (compare_point.z - (line_start.z + vz*(compare_point.x-line_start.x)/vx)) <= 0 )
             return false;
-        
+
         return true;
     }
-    
+
     //calculate x distance from test point to line.
     if(line_start.x==line_end.x)
     {
         if( (test_point.x-line_start.x)*(compare_point.x-line_start.x) <= 0 )
             return false;
-        
+
         return true;
     }
     return false;
@@ -176,7 +188,7 @@ bool outsideTheTrianglezy(vertex testvertex, vertex vertex1, vertex vertex2, ver
        onTheSameSidezy(testvertex, vertex3, vertex1, vertex2) &&
        onTheSameSidezy(testvertex, vertex2, vertex3, vertex1) )
         return false;
-    
+
     return true;
 }
 bool outsideTheTrianglexz(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3)
@@ -185,13 +197,13 @@ bool outsideTheTrianglexz(vertex testvertex, vertex vertex1, vertex vertex2, ver
        onTheSameSidexz(testvertex, vertex3, vertex1, vertex2) &&
        onTheSameSidexz(testvertex, vertex2, vertex3, vertex1) )
         return false;
-    
+
     return true;
 }
 
 bool onTheEdge(vertex test_point, vertex line_start, vertex line_end)
 {
-    
+
     //calculate y distance from test point to line.
     if(line_start.x!=line_end.x)
     {
@@ -308,6 +320,45 @@ vertex centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vert
     center.x =xc/xm;
     center.y =yc/ym;
     center.z =0.0;
+
+    return center;
+}
+
+vertex centerOfCircumscribedCircleXZ(vertex vertex_1, vertex vertex_2, vertex vertex_3)
+{
+
+    float xc =(pow(vertex_1.x, 2.0)+pow(vertex_1.y, 2.0))*vertex_2.y +
+              (pow(vertex_2.x, 2.0)+pow(vertex_2.y, 2.0))*vertex_3.y +
+              (pow(vertex_3.x, 2.0)+pow(vertex_3.y, 2.0))*vertex_1.y -
+              (pow(vertex_1.x, 2.0)+pow(vertex_1.y, 2.0))*vertex_3.y -
+              (pow(vertex_2.x, 2.0)+pow(vertex_2.y, 2.0))*vertex_1.y -
+              (pow(vertex_3.x, 2.0)+pow(vertex_3.y, 2.0))*vertex_2.y;
+    float xm =vertex_1.x*vertex_2.y +
+              vertex_2.x*vertex_3.y +
+              vertex_3.x*vertex_1.y -
+              vertex_1.x*vertex_3.y -
+              vertex_2.x*vertex_1.y -
+              vertex_3.x*vertex_2.y;
+
+    float zc =(pow(vertex_1.x, 2.0)+pow(vertex_1.z, 2.0))*vertex_3.x +
+              (pow(vertex_2.x, 2.0)+pow(vertex_2.z, 2.0))*vertex_1.x +
+              (pow(vertex_3.x, 2.0)+pow(vertex_3.z, 2.0))*vertex_2.x -
+              (pow(vertex_1.x, 2.0)+pow(vertex_1.z, 2.0))*vertex_2.x -
+              (pow(vertex_2.x, 2.0)+pow(vertex_2.z, 2.0))*vertex_3.x -
+              (pow(vertex_3.x, 2.0)+pow(vertex_3.z, 2.0))*vertex_1.x;
+    float zm =vertex_1.x*vertex_2.z +
+              vertex_2.x*vertex_3.z +
+              vertex_3.x*vertex_1.z -
+              vertex_1.x*vertex_3.z -
+              vertex_2.x*vertex_1.z -
+              vertex_3.x*vertex_2.z;
+    xm=2*xm;
+    zm=2*zm;
+
+    vertex center;
+    center.x =xc/xm;
+    center.z =zc/zm;
+    center.y =0.0;
 
     return center;
 }

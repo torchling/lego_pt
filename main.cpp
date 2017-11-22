@@ -116,8 +116,11 @@ vector< matri > bricksLocation ;
 /*----------------------------------------------------------------*/
 
 //char* p = "frog.obj";
-char* p = "bug.obj";
-char* ma = "bug20.ma";
+
+char* p = "suzanne.obj";
+//char* p = "bug.obj";
+char* ma = "suzanne50.ma";
+//char* ma = "bug20.ma";
 //char* ma = "dog30.ma";
 //char* ma = "spider25.ma";
 //char* p = "GermanShephardLowPoly.obj";
@@ -663,6 +666,7 @@ std::vector<face> obj_fPool;		//all faces in obj [face: A plane shape that has 4
 std::vector<triangle> obj_tPool;	//all triangles in obj
 std::vector<face> obj_f3Pool;		//all faces in obj [based on the triangles in obj_tPool]
 std::vector<vertex> obj_normals;	//normals of triangles in obj_tPool
+std::vector< vector <int> > obj_v_triP;
 
 //Storage vector of Voxel
 std::vector< vertex > voxel_candidate; 		//ver 3.0
@@ -782,12 +786,29 @@ void read_obj(){
     cout<< "Size of vertex is "<< obj_vPool.size() << '\n';
     cout<< "Size of faces is "<< obj_fPool.size() << '\n';
 
+    for(int i=0; i<obj_vPool.size(); i++){
+    	vector<int> tmm;
+    	obj_v_triP.push_back(tmm);
+    }
+	cout<< "Size of obj_v_triP "<< obj_v_triP.size() << '\n';
+    
     face f3tmp;
+    int tpnum=0;
     for(int i=0; i<obj_fPool.size(); i++){
         if(obj_fPool[i].v4!=0){
+
             tri.v1 = obj_vPool[ obj_fPool[i].v1-1 ];
             tri.v2 = obj_vPool[ obj_fPool[i].v2-1 ];
             tri.v3 = obj_vPool[ obj_fPool[i].v3-1 ];
+
+            tri.n1 = obj_fPool[i].v1-1;
+            tri.n2 = obj_fPool[i].v2-1;
+            tri.n3 = obj_fPool[i].v3-1;
+            
+            obj_v_triP[ obj_fPool[i].v1-1 ].push_back(tpnum);
+            obj_v_triP[ obj_fPool[i].v2-1 ].push_back(tpnum);
+            obj_v_triP[ obj_fPool[i].v3-1 ].push_back(tpnum);
+            tpnum++;
 
             obj_tPool.push_back(tri);
 
@@ -802,6 +823,15 @@ void read_obj(){
             tri.v2 = obj_vPool[ obj_fPool[i].v3-1 ];
             tri.v3 = obj_vPool[ obj_fPool[i].v4-1 ];
 
+            tri.n1 = obj_fPool[i].v1-1;
+            tri.n2 = obj_fPool[i].v3-1;
+            tri.n3 = obj_fPool[i].v4-1;
+            
+            obj_v_triP[ obj_fPool[i].v1-1 ].push_back(tpnum);
+            obj_v_triP[ obj_fPool[i].v3-1 ].push_back(tpnum);
+            obj_v_triP[ obj_fPool[i].v4-1 ].push_back(tpnum);
+            tpnum++;
+
             obj_tPool.push_back(tri);
 
             f3tmp.v1 = obj_fPool[i].v1 ;
@@ -815,6 +845,15 @@ void read_obj(){
             tri.v1 = obj_vPool[ obj_fPool[i].v1-1 ];
             tri.v2 = obj_vPool[ obj_fPool[i].v2-1 ];
             tri.v3 = obj_vPool[ obj_fPool[i].v3-1 ];
+
+            tri.n1 = obj_fPool[i].v1-1;
+            tri.n2 = obj_fPool[i].v2-1;
+            tri.n3 = obj_fPool[i].v3-1;
+            
+            obj_v_triP[ obj_fPool[i].v1-1 ].push_back(tpnum);
+            obj_v_triP[ obj_fPool[i].v2-1 ].push_back(tpnum);
+            obj_v_triP[ obj_fPool[i].v3-1 ].push_back(tpnum);
+            tpnum++;
 
             obj_tPool.push_back(tri);
 
@@ -925,8 +964,7 @@ void read_obj(){
     min_y = min_y - voxel_length_half;
     min_z = min_z - voxel_length_half;
 */
-    vertex voxel_center_test;
-
+	
 	//Voxel Ver.3
 
 	for(int i=0; i<(xn*yn); i++){//creat enough space for all_xy_strap
@@ -961,7 +999,7 @@ void read_obj(){
     	int time;
     	int col, row, dep;
     	vertex vonline;
-        vertex vonloop;
+        vonline.num = i;
 		//line 1 to 2
     	max=abs(vc12.x); if(max < abs(vc12.y))max = abs(vc12.y); if(max < abs(vc12.z))max = abs(vc12.z);
     	time = max/voxel_length + 1;
@@ -1026,7 +1064,7 @@ void read_obj(){
     	}
 
 
-    //get voxel for triangle's face
+    //get voxels on triangle's face
         max_tx = max_tx - min_tx;//use max to replace range of whole model
     	max_ty = max_ty - min_ty;//..
     	max_tz = max_tz - min_tz;//..
@@ -1044,6 +1082,7 @@ void read_obj(){
         min_tz = min_z + ztt*voxel_length + voxel_length_half;
 
     	vertex candidate;
+    	candidate.num = i;
 
     	for(int j=0; j<xt; j++){
         for(int k=0; k<yt; k++){
@@ -1056,6 +1095,7 @@ void read_obj(){
             candidate.x = min_tx + j*voxel_length;
             candidate.y = min_ty + k*voxel_length;
             candidate.z = min_tz + l*voxel_length;
+            
             voxel_candidate.push_back(candidate);
             //voxel_center_vPool.push_back(candidate);
         }
@@ -1088,31 +1128,14 @@ void read_obj(){
 
     }
 
-    //define voxels on obj shell (officially)
+    //Take out voxels from [voxel_center_tmp]
+    //and save voxels to [voxel_center_vPool].
     int start;
     int end;
     bool recording = false;
     vertex voxel_center_tmp;
     for(int i=0; i<all_xy_strap.size(); i++){
     	for(int j=0; j<all_xy_strap[i].size(); j++){
-/*
-    		if(recording==false && obj_vNormal[ all_xy_strap[i][j].num ].z >= 0){//if normal.z >=0
-    			start = (all_xy_strap[i][j].z- min_z) / voxel_length;
-                recording = true;
-    		}
-            if(recording==true && obj_vNormal[ all_xy_strap[i][j].num ].z < 0){
-                end = (all_xy_strap[i][j].z- min_z) / voxel_length;
-                for(int k=start; k<end+1; k++){
-                    //define the voxel's position
-                    voxel_center_tmp.x = (i/yn)*voxel_length + min_x - voxel_length_half;
-                    voxel_center_tmp.y = (i%yn)*voxel_length + min_y - voxel_length_half;
-                    voxel_center_tmp.z =      k*voxel_length + min_z - voxel_length_half;
-                    //push the voxel into voxel pool
-                    voxel_center_vPool.push_back(voxel_center_tmp);
-                }
-                recording = false;
-            }
-*/
 
             int k;
             k = (all_xy_strap[i][j].z- min_z) / voxel_length;
@@ -1136,151 +1159,19 @@ void read_obj(){
     bool r_found = false;
     bool f_found = false;
     bool h_found = false;
-/*
-    cout<< xn <<" "<< yn <<" "<< zn <<endl;
-    cout<< voxel_center_vPool.size() <<endl;
-    for(int i=0; i<xn; i++){
-        for(int j=0; j<voxel_center_vPool.size(); j++){
-            if( abs( midx + i*voxel_length - voxel_center_vPool[j].x )<voxel_length &&
-                abs( midy - voxel_center_vPool[j].y )<alert_range*voxel_length &&
-                abs( midz - voxel_center_vPool[j].z )<alert_range*voxel_length &&
-                (r_found==false)){
-                cout<<" yeah" <<endl;
-                right=i;
-                r_found=true;
-            }
-            if( abs( midx - i*voxel_length - voxel_center_vPool[j].x )<voxel_length &&
-                abs( midy - voxel_center_vPool[j].y )<alert_range*voxel_length &&
-                abs( midz - voxel_center_vPool[j].z )<alert_range*voxel_length &&
-                (l_found==false)){
-                left=i;
-                l_found=true;
-            }
-        }
-    }
-    for(int i=0; i<yn; i++){
-        for(int j=0; j<voxel_center_vPool.size(); j++){
-            if( abs( midx - voxel_center_vPool[j].x )<alert_range*voxel_length &&
-                abs( midy + i*voxel_length - voxel_center_vPool[j].y )<voxel_length &&
-                abs( midz - voxel_center_vPool[j].z )<alert_range*voxel_length &&
-                (t_found==false)){
-                top=i;
-                t_found=true;
-            }
-            if( abs( midx - voxel_center_vPool[j].x )<alert_range*voxel_length &&
-                abs( midy - i*voxel_length - voxel_center_vPool[j].y )<voxel_length &&
-                abs( midz - voxel_center_vPool[j].z )<alert_range*voxel_length &&
-                (b_found==false)){
-                buttom=i;
-                b_found=true;
-            }
-        }
-    }
-    for(int i=0; i<zn; i++){
-        for(int j=0; j<voxel_center_vPool.size(); j++){
-            if( abs( midx - voxel_center_vPool[j].x )<alert_range*voxel_length &&
-                abs( midy - voxel_center_vPool[j].y )<alert_range*voxel_length &&
-                abs( midz + i*voxel_length - voxel_center_vPool[j].z )<voxel_length &&
-                (f_found==false)){
-                front=i;
-                f_found=true;
-            }
-            if( abs( midx - voxel_center_vPool[j].x )<alert_range*voxel_length &&
-                abs( midy - voxel_center_vPool[j].y )<alert_range*voxel_length &&
-                abs( midz - i*voxel_length - voxel_center_vPool[j].z )<voxel_length &&
-                (h_found==false)){
-                hind=i;
-                h_found=true;
-            }
-        }
-    }
-    cout<< top <<" "<< buttom <<"\n";
-    cout<< right <<" "<< left <<"\n";
-    cout<< front <<" "<< hind <<"\n";
-    vertex voxel_bone;
-    for(int i=0; i<(top+ buttom)*(right+ left)*(front+ hind); i++){
-        voxel_bone.x = voxel_length_half + midx - left*voxel_length + (i%(right+ left))*voxel_length;
-        voxel_bone.y = voxel_length_half + midy - buttom*voxel_length + ((i/(right+ left))%(top+buttom))*voxel_length;
-        voxel_bone.z = voxel_length_half + midz - hind*voxel_length + (i/((right+ left)*(top+ buttom)))*voxel_length;
-        voxel_bone_position.push_back(voxel_bone);
-    }
-    cout<< voxel_bone_position.size() <<"\n";
-*/
 
-    //Voxel Ver.2
-/*
-    //y_layer.clear();
-    for(int i=0; i<yn; i++){//creat enough space for all_y_layer
-    	all_y_layer.push_back(y_layer);
-    }
-    cout<< "\n" <<"problem" <<endl;
-    int layer;
-    for(int i=0; i<obj_vPool.size(); i++){
-    	layer = (obj_vPool[i].y-min_y) / voxel_length;
-        obj_vPool[i].num = i;
-        //cout<< "\n" <<"1" <<endl;
-        if(layer < all_y_layer.size())
-    	all_y_layer[layer].push_back(obj_vPool[i]);
-        //cout<< "\n" <<"2" <<endl;
-    }
 
-    //x_strap.clear();
-    for(int i=0; i<(xn*yn); i++){//creat enough space for all_xy_strap
-    	all_xy_strap.push_back(x_strap);
-    }
-    //cout<< "\n" <<"problem start" <<endl;
-    int layer2;
-    for(int i=0; i<all_y_layer.size(); i++){
-    	for(int j=0; j<all_y_layer[i].size(); j++){
-    		layer  = (all_y_layer[i][j].x-min_x) / voxel_length;
-    		layer2 = i;
-            //cout<< "\n" <<"1" <<endl;
-            if(layer < xn && layer2 < yn)
-    		all_xy_strap[ layer + layer2*xn ].push_back(all_y_layer[i][j]);
-            //cout<< "\n" <<"2" <<endl;
+    //remove same point in voxel_center_vPool
+    vertex vs;
+    for(int i=0; i<voxel_center_vPool.size(); i++){
+    	for(int j=i+1; j<voxel_center_vPool.size(); j++){
+    		if( areSameVertex( voxel_center_vPool[i], voxel_center_vPool[j] ) ){
+    			voxel_center_vPool[j] = voxel_center_vPool[voxel_center_vPool.size()-1];
+    			voxel_center_vPool.pop_back();
+    		}
     	}
     }
-    //cout<< "\n" <<"problem end" <<endl;
 
-    int start;
-    int end;
-    bool recording = false;
-    vertex voxel_center_tmp;
-    for(int i=0; i<all_xy_strap.size(); i++){
-    	for(int j=0; j<all_xy_strap[i].size(); j++){
-
-            int k;
-            k = (all_xy_strap[i][j].z- min_z) / voxel_length;
-            //define the voxel's position
-            voxel_center_tmp.x = (i%xn)*voxel_length + min_x + voxel_length_half;
-            voxel_center_tmp.y = (i/xn)*voxel_length + min_y + voxel_length_half;
-            voxel_center_tmp.z =      k*voxel_length + min_z + voxel_length_half;
-            //push the voxel into voxel pool
-            voxel_center_vPool.push_back(voxel_center_tmp);
-        }
-        recording = false;
-        start = 0;
-        end = 0;
-    }
-*/
-
-	//Voxel  Ver.1
-/*
-    for(int i=0; i<xn; i++){
-        for(int j=0; j<yn; j++){
-            for(int k=0; k<zn; k++){
-                voxel_center_test.x = min_x + i*voxel_length;
-                voxel_center_test.y = min_y + j*voxel_length;
-                voxel_center_test.z = min_z + k*voxel_length;
-
-                for(int l=0; l<obj_vPool.size(); l++){
-                    if( in_voxel(obj_vPool[l], voxel_center_test, voxel_length_half) )
-                        voxel_center_vPool.push_back(voxel_center_test);
-                }
-            }
-        }
-    }
-*/
     cout<< "\n";
     cout<< "size of voxel: " << voxel_center_vPool.size() <<"\n";
 
@@ -1336,7 +1227,7 @@ void readMa(char *fileName){
 
 vector<vertex> randomlyPicked;
 void randomPick_even(){
-    for(int i=0; i<voxel_center_vPool.size(); i = i+rand()%20+ 10){ //10~30
+    for(int i=0; i<voxel_center_vPool.size(); i = i+rand()%10+ 3){ //10~30
         randomlyPicked.push_back(voxel_center_vPool[i]);
     }
     cout<< "size of randomly picked: " << randomlyPicked.size() <<"\n";
@@ -1346,8 +1237,8 @@ void randomPick_symmetric(){
 }
 
 void surface_arrange(){
-    for(int i=0; ; i++){
-        ;
+    for(int i=0; randomlyPicked.size(); i++){
+        randomlyPicked[i].num;
     }
     for(int i=0; i<voxel_center_vPool.size(); i++){
         ;
