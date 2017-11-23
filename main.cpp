@@ -864,6 +864,11 @@ void read_obj(){
             obj_f3Pool.push_back(f3tmp);
         }
     }
+    cout<< "obj_v_triP[0][0] "<< obj_v_triP[0][0] << " obj_v_triP[0][1] "<< obj_v_triP[0][1] << '\n';
+    cout<< "obj_tPool[0].n2 "<< obj_tPool[0].n2 << " obj_tPool[1].n3 "<< obj_tPool[1].n3 << '\n';
+    cout<< "obj_tPool[96].n2 "<< obj_tPool[96].n2 << " obj_tPool[96].n3 "<< obj_tPool[96].n3 << '\n';
+    cout<< "obj_tPool[112].n2 "<< obj_tPool[112].n2 << " obj_tPool[112].n3 "<< obj_tPool[112].n3 << '\n';
+
 
     //creat normal from obj model
     vertex normal;
@@ -1127,7 +1132,10 @@ void read_obj(){
     	}
 
     }
-
+	cout<< "obj_v_triP[0][0] "<< obj_v_triP[0][0] << " obj_v_triP[0][1] "<< obj_v_triP[0][1] << '\n';
+    cout<< "obj_tPool[0].n2 "<< obj_tPool[0].n2 << " obj_tPool[1].n3 "<< obj_tPool[1].n3 << '\n';
+    cout<< "obj_tPool[96].n2 "<< obj_tPool[96].n2 << " obj_tPool[96].n3 "<< obj_tPool[96].n3 << '\n';
+    cout<< "obj_tPool[112].n2 "<< obj_tPool[112].n2 << " obj_tPool[112].n3 "<< obj_tPool[112].n3 << '\n';
     //Take out voxels from [voxel_center_tmp]
     //and save voxels to [voxel_center_vPool].
     int start;
@@ -1143,6 +1151,7 @@ void read_obj(){
             voxel_center_tmp.x = (i%xn)*voxel_length + min_x + voxel_length_half;
             voxel_center_tmp.y = (i/xn)*voxel_length + min_y + voxel_length_half;
             voxel_center_tmp.z =      k*voxel_length + min_z + voxel_length_half;
+            voxel_center_tmp.num = all_xy_strap[i][j].num;
             //push the voxel into voxel pool
             voxel_center_vPool.push_back(voxel_center_tmp);
         }
@@ -1236,10 +1245,94 @@ void randomPick_symmetric(){
     ;
 }
 
-void surface_arrange(){
-    for(int i=0; randomlyPicked.size(); i++){
-        randomlyPicked[i].num;
+float max3(float f1, float f2, float f3){
+	if(f1>=f2){
+		if(f1>=f3)
+			return f1;
+		if(f1<f3)
+			return f3;
+	}
+	if(f2>f1){
+		if(f2>=f3)
+			return f2;
+		if(f2<f3)
+			return f3;
+	}
+}
+vector< matri > mpool_RandomPick;
+void surface_arrange_random(){
+	float va, vb, vc, max;
+	int vertex_num;
+	int n=0;
+    for(int i=0; i<randomlyPicked.size(); i++){
+    	//cout<< randomlyPicked[i].num <<" \n";
+    	va =distanceBetween2V( obj_vPool[ obj_tPool[ randomlyPicked[i].num ].n1 ], randomlyPicked[i] );
+        vb =distanceBetween2V( obj_vPool[ obj_tPool[ randomlyPicked[i].num ].n2 ], randomlyPicked[i] );
+        vc =distanceBetween2V( obj_vPool[ obj_tPool[ randomlyPicked[i].num ].n3 ], randomlyPicked[i] );
+        
+        max = max3( va, vb, vc);
+        
+        n=0;
+        if(max==va)n=1;
+        if(max==vb)n=2;
+        if(max==vc)n=3;
+        
+        if(n==1) vertex_num = obj_tPool[ randomlyPicked[i].num ].n1;
+        if(n==2) vertex_num = obj_tPool[ randomlyPicked[i].num ].n2;
+        if(n==3) vertex_num = obj_tPool[ randomlyPicked[i].num ].n3;
+        
+        if(n!=0){
+        vector< vertex > vv_trip;
+        //store vertex around randomlyPicked voxel center
+        //into vv_trip
+        for(int j=0; j<obj_v_triP[vertex_num].size(); j++){
+        	if(obj_tPool[ obj_v_triP[vertex_num][j] ].n1 != vertex_num){
+        		vv_trip.push_back( obj_tPool[ obj_v_triP[vertex_num][j] ].v1 );
+        	}
+        	if(obj_tPool[ obj_v_triP[vertex_num][j] ].n2 != vertex_num){
+        		vv_trip.push_back( obj_tPool[ obj_v_triP[vertex_num][j] ].v2 );
+        	}
+        	if(obj_tPool[ obj_v_triP[vertex_num][j] ].n3 != vertex_num){
+        		vv_trip.push_back( obj_tPool[ obj_v_triP[vertex_num][j] ].v3 );
+        	}
+        }
+        
+        vertex noPV;//normal of picked vertex
+        noPV.x = 0.0;
+        noPV.y = 0.0;
+        noPV.z = 0.0;
+        for(int j=0; j<vv_trip.size(); j++){
+        	noPV.x = noPV.x + obj_vPool[vertex_num].x - vv_trip[j].x;
+        	noPV.y = noPV.y + obj_vPool[vertex_num].y - vv_trip[j].y;
+        	noPV.z = noPV.z + obj_vPool[vertex_num].z - vv_trip[j].z;
+        }
+        noPV.x = noPV.x/vv_trip.size();
+        noPV.y = noPV.y/vv_trip.size();
+        noPV.z = noPV.z/vv_trip.size();
+
+        vertex ny;
+        ny.x = 0.0;
+        ny.y = 1.0;
+        ny.z = 0.0;
+        vertex o;
+        o.x = 0.0;
+        o.y = 0.0;
+        o.z = 0.0;
+        vertex o2;
+        o2.x = randomlyPicked[i].x;
+        o2.y = randomlyPicked[i].y;
+        o2.z = randomlyPicked[i].z;
+        float mp[12]={ o2.x, o2.y, o2.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+        matri tRM = matrixRotate( angleBetween2Vector(noPV ,ny), normalOf2Vector(ny, noPV), o );
+        tRM = matrixMotiply(mp, tRM.m);
+        
+        mpool_RandomPick.push_back(tRM);
+    	}
+
     }
+    cout<<"OOKK " << "\n";
+    cout<< "size of mpool_RandomPick: " << mpool_RandomPick.size() <<"\n";
+    
     for(int i=0; i<voxel_center_vPool.size(); i++){
         ;
     }
@@ -1251,6 +1344,7 @@ void init(void)
 
     read_obj();
     randomPick_even();
+    surface_arrange_random();
     readMa(ma);
 
     /*
@@ -1293,7 +1387,7 @@ void init(void)
     cout<<"part 87087"<<"\n";
 
     part0.tpfp.clear();
-    partt = "3005.dat";//"3005.dat";3024 3070b
+    partt = "11477.dat";//"3005.dat";3024 3070b
     search_or_read(partt, false, metrix_O);
     for(int i=0; i<trianglePool.size(); i++){
         part0.tpfp.push_back(trianglePool[i]);
@@ -1303,7 +1397,7 @@ void init(void)
     trianglePool.clear();
     tmpNormalPool.clear();
 
-    cout<<"part 3005"<<"\n";
+    cout<<"part 11477"<<"\n";
 
     cout<< "\n";
     cout<< "size of parts pool: " << parts.size() << " " <<endl;
@@ -1544,7 +1638,7 @@ void drawPart(int p_number, float place[12], float color[3]){
     }
 }
 
-float divv=0.075;// 0.15 ; 0.15/2
+float divv=0.075;// 0.15 ; 0.15/2 one brick's length
 void drawBonewithLego()
 {
     for(int i=0; i<ma_fPool.size(); i++){
@@ -1636,6 +1730,12 @@ void drawBonewithLego()
     }*/
 }
 
+void drawSurfaceParts_random(){
+	for(int i=0; i < randomlyPicked.size(); i++){
+		drawPart(2, mpool_RandomPick[i].m, yellow);
+	}
+}
+
 void drawMa(){
     for(int i=0; i < ma_ePool.size() ; i++){
         glColor3f(0.0f,0.7f,0.0f);
@@ -1682,7 +1782,7 @@ static void display(void)
     glRotated(-90 + rota,1,0,0);
     glRotated(10 + rotate1,0,0,1);//glRotated(25 + rotate1,0,0,1) 2017.11.08;
 
-    //drawObj_t(true);
+    drawObj_t(false);
     drawMa();
     
     //glutSolidSphere(1,slices,stacks);
@@ -1696,6 +1796,7 @@ static void display(void)
 
     drawMa();
     drawBonewithLego();
+    drawSurfaceParts_random();
 
     //drawObj_t(false);
     if(!drawlegoFrame)
@@ -1710,6 +1811,7 @@ static void display(void)
     glRotated(-10 + rotate1,0,0,1);//glRotated(-25 + rotate1,0,0,1) 2017.11.08;
 
     drawBonewithLego();
+    drawSurfaceParts_random();
 
     glBegin(GL_POINTS);
     //drawObj_p();
