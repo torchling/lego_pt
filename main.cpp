@@ -51,6 +51,7 @@ float oheight=0.0;
 float upp = 0.0;
 
 bool drawlegoFrame = true;
+bool swch = true;
 
 float rota = 0.0;
 float rotate1 = 0.0;
@@ -59,7 +60,9 @@ float dark[3]={0.2,0.2,0.2};
 float lightgrey[3]={0.65,0.65,0.65};
 float grey[3]={0.5,0.5,0.5};
 float blue[3]={0,0,1.0};
-float yellow[3]={0.7,0.7,0.2};
+float yellow[3]={0.8,0.8,0.1};
+float green[3]={0.1,0.8,0.1};
+float red[3]={1.0,0,0};
 
 struct face //max to 4 points
 {
@@ -117,10 +120,10 @@ vector< matri > bricksLocation ;
 
 //char* p = "frog.obj";
 
-char* p = "suzanne.obj";
-//char* p = "bug.obj";
-char* ma = "suzanne50.ma";
-//char* ma = "bug20.ma";
+//char* p = "suzanne.obj";
+char* p = "bug.obj";
+//char* ma = "suzanne50.ma";
+char* ma = "bug20.ma";
 //char* ma = "dog30.ma";
 //char* ma = "spider25.ma";
 //char* p = "GermanShephardLowPoly.obj";
@@ -864,11 +867,11 @@ void read_obj(){
             obj_f3Pool.push_back(f3tmp);
         }
     }
-    cout<< "obj_v_triP[0][0] "<< obj_v_triP[0][0] << " obj_v_triP[0][1] "<< obj_v_triP[0][1] << '\n';
-    cout<< "obj_tPool[0].n2 "<< obj_tPool[0].n2 << " obj_tPool[1].n3 "<< obj_tPool[1].n3 << '\n';
-    cout<< "obj_tPool[96].n2 "<< obj_tPool[96].n2 << " obj_tPool[96].n3 "<< obj_tPool[96].n3 << '\n';
-    cout<< "obj_tPool[112].n2 "<< obj_tPool[112].n2 << " obj_tPool[112].n3 "<< obj_tPool[112].n3 << '\n';
-
+    
+    //cout<< "obj_v_triP[0][0] "<< obj_v_triP[0][0] << " obj_v_triP[0][1] "<< obj_v_triP[0][1] << '\n';
+    //cout<< "obj_tPool[0].n2 "<< obj_tPool[0].n2 << " obj_tPool[1].n3 "<< obj_tPool[1].n3 << '\n';
+    //cout<< "obj_tPool[96].n2 "<< obj_tPool[96].n2 << " obj_tPool[96].n3 "<< obj_tPool[96].n3 << '\n';
+    //cout<< "obj_tPool[112].n2 "<< obj_tPool[112].n2 << " obj_tPool[112].n3 "<< obj_tPool[112].n3 << '\n';
 
     //creat normal from obj model
     vertex normal;
@@ -1132,10 +1135,11 @@ void read_obj(){
     	}
 
     }
-	cout<< "obj_v_triP[0][0] "<< obj_v_triP[0][0] << " obj_v_triP[0][1] "<< obj_v_triP[0][1] << '\n';
-    cout<< "obj_tPool[0].n2 "<< obj_tPool[0].n2 << " obj_tPool[1].n3 "<< obj_tPool[1].n3 << '\n';
-    cout<< "obj_tPool[96].n2 "<< obj_tPool[96].n2 << " obj_tPool[96].n3 "<< obj_tPool[96].n3 << '\n';
-    cout<< "obj_tPool[112].n2 "<< obj_tPool[112].n2 << " obj_tPool[112].n3 "<< obj_tPool[112].n3 << '\n';
+	//cout<< "obj_v_triP[0][0] "<< obj_v_triP[0][0] << " obj_v_triP[0][1] "<< obj_v_triP[0][1] << '\n';
+    //cout<< "obj_tPool[0].n2 "<< obj_tPool[0].n2 << " obj_tPool[1].n3 "<< obj_tPool[1].n3 << '\n';
+    //cout<< "obj_tPool[96].n2 "<< obj_tPool[96].n2 << " obj_tPool[96].n3 "<< obj_tPool[96].n3 << '\n';
+    //cout<< "obj_tPool[112].n2 "<< obj_tPool[112].n2 << " obj_tPool[112].n3 "<< obj_tPool[112].n3 << '\n';
+    
     //Take out voxels from [voxel_center_tmp]
     //and save voxels to [voxel_center_vPool].
     int start;
@@ -1235,9 +1239,15 @@ void readMa(char *fileName){
 }
 
 vector<vertex> randomlyPicked;
+vector<short> randomlyPicked_color;
 void randomPick_even(){
     for(int i=0; i<voxel_center_vPool.size(); i = i+rand()%10+ 3){ //10~30
         randomlyPicked.push_back(voxel_center_vPool[i]);
+    }
+    int j;
+    for(int i=0; i<voxel_center_vPool.size(); i++){
+    	j=rand()%4;
+    	randomlyPicked_color.push_back(j);
     }
     cout<< "size of randomly picked: " << randomlyPicked.size() <<"\n";
 }
@@ -1323,7 +1333,7 @@ void surface_arrange_random(){
         o2.y = randomlyPicked[i].y;
         o2.z = randomlyPicked[i].z;
         float mp[12]={ o2.x, o2.y, o2.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-        matri tRM = matrixRotate( angleBetween2Vector(noPV ,ny), normalOf2Vector(ny, noPV), o );
+        matri tRM = matrixRotate( angleBetween2Vector(noPV ,ny), normalOf2Vector(noPV, ny), o );
         tRM = matrixMotiply(mp, tRM.m);
         
         mpool_RandomPick.push_back(tRM);
@@ -1731,8 +1741,17 @@ void drawBonewithLego()
 }
 
 void drawSurfaceParts_random(){
+	int j;
 	for(int i=0; i < randomlyPicked.size(); i++){
-		drawPart(2, mpool_RandomPick[i].m, yellow);
+		j=randomlyPicked_color[i];
+		if(j==0)
+			drawPart(2, mpool_RandomPick[i].m, yellow);
+		if(j==1)
+			drawPart(2, mpool_RandomPick[i].m, red);
+		if(j==2)
+			drawPart(2, mpool_RandomPick[i].m, blue);
+		if(j==3)
+			drawPart(2, mpool_RandomPick[i].m, green);
 	}
 }
 
@@ -1799,7 +1818,7 @@ static void display(void)
     drawSurfaceParts_random();
 
     //drawObj_t(false);
-    if(!drawlegoFrame)
+    if(!swch)
     drawVoxel();
     //glutSolidSphere(1,slices,stacks);
     glPopMatrix();
@@ -1811,13 +1830,16 @@ static void display(void)
     glRotated(-10 + rotate1,0,0,1);//glRotated(-25 + rotate1,0,0,1) 2017.11.08;
 
     drawBonewithLego();
-    drawSurfaceParts_random();
+    if(!swch){
+    	drawSurfaceParts_random();
+		drawObj_t(false);
+	}
 
     glBegin(GL_POINTS);
     //drawObj_p();
     //drawObj_in_p();
     glEnd();
-    if(drawlegoFrame)
+    if(swch)
     drawVoxel();
     //glutSolidTorus(0.2,0.8,slices,stacks);
     glPopMatrix();
@@ -1918,6 +1940,14 @@ static void key(unsigned char key, int x, int y)
                 drawlegoFrame=true;
             }
             break;
+
+        case 'r':
+            if(swch){
+                swch=false;
+            }else{
+                swch=true;
+            }
+            break;
     }
 
     glutPostRedisplay();
@@ -1959,7 +1989,7 @@ int main(int argc, char *argv[])
     glClearColor(0.8,0.8,0.8,1);
     //glClearColor(0.0,0.0,0.0,1);
     //glEnable(GL_CULL_FACE);
-    //glCullFace(GL_BACK);
+    glCullFace(GL_BACK);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
