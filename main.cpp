@@ -52,6 +52,7 @@ float upp = 0.0;
 
 bool drawlegoFrame = true;
 bool swch = true;
+bool drawTri0 = false;
 
 float rota = 0.0;
 float rotate1 = 0.0;
@@ -1274,8 +1275,9 @@ void surface_arrange_random(){
 	float va, vb, vc, max;
 	int vertex_num;
 	int n=0;
+    
     for(int i=0; i<randomlyPicked.size(); i++){
-    	//cout<< randomlyPicked[i].num <<" \n";
+    	
     	va =distanceBetween2V( obj_vPool[ obj_tPool[ randomlyPicked[i].num ].n1 ], randomlyPicked[i] );
         vb =distanceBetween2V( obj_vPool[ obj_tPool[ randomlyPicked[i].num ].n2 ], randomlyPicked[i] );
         vc =distanceBetween2V( obj_vPool[ obj_tPool[ randomlyPicked[i].num ].n3 ], randomlyPicked[i] );
@@ -1292,6 +1294,7 @@ void surface_arrange_random(){
         if(n==3) vertex_num = obj_tPool[ randomlyPicked[i].num ].n3;
         
         if(n!=0){
+        /*
         vector< vertex > vv_trip;
         //store vertex around randomlyPicked voxel center
         //into vv_trip
@@ -1319,21 +1322,67 @@ void surface_arrange_random(){
         noPV.x = noPV.x/vv_trip.size();
         noPV.y = noPV.y/vv_trip.size();
         noPV.z = noPV.z/vv_trip.size();
+		*/
+
+    	vertex noPV;//normal of picked vertex
+        noPV.x = obj_normals[ randomlyPicked[i].num ].x;
+        noPV.y = obj_normals[ randomlyPicked[i].num ].y;
+        noPV.z = obj_normals[ randomlyPicked[i].num ].z;
 
         vertex ny;
-        ny.x = 0.0;
-        ny.y = 1.0;
-        ny.z = 0.0;
+        ny.x = 0.0;		ny.y = 1.0;		ny.z = 0.0;
+
+        vertex nny;
+        nny.x = 0.0;	nny.y = -1.0;	nny.z = 0.0;
+        
+        vertex nz;
+        nz.x = 0.0;     nz.y = 0.0;     nz.z = 1.0;
+        
+        vertex nnz;
+        nnz.x = 0.0;    nnz.y = 0.0;    nnz.z = -1.0;
+        
         vertex o;
-        o.x = 0.0;
-        o.y = 0.0;
-        o.z = 0.0;
+        o.x = 0.0;      o.y = 0.0;      o.z = 0.0;
+        
         vertex o2;
         o2.x = randomlyPicked[i].x;
         o2.y = randomlyPicked[i].y;
         o2.z = randomlyPicked[i].z;
+        
+        vertex nopv_xz;
+        nopv_xz.x = noPV.x;
+        nopv_xz.y = 0.0;
+        nopv_xz.z = noPV.z;
+        
+        vertex nopv_xy;
+        nopv_xy.x = noPV.x;
+        nopv_xy.y = noPV.y;
+        nopv_xy.z = 0.0;
+
         float mp[12]={ o2.x, o2.y, o2.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-        matri tRM = matrixRotate( angleBetween2Vector(noPV ,ny), normalOf2Vector(noPV, ny), o );
+        
+        //ver 1.0
+        matri tRM0;
+        if(nopv_xz.x >= 0.0)
+        	tRM0 = matrixRotate( angleBetween2Vector(nopv_xz ,nnz), nny, o );
+        else
+        	tRM0 =matrixRotate( angleBetween2Vector(nopv_xz ,nnz), ny, o );
+
+        matri tRM = matrixRotate( angleBetween2Vector(noPV ,nny), normalOf2Vector(nny, noPV), o );
+        //警告，所有零件原始的放置方式都是繞X軸180度旋轉的
+        
+        /*
+        //ver 2.0
+        matri tRM0;
+        if(nopv_xy.x >= 0.0)
+        	tRM0 = matrixRotate( angleBetween2Vector(nopv_xy ,ny), nnz, o );
+        else
+        	tRM0 = matrixRotate( angleBetween2Vector(nopv_xy ,ny), nz, o );
+
+        matri tRM = matrixRotate( angleBetween2Vector(noPV ,nnz), normalOf2Vector(nnz, noPV), o );
+        */
+      	
+        tRM = matrixMotiply(tRM.m, tRM0.m);
         tRM = matrixMotiply(mp, tRM.m);
         
         mpool_RandomPick.push_back(tRM);
@@ -1794,19 +1843,19 @@ static void display(void)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(1,0,0);
-//-----------------------------------------------------/
+//--01---------------------------------------------------/
     glPushMatrix();
     glTranslated(-1.8,0.0, dis);//glTranslated(-2.4,1.2,-6);
 
     glRotated(-90 + rota,1,0,0);
     glRotated(10 + rotate1,0,0,1);//glRotated(25 + rotate1,0,0,1) 2017.11.08;
 
-    drawObj_t(false);
+    drawObj_t(drawTri0);
     drawMa();
     
     //glutSolidSphere(1,slices,stacks);
     glPopMatrix();
-//-----------------------------------------------------/
+//--02---------------------------------------------------/
     glPushMatrix();
     glTranslated(0,0.0, dis);//glTranslated(-2.4,1.2,-6); 
 
@@ -1822,7 +1871,7 @@ static void display(void)
     drawVoxel();
     //glutSolidSphere(1,slices,stacks);
     glPopMatrix();
-//-----------------------------------------------------/
+//--03---------------------------------------------------/
     glPushMatrix();
     glTranslated(1.8,0.0, dis);//glTranslated(2.4,1.2,-6); //glTranslated(2.8,0.0, dis)2017.11.08;
 
@@ -1832,7 +1881,7 @@ static void display(void)
     drawBonewithLego();
     if(!swch){
     	drawSurfaceParts_random();
-		drawObj_t(false);
+		drawObj_t(drawTri0);
 	}
 
     glBegin(GL_POINTS);
@@ -1843,20 +1892,20 @@ static void display(void)
     drawVoxel();
     //glutSolidTorus(0.2,0.8,slices,stacks);
     glPopMatrix();
-//-----------------------------------------------------/
-    /*
+//--part---------------------------------------------------/
+    
     for(int i=0; i<parts.size(); i++){
         glPushMatrix();
         glTranslated(1.4,-1+oheight,-4);//glTranslated(0,1.2,-6);
         glTranslatef(0.0, add*i, 0.0);
-        glRotated(30 + rotate1,0,1,0);
-        glRotated(180,1,0,0);
+        glRotated(rotate1,0,1,0);
+        //glRotated(180,1,0,0);
         drawPart(i, metrix_OO, blue);
 
         //glutSolidCone(1,1,slices,stacks);
         glPopMatrix();
     }
-    */
+    
 
     /*
      glTranslated(-2.4,1.2,-6);
@@ -1948,6 +1997,14 @@ static void key(unsigned char key, int x, int y)
                 swch=true;
             }
             break;
+
+        case 'v':
+            if(drawTri0){
+                drawTri0=false;
+            }else{
+                drawTri0=true;
+            }
+            break;
     }
 
     glutPostRedisplay();
@@ -1987,9 +2044,9 @@ int main(int argc, char *argv[])
     glutIdleFunc(idle);
 
     glClearColor(0.8,0.8,0.8,1);
-    //glClearColor(0.0,0.0,0.0,1);
+    
     //glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    //glCullFace(GL_BACK);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
