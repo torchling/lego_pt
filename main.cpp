@@ -1,6 +1,6 @@
 /*
     Lego
-    Jui-Cheng,Sung. R.O.C.
+    Chia Ching,Sung. R.O.C.
     Lyre Mellark.
     Started from 2017.Feb.10
 */
@@ -121,10 +121,10 @@ vector< matri > bricksLocation ;
 
 //char* p = "frog.obj";
 
-//char* p = "suzanne.obj";
-char* p = "bug.obj";
-//char* ma = "suzanne50.ma";
-char* ma = "bug20.ma";
+char* p = "suzanne.obj";
+//char* p = "bug.obj";
+char* ma = "suzanne50.ma";
+//char* ma = "bug20.ma";
 //char* ma = "dog30.ma";
 //char* ma = "spider25.ma";
 //char* p = "GermanShephardLowPoly.obj";
@@ -267,7 +267,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts
             // /Users/luke/desktop/legomac/parts
@@ -288,7 +288,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
             // /Users/luke/desktop/legomac/parts/s
@@ -313,7 +313,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\48")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts\\48")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\48
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\48
             // /Users/luke/desktop/legomac/parts/48
@@ -338,7 +338,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\8")) != NULL) {
+        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts\\8")) != NULL) {
             // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\8
             // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\8
             // /Users/luke/desktop/legomac/parts/8
@@ -680,6 +680,7 @@ std::vector< vertex > voxel_center_vPool;	//ver 		2.0 & 1.0
 std::vector< vertex > x_strap;				//ver 3.0 & 2.0
 std::vector< vector <vertex> > all_xy_strap;//ver 3.0 & 2.0
 std::vector< vertex > voxel_bone_position;      //ver 3.0
+std::vector< vertex > stuffing_vPool;      //ver 3.0
 
 bool in_voxel(vertex test, vertex voxel_center, float radius){
     //float radius = edge_length*0.5;
@@ -1392,11 +1393,136 @@ void surface_arrange_random(){
     cout<<"OOKK " << "\n";
     cout<< "size of mpool_RandomPick: " << mpool_RandomPick.size() <<"\n";
     
-    for(int i=0; i<voxel_center_vPool.size(); i++){
-        ;
-    }
 }
 
+void stuffing(){
+	vector< vertex > stuffing_candidate_01;
+	vector< vertex > stuffing_candidate_02;
+	
+	vertex noPV;	//normal of picked vertex
+	vertex pv;		//picked vertex
+
+	float x, y, z;
+	
+	for(int i=0; i<voxel_center_vPool.size(); i++){
+    	stuffing_candidate_01.push_back(voxel_center_vPool[i]);
+    }
+
+for (int k = 0; k < 6; k++)
+{
+
+	for(int i=0; i<stuffing_candidate_01.size(); i++){
+        noPV.x = obj_normals[ stuffing_candidate_01[i].num ].x;
+        noPV.y = obj_normals[ stuffing_candidate_01[i].num ].y;
+        noPV.z = obj_normals[ stuffing_candidate_01[i].num ].z;
+        
+        x = noPV.x * noPV.x;
+        y = noPV.y * noPV.y;
+        z = noPV.z * noPV.z;
+        
+        pv.x = stuffing_candidate_01[i].x;
+        pv.y = stuffing_candidate_01[i].y;
+        pv.z = stuffing_candidate_01[i].z;
+        pv.num = stuffing_candidate_01[i].num;
+
+        if(x >= y){
+        	if(x >= z){//x
+        		if(noPV.x > 0){
+        			pv.x = stuffing_candidate_01[i].x - voxel_length;
+        			pv.y = stuffing_candidate_01[i].y;
+        			pv.z = stuffing_candidate_01[i].z;
+        			pv.num = stuffing_candidate_01[i].num;
+        		}
+        		else{
+        			pv.x = stuffing_candidate_01[i].x + voxel_length;
+        			pv.y = stuffing_candidate_01[i].y;
+        			pv.z = stuffing_candidate_01[i].z;
+        			pv.num = stuffing_candidate_01[i].num;
+        		}
+        	}
+        	if(x < z){//z
+        		if(noPV.z > 0){
+        			pv.x = stuffing_candidate_01[i].x;
+        			pv.y = stuffing_candidate_01[i].y;
+        			pv.z = stuffing_candidate_01[i].z - voxel_length;
+        			pv.num = stuffing_candidate_01[i].num;
+        		}
+        		else{
+        			pv.x = stuffing_candidate_01[i].x;
+        			pv.y = stuffing_candidate_01[i].y;
+        			pv.z = stuffing_candidate_01[i].z + voxel_length;
+        			pv.num = stuffing_candidate_01[i].num;
+        		}
+        	}
+        }
+        if(x < y){
+        	if(y >= z){//y
+        		if(noPV.y > 0){
+        			pv.x = stuffing_candidate_01[i].x;
+        			pv.y = stuffing_candidate_01[i].y - voxel_length;
+        			pv.z = stuffing_candidate_01[i].z;
+        			pv.num = stuffing_candidate_01[i].num;
+        		}
+        		else{
+        			pv.x = stuffing_candidate_01[i].x;
+        			pv.y = stuffing_candidate_01[i].y + voxel_length;
+        			pv.z = stuffing_candidate_01[i].z;
+        			pv.num = stuffing_candidate_01[i].num;
+        		}
+        	}
+        	if(y < z){//z
+        		if(noPV.z > 0){
+        			pv.x = stuffing_candidate_01[i].x;
+        			pv.y = stuffing_candidate_01[i].y;
+        			pv.z = stuffing_candidate_01[i].z - voxel_length;
+        			pv.num = stuffing_candidate_01[i].num;
+        		}
+        		else{
+        			pv.x = stuffing_candidate_01[i].x;
+        			pv.y = stuffing_candidate_01[i].y;
+        			pv.z = stuffing_candidate_01[i].z + voxel_length;
+        			pv.num = stuffing_candidate_01[i].num;
+        		}
+        	}
+        }
+
+        stuffing_candidate_02.push_back(pv);
+    }
+
+    //delete repeated vertex in the same stuffing layer.
+    for(int i=0; i < stuffing_candidate_02.size(); i++){
+    	for(int j=i+1; j < stuffing_candidate_02.size(); j++){
+    		if(areSameVertex(stuffing_candidate_02[j], stuffing_candidate_02[i])){
+    			stuffing_candidate_02[j] = stuffing_candidate_02[stuffing_candidate_02.size()];
+    			stuffing_candidate_02.pop_back();
+    		}
+    	}
+    }
+
+    //delete repeated vertex between two consecutive stuffing layer.
+    for(int i=0; i < stuffing_candidate_02.size(); i++){
+    	for(int j=0; j < stuffing_candidate_01.size(); j++){
+    		if(areSameVertex(stuffing_candidate_01[j], stuffing_candidate_02[i])){
+    			stuffing_candidate_02[i] = stuffing_candidate_02[stuffing_candidate_02.size()];
+    			stuffing_candidate_02.pop_back();
+    		}
+    	}
+    }
+
+    //stuff_01  = {}
+    //stuff_vPool << stuff_02
+    //stuff_01' = stuff_02
+    //stuff_02' = {}
+    
+    stuffing_candidate_01.clear();
+    for(int i=0; i < stuffing_candidate_02.size(); i++){
+    	stuffing_candidate_01.push_back(stuffing_candidate_02[i]);
+    	stuffing_vPool.push_back(stuffing_candidate_02[i]);
+    }
+    stuffing_candidate_02.clear();
+}
+
+}
 
 void init(void)
 {
