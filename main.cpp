@@ -36,6 +36,8 @@ using namespace std;
 
 float voxel_length = 0.07;
 float voxel_length_half = voxel_length/2;//
+float obmi_x, obmi_y, obmi_z;
+int obn_x, obn_y, obn_z;
 
 float alert_range = 3.0; //for interier stuff
 
@@ -267,9 +269,9 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts")) != NULL) {
-            // C:\\Users\\luke\\Desktop\\lego_assembler\\parts
-            // C:\\Users\\user\\Desktop\\lego_assembler\\parts
+        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts")) != NULL) {
+            // C:/Users/luke/Desktop/lego_assembler/parts
+            // C:/Users/user/Desktop/lego_assembler/parts
             // /Users/luke/desktop/legomac/parts
             // search all the files and directories within directory
 
@@ -288,9 +290,9 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s")) != NULL) {
-            // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\s
-            // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\s
+        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts/s")) != NULL) {
+            // C:/Users/luke/Desktop/lego_assembler/parts/s
+            // C:/Users/user/Desktop/lego_assembler/parts/s
             // /Users/luke/desktop/legomac/parts/s
             // search all the files and directories within directory
 
@@ -313,9 +315,9 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts\\48")) != NULL) {
-            // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\48
-            // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\48
+        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts/48")) != NULL) {
+            // C:/Users/luke/Desktop/lego_assembler/parts/48
+            // C:/Users/user/Desktop/lego_assembler/parts/48
             // /Users/luke/desktop/legomac/parts/48
             // search all the files and directories within directory
 
@@ -338,9 +340,9 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:\\Users\\user\\Desktop\\lego_assembler\\parts\\8")) != NULL) {
-            // C:\\Users\\luke\\Desktop\\lego_assembler\\parts\\8
-            // C:\\Users\\user\\Desktop\\lego_assembler\\parts\\8
+        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts/8")) != NULL) {
+            // C:/Users/luke/Desktop/lego_assembler/parts/8
+            // C:/Users/user/Desktop/lego_assembler/parts/8
             // /Users/luke/desktop/legomac/parts/8
             // search all the files and directories within directory
 
@@ -674,13 +676,11 @@ std::vector< vector <int> > obj_v_triP;
 
 //Storage vector of Voxel
 std::vector< vertex > voxel_candidate; 		//ver 3.0
-std::vector< vector <vertex> > all_y_layer; //ver 		2.0
-std::vector< vertex > y_layer;				//ver 		2.0
-std::vector< vertex > voxel_center_vPool;	//ver 		2.0 & 1.0
+std::vector< vertex > voxel_center_vPool;	//ver 3.0 & 2.0 & 1.0
 std::vector< vertex > x_strap;				//ver 3.0 & 2.0
 std::vector< vector <vertex> > all_xy_strap;//ver 3.0 & 2.0
-std::vector< vertex > voxel_bone_position;      //ver 3.0
-std::vector< vertex > stuffing_vPool;      //ver 3.0
+std::vector< vertex > voxel_bone_position;  //ver 3.0
+std::vector< vertex > stuffing_vPool;       //ver 3.0
 
 bool in_voxel(vertex test, vertex voxel_center, float radius){
     //float radius = edge_length*0.5;
@@ -796,7 +796,7 @@ void read_obj(){
     	obj_v_triP.push_back(tmm);
     }
 	cout<< "Size of obj_v_triP "<< obj_v_triP.size() << '\n';
-    
+
     face f3tmp;
     int tpnum=0;
     for(int i=0; i<obj_fPool.size(); i++){
@@ -809,7 +809,7 @@ void read_obj(){
             tri.n1 = obj_fPool[i].v1-1;
             tri.n2 = obj_fPool[i].v2-1;
             tri.n3 = obj_fPool[i].v3-1;
-            
+
             obj_v_triP[ obj_fPool[i].v1-1 ].push_back(tpnum);
             obj_v_triP[ obj_fPool[i].v2-1 ].push_back(tpnum);
             obj_v_triP[ obj_fPool[i].v3-1 ].push_back(tpnum);
@@ -831,7 +831,7 @@ void read_obj(){
             tri.n1 = obj_fPool[i].v1-1;
             tri.n2 = obj_fPool[i].v3-1;
             tri.n3 = obj_fPool[i].v4-1;
-            
+
             obj_v_triP[ obj_fPool[i].v1-1 ].push_back(tpnum);
             obj_v_triP[ obj_fPool[i].v3-1 ].push_back(tpnum);
             obj_v_triP[ obj_fPool[i].v4-1 ].push_back(tpnum);
@@ -854,7 +854,7 @@ void read_obj(){
             tri.n1 = obj_fPool[i].v1-1;
             tri.n2 = obj_fPool[i].v2-1;
             tri.n3 = obj_fPool[i].v3-1;
-            
+
             obj_v_triP[ obj_fPool[i].v1-1 ].push_back(tpnum);
             obj_v_triP[ obj_fPool[i].v2-1 ].push_back(tpnum);
             obj_v_triP[ obj_fPool[i].v3-1 ].push_back(tpnum);
@@ -869,7 +869,7 @@ void read_obj(){
             obj_f3Pool.push_back(f3tmp);
         }
     }
-    
+
     //cout<< "obj_v_triP[0][0] "<< obj_v_triP[0][0] << " obj_v_triP[0][1] "<< obj_v_triP[0][1] << '\n';
     //cout<< "obj_tPool[0].n2 "<< obj_tPool[0].n2 << " obj_tPool[1].n3 "<< obj_tPool[1].n3 << '\n';
     //cout<< "obj_tPool[96].n2 "<< obj_tPool[96].n2 << " obj_tPool[96].n3 "<< obj_tPool[96].n3 << '\n';
@@ -937,6 +937,9 @@ void read_obj(){
             min_z = obj_vPool[i].z;
     }
 
+    //max_x, max_y, max_z, mix_x, mix_y, mix_z
+    //are from [obj_vPool]
+
     max_x = max_x - min_x;//use max to replace range of whole model
     max_y = max_y - min_y;//..
     max_z = max_z - min_z;//..
@@ -958,6 +961,15 @@ void read_obj(){
 	cout<<endl;
 	cout<< xn <<" "<< yn <<" "<< zn <<endl;
 
+    //saved for stuffing()
+    obmi_x = min_x;
+    obmi_y = min_y;
+    obmi_z = min_z;
+
+    obn_x = xn;
+    obn_y = yn;
+    obn_z = zn;
+
 	if( (midx - hxn*voxel_length - min_x) < voxel_length_half )
     {	min_x = midx - hxn*voxel_length - voxel_length_half; }
     else{	min_x = midx - (hxn+1)*voxel_length; }
@@ -969,17 +981,20 @@ void read_obj(){
     if( (midz - hzn*voxel_length - min_z) < voxel_length_half )
     {	min_z = midz - hzn*voxel_length - voxel_length_half; }
     else{	min_z = midz - (hzn+1)*voxel_length; }
+
 /*
     min_x = min_x - voxel_length_half;
     min_y = min_y - voxel_length_half;
     min_z = min_z - voxel_length_half;
 */
-	
+
 	//Voxel Ver.3
 
 	for(int i=0; i<(xn*yn); i++){//creat enough space for all_xy_strap
     	all_xy_strap.push_back(x_strap);
     }
+    //xn, yn, zn are number of voxel on the 3d border
+
     for(int i=0; i<obj_tPool.size(); i++){
     //get voxel line
     	float max_tx, max_ty, max_tz, min_tx, min_ty, min_tz;
@@ -1087,7 +1102,11 @@ void read_obj(){
     	int ytt= (min_ty - min_y)/voxel_length;
         int ztt= (min_tz - min_z)/voxel_length;
     	//xtt 並不是多算，而是利用float轉int的特性，去對齊voxel，ytt 也是如此
-    	min_tx = min_x + xtt*voxel_length + voxel_length_half;
+
+        if(xtt<0)xtt=0; if(ytt<0)ytt=0; if(ztt<0)ztt=0;
+        //if  x || y || z  <0 ,  x || y || z  =0
+
+        min_tx = min_x + xtt*voxel_length + voxel_length_half;
     	min_ty = min_y + ytt*voxel_length + voxel_length_half;
         min_tz = min_z + ztt*voxel_length + voxel_length_half;
 
@@ -1105,7 +1124,7 @@ void read_obj(){
             candidate.x = min_tx + j*voxel_length;
             candidate.y = min_ty + k*voxel_length;
             candidate.z = min_tz + l*voxel_length;
-            
+
             voxel_candidate.push_back(candidate);
             //voxel_center_vPool.push_back(candidate);
         }
@@ -1114,8 +1133,8 @@ void read_obj(){
     	for(int j=0; j<voxel_candidate.size(); j++){
     		if(
                (!outsideTheTriangle(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && !outsideTheTrianglezy(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3)) ||
-               (!outsideTheTrianglexz(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && !outsideTheTrianglezy(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3)) ||
-               (!outsideTheTriangle(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && !outsideTheTrianglexz(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3)) ||
+               (!outsideTheTrianglezy(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && !outsideTheTrianglexz(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3)) ||
+               (!outsideTheTrianglexz(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && !outsideTheTriangle(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3)) ||
                ( xt<2 && !outsideTheTrianglezy(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && abs( voxel_candidate[j].x - obj_tPool[i].v1.x )<=voxel_length_half ) ||
                ( yt<2 && !outsideTheTrianglexz(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && abs( voxel_candidate[j].y - obj_tPool[i].v1.y )<=voxel_length_half ) ||
                ( zt<2 && !outsideTheTriangle(voxel_candidate[j], obj_tPool[i].v1, obj_tPool[i].v2, obj_tPool[i].v3) && abs( voxel_candidate[j].z - obj_tPool[i].v1.z )<=voxel_length_half )
@@ -1131,8 +1150,11 @@ void read_obj(){
 
                 voxel_center_vPool.push_back(voxel_candidate[j]);
 
-                //if((xtt+j%xt) + (ytt+j/xt)*xn < all_xy_strap.size() )
-    			//all_xy_strap[ (xtt+j%xt) + (ytt+j/xt)*xn ].push_back(voxel_candidate[j]);
+                //xt, yt, zt are numbers in each triangle
+                //xtt = xt-xm
+
+                if((xtt+j%xt) + (ytt+j/xt)*xn < all_xy_strap.size() )
+    			all_xy_strap[ (xtt+j%xt) + (ytt+j/xt)*xn ].push_back(voxel_candidate[j]);
     		}
     	}
 
@@ -1141,8 +1163,8 @@ void read_obj(){
     //cout<< "obj_tPool[0].n2 "<< obj_tPool[0].n2 << " obj_tPool[1].n3 "<< obj_tPool[1].n3 << '\n';
     //cout<< "obj_tPool[96].n2 "<< obj_tPool[96].n2 << " obj_tPool[96].n3 "<< obj_tPool[96].n3 << '\n';
     //cout<< "obj_tPool[112].n2 "<< obj_tPool[112].n2 << " obj_tPool[112].n3 "<< obj_tPool[112].n3 << '\n';
-    
-    //Take out voxels from [voxel_center_tmp]
+
+    //Take out voxels from [all_xy_strap]
     //and save voxels to [voxel_center_vPool].
     int start;
     int end;
@@ -1270,30 +1292,31 @@ float max3(float f1, float f2, float f3){
 		if(f2<f3)
 			return f3;
 	}
+    return f1;
 }
 vector< matri > mpool_RandomPick;
 void surface_arrange_random(){
 	float va, vb, vc, max;
 	int vertex_num;
 	int n=0;
-    
+
     for(int i=0; i<randomlyPicked.size(); i++){
-    	
+
     	va =distanceBetween2V( obj_vPool[ obj_tPool[ randomlyPicked[i].num ].n1 ], randomlyPicked[i] );
         vb =distanceBetween2V( obj_vPool[ obj_tPool[ randomlyPicked[i].num ].n2 ], randomlyPicked[i] );
         vc =distanceBetween2V( obj_vPool[ obj_tPool[ randomlyPicked[i].num ].n3 ], randomlyPicked[i] );
-        
+
         max = max3( va, vb, vc);
-        
+
         n=0;
         if(max==va)n=1;
         if(max==vb)n=2;
         if(max==vc)n=3;
-        
+
         if(n==1) vertex_num = obj_tPool[ randomlyPicked[i].num ].n1;
         if(n==2) vertex_num = obj_tPool[ randomlyPicked[i].num ].n2;
         if(n==3) vertex_num = obj_tPool[ randomlyPicked[i].num ].n3;
-        
+
         if(n!=0){
         /*
         vector< vertex > vv_trip;
@@ -1310,7 +1333,7 @@ void surface_arrange_random(){
         		vv_trip.push_back( obj_tPool[ obj_v_triP[vertex_num][j] ].v3 );
         	}
         }
-        
+
         vertex noPV;//normal of picked vertex
         noPV.x = 0.0;
         noPV.y = 0.0;
@@ -1335,33 +1358,33 @@ void surface_arrange_random(){
 
         vertex nny;
         nny.x = 0.0;	nny.y = -1.0;	nny.z = 0.0;
-        
+
         vertex nz;
         nz.x = 0.0;     nz.y = 0.0;     nz.z = 1.0;
-        
+
         vertex nnz;
         nnz.x = 0.0;    nnz.y = 0.0;    nnz.z = -1.0;
-        
+
         vertex o;
         o.x = 0.0;      o.y = 0.0;      o.z = 0.0;
-        
+
         vertex o2;
         o2.x = randomlyPicked[i].x;
         o2.y = randomlyPicked[i].y;
         o2.z = randomlyPicked[i].z;
-        
+
         vertex nopv_xz;
         nopv_xz.x = noPV.x;
         nopv_xz.y = 0.0;
         nopv_xz.z = noPV.z;
-        
+
         vertex nopv_xy;
         nopv_xy.x = noPV.x;
         nopv_xy.y = noPV.y;
         nopv_xy.z = 0.0;
 
         float mp[12]={ o2.x, o2.y, o2.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-        
+
         //ver 1.0
         matri tRM0;
         if(nopv_xz.x >= 0.0)
@@ -1371,7 +1394,7 @@ void surface_arrange_random(){
 
         matri tRM = matrixRotate( angleBetween2Vector(noPV ,nny), normalOf2Vector(nny, noPV), o );
         //警告，所有零件原始的放置方式都是繞X軸180度旋轉的
-        
+
         /*
         //ver 2.0
         matri tRM0;
@@ -1382,145 +1405,237 @@ void surface_arrange_random(){
 
         matri tRM = matrixRotate( angleBetween2Vector(noPV ,nnz), normalOf2Vector(nnz, noPV), o );
         */
-      	
+
         tRM = matrixMotiply(tRM.m, tRM0.m);
         tRM = matrixMotiply(mp, tRM.m);
-        
+
         mpool_RandomPick.push_back(tRM);
     	}
 
     }
     cout<<"OOKK " << "\n";
     cout<< "size of mpool_RandomPick: " << mpool_RandomPick.size() <<"\n";
-    
+
 }
 
 void stuffing(){
+    float strapmin, strapmax;
+    int time = 0;
+    vertex v_stf;
+
+    for(int i=0; i<all_xy_strap.size(); i++){
+        if(all_xy_strap[i].size()>1){
+            strapmin = all_xy_strap[i][0].z;
+            strapmax = all_xy_strap[i][0].z;
+            
+            for(int j=0; j<all_xy_strap[i].size(); j++){
+                if(all_xy_strap[i][j].z > strapmax ) strapmax = all_xy_strap[i][j].z;
+                if(all_xy_strap[i][j].z < strapmin ) strapmin = all_xy_strap[i][j].z;
+            }
+            
+            time = (strapmax-strapmin)/voxel_length;
+            for(int j=0; j<time; j++){
+                int nxn=(        all_xy_strap[i][0].x - obmi_x )/voxel_length + 1;
+                int nyn=(        all_xy_strap[i][0].y - obmi_y )/voxel_length + 1;
+                int nzn=( (strapmin + j*voxel_length) - obmi_z )/voxel_length + 1;
+                v_stf.x = obmi_x + nxn*voxel_length;
+                v_stf.y = obmi_y + nyn*voxel_length;
+                v_stf.z = obmi_z + nzn*voxel_length;
+                stuffing_vPool.push_back(v_stf);
+            }
+        }
+    }
+
+    for(int i=0; i < voxel_center_vPool.size(); i++){
+        for(int j=0; j < stuffing_vPool.size(); j++){
+            if(areSameVertex(stuffing_vPool[j], voxel_center_vPool[i])){
+                stuffing_vPool[j] = stuffing_vPool[stuffing_vPool.size()];
+                stuffing_vPool.pop_back();
+            }
+        }
+    }
+    
+
+    vector< vertex > z_layer;
+    /*
+    for(int i=0; i<stuffing_vPool.size(); i++){
+        for(int j=0; j<voxel_center_vPool.size(); j++){
+            if( voxel_center_vPool.z - stuffing_vPool.z <=0.03){
+                z_layer.push_back(voxel_center_vPool[j]);
+            }
+            for(int k=0; k<z_layer; k++){
+                ;
+            }
+        }
+    }*/
+}
+
+void stuffing_0(){
 	vector< vertex > stuffing_candidate_01;
 	vector< vertex > stuffing_candidate_02;
-	
+
 	vertex noPV;	//normal of picked vertex
 	vertex pv;		//picked vertex
 
 	float x, y, z;
-	
+
 	for(int i=0; i<voxel_center_vPool.size(); i++){
     	stuffing_candidate_01.push_back(voxel_center_vPool[i]);
     }
 
-for (int k = 0; k < 6; k++)
-{
+    for (int k = 0; k < 6; k++){
 
-	for(int i=0; i<stuffing_candidate_01.size(); i++){
-        noPV.x = obj_normals[ stuffing_candidate_01[i].num ].x;
-        noPV.y = obj_normals[ stuffing_candidate_01[i].num ].y;
-        noPV.z = obj_normals[ stuffing_candidate_01[i].num ].z;
-        
-        x = noPV.x * noPV.x;
-        y = noPV.y * noPV.y;
-        z = noPV.z * noPV.z;
-        
-        pv.x = stuffing_candidate_01[i].x;
-        pv.y = stuffing_candidate_01[i].y;
-        pv.z = stuffing_candidate_01[i].z;
-        pv.num = stuffing_candidate_01[i].num;
+        for(int i=0; i<stuffing_candidate_01.size(); i++){
+            noPV.x = obj_normals[ stuffing_candidate_01[i].num ].x;
+            noPV.y = obj_normals[ stuffing_candidate_01[i].num ].y;
+            noPV.z = obj_normals[ stuffing_candidate_01[i].num ].z;
 
-        if(x >= y){
-        	if(x >= z){//x
-        		if(noPV.x > 0){
-        			pv.x = stuffing_candidate_01[i].x - voxel_length;
-        			pv.y = stuffing_candidate_01[i].y;
-        			pv.z = stuffing_candidate_01[i].z;
-        			pv.num = stuffing_candidate_01[i].num;
-        		}
-        		else{
-        			pv.x = stuffing_candidate_01[i].x + voxel_length;
-        			pv.y = stuffing_candidate_01[i].y;
-        			pv.z = stuffing_candidate_01[i].z;
-        			pv.num = stuffing_candidate_01[i].num;
-        		}
-        	}
-        	if(x < z){//z
-        		if(noPV.z > 0){
-        			pv.x = stuffing_candidate_01[i].x;
-        			pv.y = stuffing_candidate_01[i].y;
-        			pv.z = stuffing_candidate_01[i].z - voxel_length;
-        			pv.num = stuffing_candidate_01[i].num;
-        		}
-        		else{
-        			pv.x = stuffing_candidate_01[i].x;
-        			pv.y = stuffing_candidate_01[i].y;
-        			pv.z = stuffing_candidate_01[i].z + voxel_length;
-        			pv.num = stuffing_candidate_01[i].num;
-        		}
-        	}
+            x = noPV.x * noPV.x;
+            y = noPV.y * noPV.y;
+            z = noPV.z * noPV.z;
+
+            pv.x = stuffing_candidate_01[i].x;
+            pv.y = stuffing_candidate_01[i].y;
+            pv.z = stuffing_candidate_01[i].z;
+            pv.num = stuffing_candidate_01[i].num;
+
+            if(x >= y){
+                if(x >= z){//x
+                    if(noPV.x > 0){
+                        pv.x = stuffing_candidate_01[i].x - voxel_length;
+                        pv.y = stuffing_candidate_01[i].y;
+                        pv.z = stuffing_candidate_01[i].z;
+                        pv.num = stuffing_candidate_01[i].num;
+                    }
+                    else{
+                        pv.x = stuffing_candidate_01[i].x + voxel_length;
+                        pv.y = stuffing_candidate_01[i].y;
+                        pv.z = stuffing_candidate_01[i].z;
+                        pv.num = stuffing_candidate_01[i].num;
+                    }
+                }
+                if(x < z){//z
+                    if(noPV.z > 0){
+                        pv.x = stuffing_candidate_01[i].x;
+                        pv.y = stuffing_candidate_01[i].y;
+                        pv.z = stuffing_candidate_01[i].z - voxel_length;
+                        pv.num = stuffing_candidate_01[i].num;
+                    }
+                    else{
+                        pv.x = stuffing_candidate_01[i].x;
+                        pv.y = stuffing_candidate_01[i].y;
+                        pv.z = stuffing_candidate_01[i].z + voxel_length;
+                        pv.num = stuffing_candidate_01[i].num;
+                    }
+                }
+            }
+            if(x < y){
+                if(y >= z){//y
+                    if(noPV.y > 0){
+                        pv.x = stuffing_candidate_01[i].x;
+                        pv.y = stuffing_candidate_01[i].y - voxel_length;
+                        pv.z = stuffing_candidate_01[i].z;
+                        pv.num = stuffing_candidate_01[i].num;
+                    }
+                    else{
+                        pv.x = stuffing_candidate_01[i].x;
+                        pv.y = stuffing_candidate_01[i].y + voxel_length;
+                        pv.z = stuffing_candidate_01[i].z;
+                        pv.num = stuffing_candidate_01[i].num;
+                    }
+                }
+                if(y < z){//z
+                    if(noPV.z > 0){
+                        pv.x = stuffing_candidate_01[i].x;
+                        pv.y = stuffing_candidate_01[i].y;
+                        pv.z = stuffing_candidate_01[i].z - voxel_length;
+                        pv.num = stuffing_candidate_01[i].num;
+                    }
+                    else{
+                        pv.x = stuffing_candidate_01[i].x;
+                        pv.y = stuffing_candidate_01[i].y;
+                        pv.z = stuffing_candidate_01[i].z + voxel_length;
+                        pv.num = stuffing_candidate_01[i].num;
+                    }
+                }
+            }
+
+            stuffing_candidate_02.push_back(pv);
         }
-        if(x < y){
-        	if(y >= z){//y
-        		if(noPV.y > 0){
-        			pv.x = stuffing_candidate_01[i].x;
-        			pv.y = stuffing_candidate_01[i].y - voxel_length;
-        			pv.z = stuffing_candidate_01[i].z;
-        			pv.num = stuffing_candidate_01[i].num;
-        		}
-        		else{
-        			pv.x = stuffing_candidate_01[i].x;
-        			pv.y = stuffing_candidate_01[i].y + voxel_length;
-        			pv.z = stuffing_candidate_01[i].z;
-        			pv.num = stuffing_candidate_01[i].num;
-        		}
-        	}
-        	if(y < z){//z
-        		if(noPV.z > 0){
-        			pv.x = stuffing_candidate_01[i].x;
-        			pv.y = stuffing_candidate_01[i].y;
-        			pv.z = stuffing_candidate_01[i].z - voxel_length;
-        			pv.num = stuffing_candidate_01[i].num;
-        		}
-        		else{
-        			pv.x = stuffing_candidate_01[i].x;
-        			pv.y = stuffing_candidate_01[i].y;
-        			pv.z = stuffing_candidate_01[i].z + voxel_length;
-        			pv.num = stuffing_candidate_01[i].num;
-        		}
-        	}
+
+        //delete repeated vertex in the same stuffing layer.
+        for(int i=0; i < stuffing_candidate_02.size(); i++){
+            for(int j=i+1; j < stuffing_candidate_02.size(); j++){
+                if(areSameVertex(stuffing_candidate_02[j], stuffing_candidate_02[i])){
+                    stuffing_candidate_02[j] = stuffing_candidate_02[stuffing_candidate_02.size()];
+                    stuffing_candidate_02.pop_back();
+                }
+            }
         }
 
-        stuffing_candidate_02.push_back(pv);
+        //delete repeated vertex between two consecutive stuffing layer.
+        for(int i=0; i < stuffing_candidate_02.size(); i++){
+            for(int j=0; j < stuffing_candidate_01.size(); j++){
+                if(areSameVertex(stuffing_candidate_01[j], stuffing_candidate_02[i])){
+                    stuffing_candidate_02[i] = stuffing_candidate_02[stuffing_candidate_02.size()];
+                    stuffing_candidate_02.pop_back();
+                }
+            }
+        }
+
+        //stuff_01  = {}
+        //stuff_vPool << stuff_02
+        //stuff_01' = stuff_02
+        //stuff_02' = {}
+
+        stuffing_candidate_01.clear();
+        for(int i=0; i < stuffing_candidate_02.size(); i++){
+            stuffing_candidate_01.push_back(stuffing_candidate_02[i]);
+            stuffing_vPool.push_back(stuffing_candidate_02[i]);
+        }
+
+        stuffing_candidate_02.clear();
     }
 
-    //delete repeated vertex in the same stuffing layer.
-    for(int i=0; i < stuffing_candidate_02.size(); i++){
-    	for(int j=i+1; j < stuffing_candidate_02.size(); j++){
-    		if(areSameVertex(stuffing_candidate_02[j], stuffing_candidate_02[i])){
-    			stuffing_candidate_02[j] = stuffing_candidate_02[stuffing_candidate_02.size()];
-    			stuffing_candidate_02.pop_back();
-    		}
-    	}
-    }
-
-    //delete repeated vertex between two consecutive stuffing layer.
-    for(int i=0; i < stuffing_candidate_02.size(); i++){
-    	for(int j=0; j < stuffing_candidate_01.size(); j++){
-    		if(areSameVertex(stuffing_candidate_01[j], stuffing_candidate_02[i])){
-    			stuffing_candidate_02[i] = stuffing_candidate_02[stuffing_candidate_02.size()];
-    			stuffing_candidate_02.pop_back();
-    		}
-    	}
-    }
-
-    //stuff_01  = {}
-    //stuff_vPool << stuff_02
-    //stuff_01' = stuff_02
-    //stuff_02' = {}
+    int stx, sty, stz;    
+    stx= sty= stz= 0;
+    float strapmin, strapmax; 
     
-    stuffing_candidate_01.clear();
-    for(int i=0; i < stuffing_candidate_02.size(); i++){
-    	stuffing_candidate_01.push_back(stuffing_candidate_02[i]);
-    	stuffing_vPool.push_back(stuffing_candidate_02[i]);
+    for(int i=0; i < stuffing_vPool.size(); i++){
+        stx = (stuffing_vPool[i].x - obmi_x) / voxel_length;
+        sty = (stuffing_vPool[i].y - obmi_y) / voxel_length;
+        stz = (stuffing_vPool[i].z - obmi_z) / voxel_length;
+
+        if((stx > obn_x)||(sty > obn_y)||(stx < 0)||(sty < 0)){
+            stuffing_vPool[i]=stuffing_vPool[stuffing_vPool.size()-1];
+            stuffing_vPool.pop_back();
+        }
     }
-    stuffing_candidate_02.clear();
-}
+    /*
+    cout<<stuffing_vPool.size()<<"\n";
+    cout<<"0013254646"<<"\n";
+    for(int i=0; i < stuffing_vPool.size(); i++){
+        stx = (stuffing_vPool[i].x - obmi_x) / voxel_length;
+        sty = (stuffing_vPool[i].y - obmi_y) / voxel_length;
+        stz = (stuffing_vPool[i].z - obmi_z) / voxel_length;
+        
+        if(stx + sty*obn_x < all_xy_strap.size()){
+            strapmax= all_xy_strap[stx + sty*obn_x][0].z;
+            strapmin= all_xy_strap[stx + sty*obn_x][0].z;
+            cout<<"22222222222222222"<<"\n";
+            for(int j=0; j < all_xy_strap[stx + sty*obn_x].size(); j++){
+                if(all_xy_strap[stx + sty*obn_x][j].z > strapmax)
+                    strapmax = all_xy_strap[stx + sty*obn_x][j].z;
+                if(all_xy_strap[stx + sty*obn_x][j].z < strapmin)
+                    strapmin = all_xy_strap[stx + sty*obn_x][j].z;
+            }
+            cout<<"3333333333333333333333333"<<"\n";
+            if((stuffing_vPool[i].z < strapmin)||(stuffing_vPool[i].z > strapmax)){
+                stuffing_vPool[i]=stuffing_vPool[stuffing_vPool.size()-1];
+                stuffing_vPool.pop_back();
+            }
+        }
+    }*/
 
 }
 
@@ -1530,6 +1645,7 @@ void init(void)
     read_obj();
     randomPick_even();
     surface_arrange_random();
+    stuffing();
     readMa(ma);
 
     /*
@@ -1557,7 +1673,7 @@ void init(void)
     tmpNormalPool.clear();
 
     cout<<"part 4733"<<"\n";
-    
+
     part0.tpfp.clear();
     partt = "87087.dat";//"3005.dat";3024 3070b; 11477
     search_or_read(partt, false, metrix_O);
@@ -1586,7 +1702,7 @@ void init(void)
 
     cout<< "\n";
     cout<< "size of parts pool: " << parts.size() << " " <<endl;
-    
+
 }
 
 void drawObj_p()
@@ -1783,8 +1899,58 @@ void drawVoxel()
     }
 }
 
+void drawVoxel_stuffing()
+{
+
+    glColor3f(0.0f,1.0f,0.0f);
+    for(int i=0; i<stuffing_vPool.size(); i++){
+        glBegin(GL_LINE_LOOP);
+        glNormal3f( 1.0f, 0.0f, 0.0f );//right
+        glVertex3f( stuffing_vPool[i].x + voxel_length_half, stuffing_vPool[i].y + voxel_length_half, stuffing_vPool[i].z + voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x + voxel_length_half, stuffing_vPool[i].y - voxel_length_half, stuffing_vPool[i].z + voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x + voxel_length_half, stuffing_vPool[i].y - voxel_length_half, stuffing_vPool[i].z - voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x + voxel_length_half, stuffing_vPool[i].y + voxel_length_half, stuffing_vPool[i].z - voxel_length_half);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glNormal3f( -1.0f, 0.0f, 0.0f );//left
+        glVertex3f( stuffing_vPool[i].x - voxel_length_half, stuffing_vPool[i].y + voxel_length_half, stuffing_vPool[i].z + voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x - voxel_length_half, stuffing_vPool[i].y - voxel_length_half, stuffing_vPool[i].z + voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x - voxel_length_half, stuffing_vPool[i].y - voxel_length_half, stuffing_vPool[i].z - voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x - voxel_length_half, stuffing_vPool[i].y + voxel_length_half, stuffing_vPool[i].z - voxel_length_half);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glNormal3f( 0.0f, 1.0f, 0.0f );//up
+        glVertex3f( stuffing_vPool[i].x + voxel_length_half, stuffing_vPool[i].y + voxel_length_half, stuffing_vPool[i].z + voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x - voxel_length_half, stuffing_vPool[i].y + voxel_length_half, stuffing_vPool[i].z + voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x - voxel_length_half, stuffing_vPool[i].y + voxel_length_half, stuffing_vPool[i].z - voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x + voxel_length_half, stuffing_vPool[i].y + voxel_length_half, stuffing_vPool[i].z - voxel_length_half);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glNormal3f( 0.0f, -1.0f, 0.0f );//down
+        glVertex3f( stuffing_vPool[i].x + voxel_length_half, stuffing_vPool[i].y - voxel_length_half, stuffing_vPool[i].z + voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x - voxel_length_half, stuffing_vPool[i].y - voxel_length_half, stuffing_vPool[i].z + voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x - voxel_length_half, stuffing_vPool[i].y - voxel_length_half, stuffing_vPool[i].z - voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x + voxel_length_half, stuffing_vPool[i].y - voxel_length_half, stuffing_vPool[i].z - voxel_length_half);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glNormal3f( 0.0f, 0.0f, 1.0f );//front
+        glVertex3f( stuffing_vPool[i].x + voxel_length_half, stuffing_vPool[i].y + voxel_length_half, stuffing_vPool[i].z + voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x - voxel_length_half, stuffing_vPool[i].y + voxel_length_half, stuffing_vPool[i].z + voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x - voxel_length_half, stuffing_vPool[i].y - voxel_length_half, stuffing_vPool[i].z + voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x + voxel_length_half, stuffing_vPool[i].y - voxel_length_half, stuffing_vPool[i].z + voxel_length_half);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glNormal3f( 0.0f, 0.0f, -1.0f );//hind
+        glVertex3f( stuffing_vPool[i].x + voxel_length_half, stuffing_vPool[i].y + voxel_length_half, stuffing_vPool[i].z - voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x - voxel_length_half, stuffing_vPool[i].y + voxel_length_half, stuffing_vPool[i].z - voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x - voxel_length_half, stuffing_vPool[i].y - voxel_length_half, stuffing_vPool[i].z - voxel_length_half);
+        glVertex3f( stuffing_vPool[i].x + voxel_length_half, stuffing_vPool[i].y - voxel_length_half, stuffing_vPool[i].z - voxel_length_half);
+        glEnd();
+    }
+}
+
 void drawPart(int p_number, float place[12], float color[3]){
-    
+
     for(int i=0; i < parts[p_number].tpfp.size() ; i++){
     	vertex normal = matrixVertexMotiply(place, parts[p_number].normal_pool[i]);
     	triangle tri;
@@ -1795,28 +1961,28 @@ void drawPart(int p_number, float place[12], float color[3]){
         glColor3f(color[0],color[1],color[2]);
         glBegin(GL_TRIANGLES);
         glNormal3f( normal.x, normal.y, normal.z );
-        glVertex3f( tri.v1.x 
-                  , tri.v1.y 
+        glVertex3f( tri.v1.x
+                  , tri.v1.y
                   , tri.v1.z );
-        glVertex3f( tri.v2.x 
-                  , tri.v2.y 
+        glVertex3f( tri.v2.x
+                  , tri.v2.y
                   , tri.v2.z );
-        glVertex3f( tri.v3.x 
-                  , tri.v3.y 
+        glVertex3f( tri.v3.x
+                  , tri.v3.y
                   , tri.v3.z );
         glEnd();
         if(!drawlegoFrame){
             glColor3f(1.0f,1.0f,1.0f);
             glBegin(GL_LINE_LOOP);
             glNormal3f( normal.x, normal.y, normal.z );
-            glVertex3f( tri.v1.x 
-                      , tri.v1.y 
+            glVertex3f( tri.v1.x
+                      , tri.v1.y
                       , tri.v1.z );
-            glVertex3f( tri.v2.x 
-                      , tri.v2.y 
+            glVertex3f( tri.v2.x
+                      , tri.v2.y
                       , tri.v2.z );
-            glVertex3f( tri.v3.x 
-                      , tri.v3.y 
+            glVertex3f( tri.v3.x
+                      , tri.v3.y
                       , tri.v3.z );
             glEnd();
         }
@@ -1875,17 +2041,17 @@ void drawBonewithLego()
                 + pow(ma_ePool[i].v1.z-ma_ePool[i].v2.z ,2.0)
                 , 0.5)/divv;
             if(time==0)time=1;
-            
+
             /*int time=2;*/
             vertex vct;
-            
+
             vct.x = (ma_ePool[i].v1.x - ma_ePool[i].v2.x);
-            vct.y = (ma_ePool[i].v1.y - ma_ePool[i].v2.y);       
+            vct.y = (ma_ePool[i].v1.y - ma_ePool[i].v2.y);
             vct.z = (ma_ePool[i].v1.z - ma_ePool[i].v2.z);
-            
+
             vct = normalize( vct );
             vct.x = vct.x*divv;
-            vct.y = vct.y*divv;       
+            vct.y = vct.y*divv;
             vct.z = vct.z*divv;
             //cout<< time <<"\n";
             for(int j=0; j<time; j++){
@@ -1978,12 +2144,12 @@ static void display(void)
 
     drawObj_t(drawTri0);
     drawMa();
-    
+
     //glutSolidSphere(1,slices,stacks);
     glPopMatrix();
 //--02---------------------------------------------------/
     glPushMatrix();
-    glTranslated(0,0.0, dis);//glTranslated(-2.4,1.2,-6); 
+    glTranslated(0,0.0, dis);//glTranslated(-2.4,1.2,-6);
 
     glRotated(-90.0 + rota,1,0,0);
     glRotated(0 + rotate1,0,0,1);
@@ -2016,10 +2182,11 @@ static void display(void)
     glEnd();
     if(swch)
     drawVoxel();
+    drawVoxel_stuffing();
     //glutSolidTorus(0.2,0.8,slices,stacks);
     glPopMatrix();
+
 //--part---------------------------------------------------/
-    
     for(int i=0; i<parts.size(); i++){
         glPushMatrix();
         glTranslated(1.4,-1+oheight,-4);//glTranslated(0,1.2,-6);
@@ -2031,7 +2198,7 @@ static void display(void)
         //glutSolidCone(1,1,slices,stacks);
         glPopMatrix();
     }
-    
+
 
     /*
      glTranslated(-2.4,1.2,-6);
@@ -2170,7 +2337,7 @@ int main(int argc, char *argv[])
     glutIdleFunc(idle);
 
     glClearColor(0.8,0.8,0.8,1);
-    
+
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
 
