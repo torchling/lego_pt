@@ -34,7 +34,7 @@ using namespace std;
 //////////////////////////////////////////////////
 //global
 
-float voxel_length = 0.07;
+float voxel_length = 0.03;//0.07
 float voxel_length_half = voxel_length/2;//
 float obmi_x, obmi_y, obmi_z;
 int obn_x, obn_y, obn_z;
@@ -122,11 +122,13 @@ vector< matri > bricksLocation ;
 /*----------------------------------------------------------------*/
 
 //char* p = "frog.obj";
+//char* p = "ball.obj";
 
-char* p = "suzanne.obj";
-//char* p = "bug.obj";
-char* ma = "suzanne50.ma";
-//char* ma = "bug20.ma";
+
+//char* p = "suzanne.obj";
+char* p = "bug.obj";
+//char* ma = "suzanne50.ma";
+char* ma = "bug20.ma";
 //char* ma = "dog30.ma";
 //char* ma = "spider25.ma";
 //char* p = "GermanShephardLowPoly.obj";
@@ -269,10 +271,10 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts")) != NULL) {
+        if ((dir = opendir ("/Users/luke/Desktop/lego_assembler/parts")) != NULL) {
             // C:/Users/luke/Desktop/lego_assembler/parts
             // C:/Users/user/Desktop/lego_assembler/parts
-            // /Users/luke/desktop/legomac/parts
+            // /Users/luke/desktop/lego_assembler/parts
             // search all the files and directories within directory
 
             while ((ent = readdir (dir)) != NULL) {
@@ -290,10 +292,10 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts/s")) != NULL) {
+        if ((dir = opendir ("/Users/luke/Desktop/lego_assembler/parts/s")) != NULL) {
             // C:/Users/luke/Desktop/lego_assembler/parts/s
             // C:/Users/user/Desktop/lego_assembler/parts/s
-            // /Users/luke/desktop/legomac/parts/s
+            // /Users/luke/desktop/lego_assembler/parts/s
             // search all the files and directories within directory
 
             while ((ent = readdir (dir)) != NULL) {
@@ -315,10 +317,10 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts/48")) != NULL) {
+        if ((dir = opendir ("/Users/luke/Desktop/lego_assembler/parts/48")) != NULL) {
             // C:/Users/luke/Desktop/lego_assembler/parts/48
             // C:/Users/user/Desktop/lego_assembler/parts/48
-            // /Users/luke/desktop/legomac/parts/48
+            // /Users/luke/desktop/lego_assembler/parts/48
             // search all the files and directories within directory
 
             while ((ent = readdir (dir)) != NULL) {
@@ -340,7 +342,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts/8")) != NULL) {
+        if ((dir = opendir ("/Users/luke/desktop/lego_assembler/parts/8")) != NULL) {
             // C:/Users/luke/Desktop/lego_assembler/parts/8
             // C:/Users/user/Desktop/lego_assembler/parts/8
             // /Users/luke/desktop/legomac/parts/8
@@ -1418,13 +1420,15 @@ void surface_arrange_random(){
 
 }
 
-void stuffing(){
+void stuffing_1(){
     float strapmin, strapmax;
     int time = 0;
     vertex v_stf;
-
+    cout<<"\n";
+    cout<<"all_xy_strap.size() = "<<all_xy_strap.size()<<"\n";
     for(int i=0; i<all_xy_strap.size(); i++){
-        if(all_xy_strap[i].size()>1){
+        //cout<<all_xy_strap[i].size()<<"\n";
+        if(all_xy_strap[i].size()>0){
             strapmin = all_xy_strap[i][0].z;
             strapmax = all_xy_strap[i][0].z;
             
@@ -1445,7 +1449,8 @@ void stuffing(){
             }
         }
     }
-
+    cout<<"\n";
+    cout<<"#1 stuffing_vPool.size()="<<stuffing_vPool.size()<<"\n";
     for(int i=0; i < voxel_center_vPool.size(); i++){
         for(int j=0; j < stuffing_vPool.size(); j++){
             if(areSameVertex(stuffing_vPool[j], voxel_center_vPool[i])){
@@ -1454,7 +1459,8 @@ void stuffing(){
             }
         }
     }
-    
+    cout<<"#2 stuffing_vPool.size()="<<stuffing_vPool.size()<<"\n";
+    cout<<"\n";
 
     vector< vertex > z_layer;
     /*
@@ -1470,7 +1476,7 @@ void stuffing(){
     }*/
 }
 
-void stuffing_0(){
+void stuffing(){
 	vector< vertex > stuffing_candidate_01;
 	vector< vertex > stuffing_candidate_02;
 
@@ -1483,7 +1489,7 @@ void stuffing_0(){
     	stuffing_candidate_01.push_back(voxel_center_vPool[i]);
     }
 
-    for (int k = 0; k < 6; k++){
+    for (int k = 0; k < 2; k++){
 
         for(int i=0; i<stuffing_candidate_01.size(); i++){
             noPV.x = obj_normals[ stuffing_candidate_01[i].num ].x;
@@ -1646,7 +1652,7 @@ void init(void)
     randomPick_even();
     surface_arrange_random();
     stuffing();
-    readMa(ma);
+    //readMa(ma);
 
     /*
      char* list = "40234_Rooster_reduced.txt";
