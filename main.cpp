@@ -127,12 +127,12 @@ vector< matri > bricksLocation ;
 
 //char* p = "suzanne.obj";
 char* p = "bug.obj";
+//char* p = "spider.obj";
+
 //char* ma = "suzanne50.ma";
 char* ma = "bug20.ma";
-//char* ma = "dog30.ma";
 //char* ma = "spider25.ma";
-//char* p = "GermanShephardLowPoly.obj";
-//char* p = "panther.obj";
+
 std::ifstream infile(p);
 
 
@@ -264,7 +264,7 @@ matri matrixRotate(float angle, vertex normalr, vertex originalVertex){
 // 超該死，C++不能循環呼叫所以只好把 read_one_lego_part_and_save_it() 和 searchfile() 合在一起------------/
 // search_or_read() <-- read_one_lego_part_and_save_it() + searchfile()
 
-void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /*true:search false:read*/){
+void search_or_read( string part_name, bool SorR, float array_O[12], bool invertYN, string namewithPath ){
     //---- if start -------------------------------------
     if(SorR==true){
 
@@ -281,7 +281,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
                 string d_name;
 
                 if(ent->d_name == part_name){
-                    search_or_read( part_name, false, array_O );
+                    search_or_read( part_name, false, array_O, invertYN, part_name);
                 }
             }
             closedir (dir);
@@ -306,7 +306,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
                 if(sdname == part_name){// part_name: s\3005.dat (backslash was escaped.)
 
                     //cout<<"Found "<< ent->d_name <<" in \\parts\\s"<<endl;
-                    search_or_read( ent->d_name, false, array_O );
+                    search_or_read( ent->d_name, false, array_O, invertYN, sdname );
                 }
             }
             closedir (dir);
@@ -331,7 +331,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
                 if(sdname == part_name){// part_name: s\3005.dat (backslash was escaped.)
 
                     //cout<<"Found "<< ent->d_name <<" in \\parts\\s"<<endl;
-                    search_or_read( ent->d_name, false, array_O );
+                    search_or_read( ent->d_name, false, array_O, invertYN, sdname );
                 }
             }
             closedir (dir);
@@ -356,7 +356,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
                 if(sdname == part_name){// part_name: s\3005.dat (backslash was escaped.)
 
                     //cout<<"Found "<< ent->d_name <<" in \\parts\\s"<<endl;
-                    search_or_read( ent->d_name, false, array_O );
+                    search_or_read( ent->d_name, false, array_O, invertYN, sdname );
                 }
             }
             closedir (dir);
@@ -376,13 +376,24 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
         //cout << part_name << endl;
         //cout << endl;
 
-        short geo_type = 0; // 2:line, 3:triangle, 4:Quadrilateral
+        //short geo_type = 0; // 2:line, 3:triangle, 4:Quadrilateral
         //part_v1 part;     // tmp
 
         //int type,color, a,b,c, d,e,f, g,h,i, j,k,l;
-        int type, color;    // type is ldraw-types: 1, 2, 3, 4 and ldraw-color
+        int type;    // type is ldraw-types: 1, 2, 3, 4 and ldraw-color
+        string color;   // ldraw-color; for type-0, it's some order
+        string bfc = "BFC";
+        string bfc_operation;
+        string corcc;
+        string cw         = "CW";
+        string ccw        = "CCW";
+        string invertnext = "INVERTNEXT";
+        string certify    = "CERTIFY";
+        string name       = "Name:";
         //int metrix[12];   // a,b,c, d,e,f, g,h,i, j,k,l;
 
+        bool real= false;
+        
         string fninf;
         //char fninf[20];       // only used in type 1, to store the file name
         //char *test;           // only used in type 1, to store the file name
@@ -434,8 +445,63 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
         while( getline(inf, line)||getline(infs, line)||getline(inf8, line)||getline(inf48, line) ){   // use getline to save each line from 'inf' to 'line', one at a time.
             istringstream iss(line);// istringstream helps 'line'(string) transform into 'iss'(stream).
             if (iss >> type >> color) {
+                if(type==0){
+                    if(color == name){
+                        iss >> bfc_operation;
+                        if(bfc_operation == namewithPath)
+                            real=true;
+                        
+                        color.clear();
+                        bfc_operation.clear();
+                        corcc.clear();
+                    }
+                    if(color == bfc){
+                        iss >> bfc_operation;
+                        
+                        if(bfc_operation==invertnext){
+                            //if(invertYN==true) invertYN=false;
+                            //else invertYN=true;
+                            invertYN=true;
+                            color.clear();
+                            bfc_operation.clear();
+                            corcc.clear();
+                        }
+                        if(bfc_operation==certify){
+                            iss >> corcc;
+                            /*
+                            if(corcc==ccw){
+                                if(invertYN==true){
+                                    cclockwise=false;
+                                    cout<<"1"<<"\n";
+                                }
+                                else{
+                                    cclockwise=true;
+                                    cout<<"02 "<<part_name<<"\n";
+                                }
+                                invertYN=false;
+                                
+                            }
+                            if(corcc==cw){
+                                cout<<"cc"<<"\n";
+                                if(invertYN==true){
+                                    cclockwise=true;
+                                }
+                                else{
+                                    cclockwise=false;
+                                }
+                                invertYN=false;
+                            }*/
+                            invertYN=false;
+                            color.clear();
+                            bfc_operation.clear();
+                            corcc.clear();
+                            //cout<<"{ "<<corcc<<" }"<<endl;
+                        }
+                        
+                    }
+                }
 
-                if(type==1){
+                if(type==1&&real){
                     //command
                     iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
                     >> metrix[6] >> metrix[7] >> metrix[8] >> metrix[9] >> metrix[10]>> metrix[11]
@@ -461,51 +527,15 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
                     cout << metrix_V[9] <<' '<< metrix_V[10] <<' '<< metrix_V[11] <<' '<< metrix_V[2] << endl;
                     cout << endl;
                     */
-                    search_or_read( fninf, true, metrix );//same geo_storage space as father
-
+                    search_or_read( fninf, true, metrix, invertYN, fninf);
+                    if(invertYN==true) invertYN=false;
+                    //invertYN=false;
+                    
                     //metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
                     //metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
                 }
-                if(type==2){
-                    //line
-                    iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5];
-
-                    metrix_V[0] = array_O[3]*metrix[0] + array_O[4]*metrix[1] + array_O[5]*metrix[2] + array_O[0];
-                    metrix_V[1] = array_O[6]*metrix[0] + array_O[7]*metrix[1] + array_O[8]*metrix[2] + array_O[1];
-                    metrix_V[2] = array_O[9]*metrix[0] + array_O[10]*metrix[1] + array_O[11]*metrix[2] + array_O[2];
-
-                    metrix[0] = metrix_V[0]*rate;
-                    metrix[1] = metrix_V[1]*rate;
-                    metrix[2] = metrix_V[2]*rate;
-
-
-                    metrix_V[0] = array_O[3]*metrix[3] + array_O[4]*metrix[4] + array_O[5]*metrix[5] + array_O[0];
-                    metrix_V[1] = array_O[6]*metrix[3] + array_O[7]*metrix[4] + array_O[8]*metrix[5] + array_O[1];
-                    metrix_V[2] = array_O[9]*metrix[3] + array_O[10]*metrix[4] + array_O[11]*metrix[5] + array_O[2];
-
-                    metrix[3] = metrix_V[0]*rate;
-                    metrix[4] = metrix_V[1]*rate;
-                    metrix[5] = metrix_V[2]*rate;
-
-                    dot1.x = metrix[0];     dot1.y = metrix[1];     dot1.z = metrix[2]; // dot1 = x1y1z1
-                    dot2.x = metrix[3];     dot2.y = metrix[4];     dot2.z = metrix[5]; // dot2 = x2y2z2
-
-                    tri.v1 = dot1;
-                    tri.v2 = dot2;
-                    tri.v3 = dot2; // if it's a line, v2=v3.
-
-                    normalt.x = 0.0;
-                    normalt.y = 0.0;
-                    normalt.z = 0.0;
-                    //cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
-                    //push_back
-                    tmpNormalPool.push_back(normalt);
-                    trianglePool.push_back(tri);
-                    //parttmp.tpfp.push_back(tri);
-                    //metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
-                    //metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
-                }
-                if(type==3){
+                
+                if(type==3&&real){
                     //triangle
                     iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
                     >> metrix[6] >> metrix[7] >> metrix[8];
@@ -538,24 +568,27 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
                     dot2.x = metrix[3];     dot2.y = metrix[4];     dot2.z = metrix[5]; // dot2 = x2y2z2
                     dot3.x = metrix[6];     dot3.y = metrix[7];     dot3.z = metrix[8]; // dot3 = x3y3z3
 
+                    //counter clockwise
                     tri.v1 = dot1;
                     tri.v2 = dot2;
                     tri.v3 = dot3;
-
                     normalt.x = (dot2.y-dot1.y)*(dot3.z-dot1.z)-(dot3.y-dot1.y)*(dot2.z-dot1.z);
-                    //normalt.x = (dot3.y-dot1.y)*(dot2.z-dot1.z)-(dot2.y-dot1.y)*(dot3.z-dot1.z);
                     normalt.y = (dot2.z-dot1.z)*(dot3.x-dot1.x)-(dot3.z-dot1.z)*(dot2.x-dot1.x);
                     normalt.z = (dot2.x-dot1.x)*(dot3.y-dot1.y)-(dot3.x-dot1.x)*(dot2.y-dot1.y);
-
-                    //cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
-                    //push_back
                     tmpNormalPool.push_back(normalt);
                     trianglePool.push_back(tri);
-                    //parttmp.tpfp.push_back(tri);
-                    //metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
-                    //metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
+                    
+                    //clockwise
+                    tri.v1 = dot3;
+                    tri.v2 = dot2;
+                    tri.v3 = dot1;
+                    normalt.x = (dot3.y-dot1.y)*(dot2.z-dot1.z)-(dot2.y-dot1.y)*(dot3.z-dot1.z);
+                    normalt.y = (dot3.z-dot1.z)*(dot2.x-dot1.x)-(dot2.z-dot1.z)*(dot3.x-dot1.x);
+                    normalt.z = (dot3.x-dot1.x)*(dot2.y-dot1.y)-(dot2.x-dot1.x)*(dot3.y-dot1.y);
+                    tmpNormalPool.push_back(normalt);
+                    trianglePool.push_back(tri);
                 }
-                if(type==4){
+                if(type==4&&real){
                     //Quadrilateral
                     iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
                     >> metrix[6] >> metrix[7] >> metrix[8] >> metrix[9] >> metrix[10] >> metrix[11];
@@ -596,41 +629,49 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
                     dot2.x = metrix[3];     dot2.y = metrix[4];     dot2.z = metrix[5]; // dot2 = x2y2z2
                     dot3.x = metrix[6];     dot3.y = metrix[7];     dot3.z = metrix[8]; // dot3 = x3y3z3
 
+                    //counter clockwise
                     tri.v1 = dot1;
-                    tri.v2 = dot3;
-                    tri.v3 = dot2;
-
+                    tri.v2 = dot2;
+                    tri.v3 = dot3;
                     normalt.x = (dot2.y-dot1.y)*(dot3.z-dot1.z)-(dot3.y-dot1.y)*(dot2.z-dot1.z);
                     normalt.y = (dot2.z-dot1.z)*(dot3.x-dot1.x)-(dot3.z-dot1.z)*(dot2.x-dot1.x);
                     normalt.z = (dot2.x-dot1.x)*(dot3.y-dot1.y)-(dot3.x-dot1.x)*(dot2.y-dot1.y);
-
-                    //cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
-
-                    //push_back
                     tmpNormalPool.push_back(normalt);
                     trianglePool.push_back(tri);
-                    //parttmp.tpfp.push_back(tri);
+                    
+                    //clockwise
+                    tri.v1 = dot3;
+                    tri.v2 = dot2;
+                    tri.v3 = dot1;
+                    normalt.x = (dot3.y-dot1.y)*(dot2.z-dot1.z)-(dot2.y-dot1.y)*(dot3.z-dot1.z);
+                    normalt.y = (dot3.z-dot1.z)*(dot2.x-dot1.x)-(dot2.z-dot1.z)*(dot3.x-dot1.x);
+                    normalt.z = (dot3.x-dot1.x)*(dot2.y-dot1.y)-(dot2.x-dot1.x)*(dot3.y-dot1.y);
+                    tmpNormalPool.push_back(normalt);
+                    trianglePool.push_back(tri);
 
                     dot1.x = metrix[6];     dot1.y = metrix[7];     dot1.z = metrix[8]; // dot1 = x3y3z3
                     dot2.x = metrix[9];     dot2.y = metrix[10];    dot2.z = metrix[11];// dot2 = x4y4z4
                     dot3.x = metrix[0];     dot3.y = metrix[1];     dot3.z = metrix[2]; // dot3 = x1y1z1
 
+                    //counter clockwise
                     tri.v1 = dot1;
-                    tri.v2 = dot3;
-                    tri.v3 = dot2;
-
+                    tri.v2 = dot2;
+                    tri.v3 = dot3;
                     normalt.x = (dot2.y-dot1.y)*(dot3.z-dot1.z)-(dot3.y-dot1.y)*(dot2.z-dot1.z);
                     normalt.y = (dot2.z-dot1.z)*(dot3.x-dot1.x)-(dot3.z-dot1.z)*(dot2.x-dot1.x);
                     normalt.z = (dot2.x-dot1.x)*(dot3.y-dot1.y)-(dot3.x-dot1.x)*(dot2.y-dot1.y);
-
-                    //cout << metrix_V[0] <<' '<< metrix_V[1] <<' '<< metrix_V[2] << endl;
-
-                    //push_back
                     tmpNormalPool.push_back(normalt);
                     trianglePool.push_back(tri);
-                    //parttmp.tpfp.push_back(tri);
-                    //metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
-                    //metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
+                    
+                    //clockwise
+                    tri.v1 = dot3;
+                    tri.v2 = dot2;
+                    tri.v3 = dot1;
+                    normalt.x = (dot3.y-dot1.y)*(dot2.z-dot1.z)-(dot2.y-dot1.y)*(dot3.z-dot1.z);
+                    normalt.y = (dot3.z-dot1.z)*(dot2.x-dot1.x)-(dot2.z-dot1.z)*(dot3.x-dot1.x);
+                    normalt.z = (dot3.x-dot1.x)*(dot2.y-dot1.y)-(dot2.x-dot1.x)*(dot3.y-dot1.y);
+                    tmpNormalPool.push_back(normalt);
+                    trianglePool.push_back(tri);
 
                 }
                 //cout<<type<<endl;
@@ -638,6 +679,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12]/*, int id  /
 
         }
         //parts.push_back(parttmp);
+        real=false;
     }
     //---- else end -------------------------------------
 }
@@ -660,7 +702,7 @@ void load_lego_parts_list( char *part_list ){ //load lego parts from the list
     while(getline(inf, line)){  // use getline to save each line from 'inf' to 'line', one at a time.
         istringstream iss(line);
         iss >> name;
-        search_or_read(name, true, metrix_O);
+        search_or_read(name, true, metrix_O, false, name);
     }
 }
 
@@ -707,7 +749,9 @@ void read_obj(){
     vertex v;
     face f;
     triangle tri;
-    cout<<"Start to get obj"<<'\n';
+
+    cout<<"\n";
+    cout<<"Start to get: "<< p <<'\n';
     while (std::getline(infile, line))
     {
         std::istringstream iss(line);
@@ -960,8 +1004,10 @@ void read_obj(){
     int yn = max_y/voxel_length + 1;
     int zn = max_z/voxel_length + 1;
 
-	cout<<endl;
-	cout<< xn <<" "<< yn <<" "<< zn <<endl;
+	cout<<"\n";
+    cout<<"Start to voxelize the obj file.\n";
+    cout<<"Size of 3d voxel-border:\n";
+	cout<<"xn: "<< xn <<" yn: "<< yn <<" zn: "<< zn <<endl;
 
     //saved for stuffing()
     obmi_x = min_x;
@@ -1211,8 +1257,7 @@ void read_obj(){
     	}
     }
 
-    cout<< "\n";
-    cout<< "size of voxel: " << voxel_center_vPool.size() <<"\n";
+    cout<< "size of voxel_center_vPool: " << voxel_center_vPool.size() <<"\n";
 
 }
 
@@ -1230,6 +1275,9 @@ void readMa(char *fileName){
     bool fileread = false;
     vertex vtx;
     triangle triMa;
+    
+    cout<<"\n";
+    cout<<"Start to read .ma file: "<< ma <<"\n";
 
     while(getline(inMa, line)){
         std::istringstream iss(line);
@@ -1261,12 +1309,14 @@ void readMa(char *fileName){
 
     }
 
-    cout<<".ma size: "<< ma_vPool.size() <<" "<< ma_ePool.size() <<" "<< ma_fPool.size() <<"\n";
+    cout<< ma <<"'s size: "<< ma_vPool.size() <<" "<< ma_ePool.size() <<" "<< ma_fPool.size() <<"\n";
 }
 
 vector<vertex> randomlyPicked;
 vector<short> randomlyPicked_color;
 void randomPick_even(){
+    cout<<"\n";
+    cout<<"Start random picking.\n";
     for(int i=0; i<voxel_center_vPool.size(); i = i+rand()%10+ 3){ //10~30
         randomlyPicked.push_back(voxel_center_vPool[i]);
     }
@@ -1298,7 +1348,9 @@ float max3(float f1, float f2, float f3){
 }
 vector< matri > mpool_RandomPick;
 void surface_arrange_random(){
-	float va, vb, vc, max;
+	cout<<"\n";
+    cout<<"Start to arrange the surface of: "<< ma <<"\n";
+    float va, vb, vc, max;
 	int vertex_num;
 	int n=0;
 
@@ -1415,7 +1467,7 @@ void surface_arrange_random(){
     	}
 
     }
-    cout<<"OOKK " << "\n";
+    //cout<<"OOKK " << "\n";
     cout<< "size of mpool_RandomPick: " << mpool_RandomPick.size() <<"\n";
 
 }
@@ -1425,18 +1477,19 @@ void stuffing_1(){
     int time = 0;
     vertex v_stf;
     cout<<"\n";
+    cout<<"Start to stuffing"<<"\n";
     cout<<"all_xy_strap.size() = "<<all_xy_strap.size()<<"\n";
     for(int i=0; i<all_xy_strap.size(); i++){
         //cout<<all_xy_strap[i].size()<<"\n";
         if(all_xy_strap[i].size()>0){
             strapmin = all_xy_strap[i][0].z;
             strapmax = all_xy_strap[i][0].z;
-            
+
             for(int j=0; j<all_xy_strap[i].size(); j++){
                 if(all_xy_strap[i][j].z > strapmax ) strapmax = all_xy_strap[i][j].z;
                 if(all_xy_strap[i][j].z < strapmin ) strapmin = all_xy_strap[i][j].z;
             }
-            
+
             time = (strapmax-strapmin)/voxel_length;
             for(int j=0; j<time; j++){
                 int nxn=(        all_xy_strap[i][0].x - obmi_x )/voxel_length + 1;
@@ -1477,6 +1530,10 @@ void stuffing_1(){
 }
 
 void stuffing(){
+
+    cout<<"\n";
+    cout<<"Start to stuffing"<<"\n";
+
 	vector< vertex > stuffing_candidate_01;
 	vector< vertex > stuffing_candidate_02;
 
@@ -1603,10 +1660,10 @@ void stuffing(){
         stuffing_candidate_02.clear();
     }
 
-    int stx, sty, stz;    
+    int stx, sty, stz;
     stx= sty= stz= 0;
-    float strapmin, strapmax; 
-    
+    float strapmin, strapmax;
+
     for(int i=0; i < stuffing_vPool.size(); i++){
         stx = (stuffing_vPool[i].x - obmi_x) / voxel_length;
         sty = (stuffing_vPool[i].y - obmi_y) / voxel_length;
@@ -1617,6 +1674,7 @@ void stuffing(){
             stuffing_vPool.pop_back();
         }
     }
+    cout<<"End of stuffing.\n";
     /*
     cout<<stuffing_vPool.size()<<"\n";
     cout<<"0013254646"<<"\n";
@@ -1624,7 +1682,7 @@ void stuffing(){
         stx = (stuffing_vPool[i].x - obmi_x) / voxel_length;
         sty = (stuffing_vPool[i].y - obmi_y) / voxel_length;
         stz = (stuffing_vPool[i].z - obmi_z) / voxel_length;
-        
+
         if(stx + sty*obn_x < all_xy_strap.size()){
             strapmax= all_xy_strap[stx + sty*obn_x][0].z;
             strapmin= all_xy_strap[stx + sty*obn_x][0].z;
@@ -1652,7 +1710,7 @@ void init(void)
     randomPick_even();
     surface_arrange_random();
     stuffing();
-    //readMa(ma);
+    readMa(ma);
 
     /*
      char* list = "40234_Rooster_reduced.txt";
@@ -1663,13 +1721,15 @@ void init(void)
         metrix_O[i] = metrix_O[i]*rate;
     }
 
+    cout<<"\n";
+    cout<<"Start loading Lego Parts: "<< ma <<"\n";
     part_v1 part0;
 
     //bone bricks:  87087 4733 4070 3005 ;
     //joint:        14419 14704 ;
     //smooth:       11477 ;
     string partt = "4733.dat";//"3005.dat";3024 3070b
-    search_or_read(partt, false, metrix_O);
+    search_or_read(partt, false, metrix_O, false, partt);
     for(int i=0; i<trianglePool.size(); i++){
         part0.tpfp.push_back(trianglePool[i]);
         part0.normal_pool.push_back(tmpNormalPool[i]);
@@ -1681,8 +1741,9 @@ void init(void)
     cout<<"part 4733"<<"\n";
 
     part0.tpfp.clear();
+    part0.normal_pool.clear();
     partt = "87087.dat";//"3005.dat";3024 3070b; 11477
-    search_or_read(partt, false, metrix_O);
+    search_or_read(partt, false, metrix_O, false, partt);
     for(int i=0; i<trianglePool.size(); i++){
         part0.tpfp.push_back(trianglePool[i]);
         part0.normal_pool.push_back(tmpNormalPool[i]);
@@ -1694,8 +1755,9 @@ void init(void)
     cout<<"part 87087"<<"\n";
 
     part0.tpfp.clear();
+    part0.normal_pool.clear();
     partt = "11477.dat";//"3005.dat";3024 3070b
-    search_or_read(partt, false, metrix_O);
+    search_or_read(partt, false, metrix_O, false, partt);
     for(int i=0; i<trianglePool.size(); i++){
         part0.tpfp.push_back(trianglePool[i]);
         part0.normal_pool.push_back(tmpNormalPool[i]);
@@ -1958,7 +2020,7 @@ void drawVoxel_stuffing()
 void drawPart(int p_number, float place[12], float color[3]){
 
     for(int i=0; i < parts[p_number].tpfp.size() ; i++){
-    	vertex normal = matrixVertexMotiply(place, parts[p_number].normal_pool[i]);
+    	//vertex normal = matrixVertexMotiply(place, parts[p_number].normal_pool[i]);
     	triangle tri;
     	tri.v1 = matrixVertexMotiply(place, parts[p_number].tpfp[i].v1);
     	tri.v2 = matrixVertexMotiply(place, parts[p_number].tpfp[i].v2);
@@ -1966,7 +2028,10 @@ void drawPart(int p_number, float place[12], float color[3]){
 
         glColor3f(color[0],color[1],color[2]);
         glBegin(GL_TRIANGLES);
-        glNormal3f( normal.x, normal.y, normal.z );
+        //glNormal3f( normal.x, normal.y, normal.z );
+        glNormal3f( parts[p_number].normal_pool[i].x,
+                    parts[p_number].normal_pool[i].y,
+                    parts[p_number].normal_pool[i].z );
         glVertex3f( tri.v1.x
                   , tri.v1.y
                   , tri.v1.z );
@@ -1980,7 +2045,10 @@ void drawPart(int p_number, float place[12], float color[3]){
         if(!drawlegoFrame){
             glColor3f(1.0f,1.0f,1.0f);
             glBegin(GL_LINE_LOOP);
-            glNormal3f( normal.x, normal.y, normal.z );
+            //glNormal3f( normal.x, normal.y, normal.z );
+            glNormal3f( parts[p_number].normal_pool[i].x,
+                       parts[p_number].normal_pool[i].y,
+                       parts[p_number].normal_pool[i].z );
             glVertex3f( tri.v1.x
                       , tri.v1.y
                       , tri.v1.z );
@@ -2146,11 +2214,11 @@ static void display(void)
     glTranslated(-1.8,0.0, dis);//glTranslated(-2.4,1.2,-6);
 
     glRotated(-90 + rota,1,0,0);
-    glRotated(10 + rotate1,0,0,1);//glRotated(25 + rotate1,0,0,1) 2017.11.08;
+    glRotated(25 + rotate1,0,0,1);//glRotated(25 + rotate1,0,0,1) 2017.11.08;
 
-    drawObj_t(drawTri0);
+    //drawObj_t(drawTri0);
     drawMa();
-
+    drawVoxel_stuffing();
     //glutSolidSphere(1,slices,stacks);
     glPopMatrix();
 //--02---------------------------------------------------/
@@ -2174,7 +2242,7 @@ static void display(void)
     glTranslated(1.8,0.0, dis);//glTranslated(2.4,1.2,-6); //glTranslated(2.8,0.0, dis)2017.11.08;
 
     glRotated(-90 + rota,1,0,0);
-    glRotated(-10 + rotate1,0,0,1);//glRotated(-25 + rotate1,0,0,1) 2017.11.08;
+    glRotated(-25 + rotate1,0,0,1);//glRotated(-25 + rotate1,0,0,1) 2017.11.08;
 
     drawBonewithLego();
     if(!swch){
@@ -2188,7 +2256,7 @@ static void display(void)
     glEnd();
     if(swch)
     drawVoxel();
-    drawVoxel_stuffing();
+    
     //glutSolidTorus(0.2,0.8,slices,stacks);
     glPopMatrix();
 
@@ -2317,7 +2385,7 @@ static void idle(void)
 const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
 const GLfloat light_diffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
 const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-const GLfloat light_position[] = { 20.0f, 20.0f, 0.0f, 0.0f };
+const GLfloat light_position[] = { 50.0f, 50.0f, 50.0f, 0.0f };
 
 const GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f };
 const GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
@@ -2344,12 +2412,12 @@ int main(int argc, char *argv[])
 
     glClearColor(0.8,0.8,0.8,1);
 
-    //glEnable(GL_CULL_FACE);
-    //glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-/*
+
     glEnable(GL_LIGHT0);
     glEnable(GL_NORMALIZE);
     glEnable(GL_COLOR_MATERIAL);
@@ -2364,7 +2432,7 @@ int main(int argc, char *argv[])
     glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
     glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
-*/
+
     glutMainLoop();
 
     return EXIT_SUCCESS;
