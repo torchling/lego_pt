@@ -82,11 +82,12 @@ struct matri
 
 struct part_v1 //This is part struct Ver.01 .
 {
-    std::vector< vertex > connection_1_x ; // x means Convex
-    std::vector< vertex > connection_1_o ; // o means Concave
-
-    std::vector< vertex > connection_2_x ; // x means Convex
-    std::vector< vertex > connection_2_o ; // o means Concave
+    // stud
+    std::vector< vertex > connection_1_x ; // x means Convex    male
+    std::vector< vertex > connection_1_o ; // o means Concave   female
+    // ball and frication socket
+    std::vector< vertex > connection_2_x ; // x means Convex    male
+    std::vector< vertex > connection_2_o ; // o means Concave   female
 
     // For the small set like rooster we only have 2 kinds of connecting way
     // but in the future, we need more then 2.
@@ -118,6 +119,8 @@ vector< part_v1 > parts  ;  //For real math stuffs. Prepare for assembling possi
 
 vector< vertex > tmpNormalPool  ;
 vector< triangle > trianglePool  ;
+vector< vertex > cnnc_x;
+vector< vertex > cnnc_o;
 vector< matri > bricksLocation ;
 /*----------------------------------------------------------------*/
 
@@ -126,8 +129,8 @@ vector< matri > bricksLocation ;
 
 
 //char* p = "suzanne.obj";
-char* p = "bug.obj";
-//char* p = "spider.obj";
+//char* p = "bug.obj";
+char* p = "spider.obj";
 
 //char* ma = "suzanne50.ma";
 char* ma = "bug20.ma";
@@ -390,8 +393,24 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
         string invertnext = "INVERTNEXT";
         string certify    = "CERTIFY";
         string name       = "Name:";
+        
+        //part's content
+        string stud       = "stud.dat";
+        string stud2      = "stud2.dat";
+        string stud2a     = "stud2a.dat";
+        string stud2b     = "stud2b.dat";
+        
+        string sphe88     = "8-8sphe.dat";
+        string fri8socket = "joint-8-socket-frica.dat";
+        
+        //part's type
+        string plate      = "Plate";
+        string brick      = "Brick";
+        
         //int metrix[12];   // a,b,c, d,e,f, g,h,i, j,k,l;
-
+        bool stud_for_plate=false;
+        bool stud_for_brick=false;
+        
         bool real= false;
         
         string fninf;
@@ -499,6 +518,12 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                         }
                         
                     }
+                    if(color==brick){
+                        stud_for_plate=true;
+                    }
+                    if(color==plate){
+                        stud_for_brick=true;
+                    }
                 }
 
                 if(type==1&&real){
@@ -519,8 +544,60 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                     metrix_V[10] = array_O[9]*metrix[4] + array_O[10]*metrix[7] + array_O[11]*metrix[10];
                     metrix_V[11] = array_O[9]*metrix[5] + array_O[10]*metrix[8] + array_O[11]*metrix[11];
                     metrix_V[2]  = array_O[9]*metrix[0] + array_O[10]*metrix[1] + array_O[11]*metrix[2] + array_O[2];
-
+                    
                     for(int i=0; i<12 ; i++){ metrix[i] = metrix_V[i]; }
+                    
+                    vertex tmp_cnnc;
+                    if(fninf==stud){
+                        tmp_cnnc.x = metrix_V[0];
+                        tmp_cnnc.y = metrix_V[1];
+                        tmp_cnnc.z = metrix_V[2];
+                        tmp_cnnc.num = 1;
+                        cnnc_x.push_back(tmp_cnnc);
+                        
+                        stud_for_plate=false;
+                        stud_for_brick=false;
+                    }
+                    if(fninf==stud2){
+                        tmp_cnnc.x = metrix_V[0];
+                        tmp_cnnc.y = metrix_V[1];
+                        tmp_cnnc.z = metrix_V[2];
+                        tmp_cnnc.num = 1;
+                        cnnc_x.push_back(tmp_cnnc);
+                        
+                        stud_for_plate=false;
+                        stud_for_brick=false;
+                    }
+                    if(fninf==stud2a){
+                        tmp_cnnc.x=metrix_V[0];
+                        tmp_cnnc.y=metrix_V[1];
+                        tmp_cnnc.z=metrix_V[2];
+                        tmp_cnnc.num = 1;
+                        cnnc_x.push_back(tmp_cnnc);
+                        
+                        stud_for_plate=false;
+                        stud_for_brick=false;
+                    }
+                    if(fninf==sphe88){
+                        tmp_cnnc.x=metrix_V[0];
+                        tmp_cnnc.y=metrix_V[1];
+                        tmp_cnnc.z=metrix_V[2];
+                        tmp_cnnc.num = 2;
+                        cnnc_x.push_back(tmp_cnnc);
+                        
+                        stud_for_plate=false;
+                        stud_for_brick=false;
+                    }
+                    if(fninf==fri8socket){
+                        tmp_cnnc.x=metrix_V[0];
+                        tmp_cnnc.y=metrix_V[1];
+                        tmp_cnnc.z=metrix_V[2];
+                        tmp_cnnc.num = 2;
+                        cnnc_o.push_back(tmp_cnnc);
+                        
+                        stud_for_plate=false;
+                        stud_for_brick=false;
+                    }
                     /*
                     cout << metrix_V[3] <<' '<< metrix_V[4] <<' '<< metrix_V[5] <<' '<< metrix_V[0] << endl;
                     cout << metrix_V[6] <<' '<< metrix_V[7] <<' '<< metrix_V[8] <<' '<< metrix_V[1] << endl;
@@ -531,6 +608,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                     if(invertYN==true) invertYN=false;
                     //invertYN=false;
                     
+                
                     //metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
                     //metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
                 }
@@ -1237,6 +1315,7 @@ void read_obj(){
     }
 
     //find inside frame
+    /*
     int top, buttom, left, right, front, hind;
     bool t_found = false;
     bool b_found = false;
@@ -1244,7 +1323,7 @@ void read_obj(){
     bool r_found = false;
     bool f_found = false;
     bool h_found = false;
-
+     */
 
     //remove same point in voxel_center_vPool
     vertex vs;
@@ -1529,6 +1608,22 @@ void stuffing_1(){
     }*/
 }
 
+void bone_arrangement(vertex model_center){
+    vector< edge > ma_edge_pool;
+    vector< int > bone_edge_id;
+    float max_d = 10000;
+    int maEn=0;
+    
+    for(int i=0; i<ma_edge_pool.size(); i++){
+        float mid_e = distanceBetween2V(model_center, edge_mid_point(ma_edge_pool[i].v1, ma_edge_pool[i].v2));
+        if( mid_e < max_d ){
+            max_d = mid_e;
+            maEn = i;
+        }
+    }
+    ma_edge_pool[maEn];
+}
+
 void stuffing(){
 
     cout<<"\n";
@@ -1737,8 +1832,7 @@ void init(void)
     parts.push_back(part0);
     trianglePool.clear();
     tmpNormalPool.clear();
-
-    cout<<"part 4733"<<"\n";
+    cout<<"part 4733"<<"\n";// 0
 
     part0.tpfp.clear();
     part0.normal_pool.clear();
@@ -1751,8 +1845,7 @@ void init(void)
     parts.push_back(part0);
     trianglePool.clear();
     tmpNormalPool.clear();
-
-    cout<<"part 87087"<<"\n";
+    cout<<"part 87087"<<"\n";// 1
 
     part0.tpfp.clear();
     part0.normal_pool.clear();
@@ -1765,8 +1858,33 @@ void init(void)
     parts.push_back(part0);
     trianglePool.clear();
     tmpNormalPool.clear();
-
-    cout<<"part 11477"<<"\n";
+    cout<<"part 11477"<<"\n";// 2
+    
+    part0.tpfp.clear();
+    part0.normal_pool.clear();
+    partt = "22890.dat";//"3005.dat";3024 3070b; 11477
+    search_or_read(partt, false, metrix_O, false, partt);
+    for(int i=0; i<trianglePool.size(); i++){
+        part0.tpfp.push_back(trianglePool[i]);
+        part0.normal_pool.push_back(tmpNormalPool[i]);
+    }
+    parts.push_back(part0);
+    trianglePool.clear();
+    tmpNormalPool.clear();
+    cout<<"part 22890"<<"\n";// 3
+    
+    part0.tpfp.clear();
+    part0.normal_pool.clear();
+    partt = "14418.dat";//"3005.dat";3024 3070b; 11477
+    search_or_read(partt, false, metrix_O, false, partt);
+    for(int i=0; i<trianglePool.size(); i++){
+        part0.tpfp.push_back(trianglePool[i]);
+        part0.normal_pool.push_back(tmpNormalPool[i]);
+    }
+    parts.push_back(part0);
+    trianglePool.clear();
+    tmpNormalPool.clear();
+    cout<<"part 14418"<<"\n";// 4
 
     cout<< "\n";
     cout<< "size of parts pool: " << parts.size() << " " <<endl;
@@ -2063,18 +2181,18 @@ void drawPart(int p_number, float place[12], float color[3]){
     }
 }
 
-float divv=0.075;// 0.15 ; 0.15/2 one brick's length
+float divv=0.14 ;//0.075;// 0.15 ; 0.15/2 one brick's length
 void drawBonewithLego()
 {
     for(int i=0; i<ma_fPool.size(); i++){
         //draw 4733
-        vertex center;
-        center = centerOfCircumscribedCircle(ma_fPool[i].v1, ma_fPool[i].v2, ma_fPool[i].v3);
+        //vertex center;
+        //center = centerOfCircumscribedCircle(ma_fPool[i].v1, ma_fPool[i].v2, ma_fPool[i].v3);
         float x = (ma_fPool[i].v1.x + ma_fPool[i].v2.x + ma_fPool[i].v3.x)/3.0;
         float y = (ma_fPool[i].v1.y + ma_fPool[i].v2.y + ma_fPool[i].v3.y)/3.0;
         float z = (ma_fPool[i].v1.z + ma_fPool[i].v2.z + ma_fPool[i].v3.z)/3.0;
         float m_for_f[12]={ x, y, z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-        drawPart(0, m_for_f, dark);
+        drawPart(1, m_for_f, yellow);
     }
 
     for(int i=0; i<ma_ePool.size(); i++){
@@ -2130,21 +2248,29 @@ void drawBonewithLego()
             //cout<< time <<"\n";
             for(int j=0; j<time; j++){
                 vertex ny;
-                ny.x = 0.0;
-                ny.y = 1.0;
-                ny.z = 0.0;
+                ny.x = 0.0; ny.y = 1.0; ny.z = 0.0;
+                vertex nx;
+                nx.x = 1.0; nx.y = 0.0; nx.z = 0.0;
+                vertex nnx;
+                nnx.x = -1.0; nnx.y = 0.0; nnx.z = 0.0;
                 vertex o;
-                o.x = 0.0;
-                o.y = 0.0;
-                o.z = 0.0;
+                 o.x = 0.0;  o.y = 0.0;  o.z = 0.0;
                 vertex o2;
                 o2.x = ma_ePool[i].v2.x + j*vct.x;
                 o2.y = ma_ePool[i].v2.y + j*vct.y;
                 o2.z = ma_ePool[i].v2.z + j*vct.z;
                 float mp[12]={ o2.x, o2.y, o2.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-                matri m_for_e = matrixRotate( angleBetween2Vector(vct ,ny), normalOf2Vector(ny, vct), o );
-                m_for_e=matrixMotiply(mp, m_for_e.m);
-                drawPart(1, m_for_e.m, lightgrey);
+                //matri m_for_e;
+                if((j%2)==1){
+                    matri m_for_e = matrixRotate( angleBetween2Vector(vct ,nnx), normalOf2Vector(nnx, vct), o );
+                    m_for_e = matrixMotiply(mp, m_for_e.m);
+                    drawPart(4, m_for_e.m, lightgrey);
+                }
+                if((j%2)==0){
+                    matri m_for_e2 = matrixRotate( angleBetween2Vector(vct ,nx), normalOf2Vector(nx, vct), o );
+                    m_for_e2 = matrixMotiply(mp, m_for_e2.m);
+                    drawPart(3, m_for_e2.m, dark);
+                }
             }
         }
 
@@ -2172,7 +2298,7 @@ void drawSurfaceParts_random(){
 
 void drawMa(){
     for(int i=0; i < ma_ePool.size() ; i++){
-        glColor3f(0.0f,0.7f,0.0f);
+        glColor3f(0.0f,0.0f,0.0f);
         glBegin(GL_LINES);
         glVertex3f( ma_ePool[i].v1.x, ma_ePool[i].v1.y, ma_ePool[i].v1.z );
         glVertex3f( ma_ePool[i].v2.x, ma_ePool[i].v2.y, ma_ePool[i].v2.z );
@@ -2211,25 +2337,27 @@ static void display(void)
     glColor3d(1,0,0);
 //--01---------------------------------------------------/
     glPushMatrix();
-    glTranslated(-1.8,0.0, dis);//glTranslated(-2.4,1.2,-6);
+    glTranslated(0,0.0, dis);//glTranslated(-2.4,1.2,-6);
 
     glRotated(-90 + rota,1,0,0);
     glRotated(25 + rotate1,0,0,1);//glRotated(25 + rotate1,0,0,1) 2017.11.08;
 
     //drawObj_t(drawTri0);
     drawMa();
-    drawVoxel_stuffing();
+    drawBonewithLego();
+    //drawVoxel_stuffing();
+    
     //glutSolidSphere(1,slices,stacks);
     glPopMatrix();
 //--02---------------------------------------------------/
     glPushMatrix();
-    glTranslated(0,0.0, dis);//glTranslated(-2.4,1.2,-6);
+    glTranslated(-1.8,0.0, dis);//glTranslated(-2.4,1.2,-6);
 
     glRotated(-90.0 + rota,1,0,0);
     glRotated(0 + rotate1,0,0,1);
 
     drawMa();
-    drawBonewithLego();
+    //drawBonewithLego();
     drawSurfaceParts_random();
 
     //drawObj_t(false);
@@ -2244,7 +2372,7 @@ static void display(void)
     glRotated(-90 + rota,1,0,0);
     glRotated(-25 + rotate1,0,0,1);//glRotated(-25 + rotate1,0,0,1) 2017.11.08;
 
-    drawBonewithLego();
+    //drawBonewithLego();
     if(!swch){
     	drawSurfaceParts_random();
 		drawObj_t(drawTri0);

@@ -201,10 +201,28 @@ bool outsideTheTrianglexz(vertex testvertex, vertex vertex1, vertex vertex2, ver
     return true;
 }
 
+bool is1of2inEdge(vertex test_point, vertex line_start, vertex line_end)
+{
+    if(  test_point.x==line_end.x
+       &&test_point.y==line_end.y
+       &&test_point.z==line_end.z)
+    {
+        return true;
+    }
+    if(  test_point.x==line_start.x
+       &&test_point.y==line_start.y
+       &&test_point.z==line_start.z)
+    {
+        return true;
+    }
+    return false;
+}
+
 bool onTheEdge(vertex test_point, vertex line_start, vertex line_end)
 {
 
     //calculate y distance from test point to line.
+    
     if(line_start.x!=line_end.x)
     {
         float vx = line_start.x-line_end.x;
@@ -261,7 +279,15 @@ bool onTheEdgeMid(vertex test_point, vertex line_start, vertex line_end)
         return true;
 
     return false;
+}
 
+vertex edge_mid_point(vertex line_start, vertex line_end){
+    vertex mid_point;
+    mid_point.x = (line_start.x + line_end.x)*0.5;
+    mid_point.y = (line_start.y + line_end.y)*0.5;
+    mid_point.z = (line_start.z + line_end.z)*0.5;
+    
+    return mid_point;
 }
 
 bool onTheTriangleEdges(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3)

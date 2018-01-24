@@ -71,8 +71,10 @@ bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex
 bool onTheSameSidezy(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
 bool onTheSameSidexz(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
 bool onTheSameSideCDT(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
+bool is1of2inEdge(vertex test_point, vertex line_start, vertex line_end);
 bool onTheEdge(vertex test_point, vertex line_start, vertex line_end);
 bool onTheEdgeMid(vertex test_point, vertex line_start, vertex line_end);
+vertex edge_mid_point(vertex line_start, vertex line_end);
 bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3);
 bool outsideTheTrianglezy(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3);
 bool outsideTheTrianglexz(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3);
