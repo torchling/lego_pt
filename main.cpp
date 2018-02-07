@@ -59,16 +59,21 @@ bool drawTri0 = false;
 bool stud_for_plate=false;
 bool stud_for_brick=false;
 
+bool test = true;
+bool test2 = true;
+
 float rota = 0.0;
 float rotate1 = 0.0;
 
 float dark[3]={0.2,0.2,0.2};
 float lightgrey[3]={0.65,0.65,0.65};
+float silver[3]={0.75,0.75,0.75};
 float grey[3]={0.5,0.5,0.5};
-float blue[3]={0,0,1.0};
-float yellow[3]={0.8,0.8,0.1};
-float green[3]={0.1,0.8,0.1};
-float red[3]={1.0,0,0};
+float blue[3]={0.3,0.5,0.9};                //Salvia Blue
+float yellow[3]={1.0,0.843,0.0};            //Golden
+float green[3]={0.21,0.75,0.21};            //Ivy Green
+float red[3]={1.0,0.3,0.25};                //Persimmon
+float white[3]={1.0,1.0,1.0};
 
 struct face //max to 4 points
 {
@@ -277,7 +282,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
 
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts")) != NULL) {
+        if ((dir = opendir ("/Users/luke/Desktop/lego_assembler/parts")) != NULL) {
             // C:/Users/luke/Desktop/lego_assembler/parts
             // C:/Users/user/Desktop/lego_assembler/parts
             // /Users/luke/desktop/lego_assembler/parts
@@ -298,7 +303,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts/s")) != NULL) {
+        if ((dir = opendir ("/Users/luke/Desktop/lego_assembler/parts/s")) != NULL) {
             // C:/Users/luke/Desktop/lego_assembler/parts/s
             // C:/Users/user/Desktop/lego_assembler/parts/s
             // /Users/luke/desktop/lego_assembler/parts/s
@@ -323,7 +328,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts/48")) != NULL) {
+        if ((dir = opendir ("/Users/luke/Desktop/lego_assembler/parts/48")) != NULL) {
             // C:/Users/luke/Desktop/lego_assembler/parts/48
             // C:/Users/user/Desktop/lego_assembler/parts/48
             // /Users/luke/desktop/lego_assembler/parts/48
@@ -348,7 +353,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("C:/Users/luke/desktop/lego_assembler/parts/8")) != NULL) {
+        if ((dir = opendir ("/Users/luke/desktop/lego_assembler/parts/8")) != NULL) {
             // C:/Users/luke/Desktop/lego_assembler/parts/8
             // C:/Users/user/Desktop/lego_assembler/parts/8
             // /Users/luke/desktop/legomac/parts/8
@@ -2376,6 +2381,11 @@ void drawBonewithLego()
             vct.z = (ma_ePool[i].v1.z - ma_ePool[i].v2.z);
             vct = normalize( vct );
 
+            vertex nvct;
+            nvct.x = -vct.x;
+            nvct.y = -vct.y;
+            nvct.z = -vct.z;
+            
             vertex ny;
             ny.x = 0.0; ny.y = 1.0; ny.z = 0.0;
 
@@ -2409,50 +2419,66 @@ void drawBonewithLego()
 
             if(4==4){
                 matri m_for_e = matrixRotate( angleBetween2Vector(vct ,nnx), normalOf2Vector(nnx, vct), o );
+
+                vertex studnnow = matrixVertexMotiply( m_for_e.m, nny);
+                studnnow = normalize(studnnow);
+                
+                vertex lineYnormal= normalOf2Vector( vct, normalOf2Vector( nz, vct ) );
+                lineYnormal = normalize(lineYnormal);
+                
+                vertex normal = normalOf2Vector(studnnow, lineYnormal);
+                matri  turnUp     = matrixRotate( angleBetween2Vector( studnnow, lineYnormal ), normal, o );
+                
+                if(test2){
+                    cout<<lineYnormal.x<<" "<<lineYnormal.y<<" "<<lineYnormal.z<<endl;
+                    cout<<normal.x<<" "<<normal.y<<" "<<normal.z<<endl;
+                    cout<<vct.x<<" "<<vct.y<<" "<<vct.z<<endl;
+                    test2=false;
+                }
+                
+                m_for_e = matrixMotiply(turnUp.m, m_for_e.m);
+
                 o4 = matrixVertexMotiply(m_for_e.m, o4);
                 o4.x = ma_ePool[i].v2.x - o4.x;
                 o4.y = ma_ePool[i].v2.y - o4.y;
                 o4.z = ma_ePool[i].v2.z - o4.z;
-
-                vertex normal4up  = normalOf2Vector( vct, nz );
-                matri  mNeed      = matrixRotate( 90, normal4up, o );
-                vertex lineYnormal= matrixVertexMotiply( mNeed.m, vct );
-
-                vertex studnormal = matrixVertexMotiply(m_for_e.m, nny);
-
-                vertex normal4up2 = normalOf2Vector( studnormal, normal4up );
-                matri  turnUp     = matrixRotate( angleBetween2Vector( studnormal, normal4up ), normal4up2, o );
-
-                m_for_e = matrixMotiply(turnUp.m, m_for_e.m);
-
+                
                 float mp4[12]={ o4.x, o4.y, o4.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
                 m_for_e = matrixMotiply(mp4, m_for_e.m);
 
-                drawPart(4, m_for_e.m, lightgrey);
-                drawJoint(4, m_for_e.m, red);
+                drawPart(4, m_for_e.m, silver);
+                //drawJoint(4, m_for_e.m, red);
             }
             if(3==3){
                 matri m_for_e2 = matrixRotate( angleBetween2Vector(vct ,nx), normalOf2Vector(nx, vct), o );
+                
+                vertex studnnow = matrixVertexMotiply( m_for_e2.m, nny);
+                studnnow = normalize(studnnow);
+
+                vertex lineYnormal= normalOf2Vector( vct, normalOf2Vector( nz, vct ) );
+                lineYnormal = normalize(lineYnormal);
+                
+                vertex normal = normalOf2Vector(studnnow, lineYnormal);
+                matri  turnUp     = matrixRotate( angleBetween2Vector( studnnow, lineYnormal ), normal, o );
+                
+                if(test){
+                    cout<<lineYnormal.x<<" "<<lineYnormal.y<<" "<<lineYnormal.z<<endl;
+                    cout<<normal.x<<" "<<normal.y<<" "<<normal.z<<endl;
+                    cout<<vct.x<<" "<<vct.y<<" "<<vct.z<<endl;
+                    test=false;
+                }
+                
+                m_for_e2 = matrixMotiply(turnUp.m, m_for_e2.m);
+                
                 o3 = matrixVertexMotiply(m_for_e2.m, o3);
                 o3.x = ma_ePool[i].v1.x - o3.x;
                 o3.y = ma_ePool[i].v1.y - o3.y;
                 o3.z = ma_ePool[i].v1.z - o3.z;
 
-                vertex normal4up  = normalOf2Vector( vct, nz );
-                matri  mNeed      = matrixRotate( 90, normal4up, o );
-                vertex lineYnormal= matrixVertexMotiply( mNeed.m, vct );
-
-                vertex studnormal = matrixVertexMotiply(m_for_e2.m, nny);
-
-                vertex normal4up2 = normalOf2Vector( studnormal, normal4up );
-                matri  turnUp     = matrixRotate( angleBetween2Vector( studnormal, normal4up ), normal4up2, o );
-
-                m_for_e2 = matrixMotiply(turnUp.m, m_for_e2.m);
-
                 float mp3[12]={ o3.x, o3.y, o3.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
                 m_for_e2 = matrixMotiply(mp3, m_for_e2.m);
-                drawPart(3, m_for_e2.m, dark);
-                drawJoint(3, m_for_e2.m, red);
+                drawPart(3, m_for_e2.m, blue);
+                //drawJoint(3, m_for_e2.m, red);
             }
 
         }
@@ -2571,7 +2597,7 @@ static void display(void)
     glPushMatrix();
     glTranslated(0,0.0, dis);//glTranslated(-2.4,1.2,-6);
 
-    glRotated(-90 + rota,1,0,0);
+    glRotated(0 + rota,1,0,0);
     glRotated(0 + rotate1,0,0,1);//glRotated(25 + rotate1,0,0,1) 2017.11.08;
 
     //drawObj_t(drawTri0);
@@ -2585,8 +2611,8 @@ static void display(void)
     glPushMatrix();
     glTranslated(-1.8,0.0, dis);//glTranslated(-2.4,1.2,-6);
 
-    glRotated(-90.0 + rota,1,0,0);
-    glRotated(25 + rotate1,0,0,1);
+    glRotated(0.0 + rota,1,0,0);
+    glRotated(0 + rotate1,0,0,1);
 
     drawMa();
     //drawBonewithLego();
@@ -2601,7 +2627,7 @@ static void display(void)
     glPushMatrix();
     glTranslated(1.8,0.0, dis);//glTranslated(2.4,1.2,-6); //glTranslated(2.8,0.0, dis)2017.11.08;
 
-    glRotated(-90 + rota,1,0,0);
+    glRotated(0 + rota,1,0,0);
     glRotated(-25 + rotate1,0,0,1);//glRotated(-25 + rotate1,0,0,1) 2017.11.08;
 
     //drawBonewithLego();
@@ -2770,7 +2796,7 @@ int main(int argc, char *argv[])
     glutKeyboardFunc(key);
     glutIdleFunc(idle);
 
-    glClearColor(0.8,0.8,0.8,1);
+    glClearColor(1.0,1.0,1.0,1);
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
