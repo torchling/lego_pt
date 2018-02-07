@@ -132,8 +132,8 @@ vector< matri > bricksLocation ;
 
 
 //char* p = "suzanne.obj";
-//char* p = "bug.obj";
-char* p = "spider.obj";
+char* p = "bug.obj";
+//char* p = "spider.obj";
 
 //char* ma = "suzanne50.ma";
 char* ma = "bug20.ma";
@@ -277,7 +277,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
 
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir ("/Users/luke/Desktop/lego_assembler/parts")) != NULL) {
+        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts")) != NULL) {
             // C:/Users/luke/Desktop/lego_assembler/parts
             // C:/Users/user/Desktop/lego_assembler/parts
             // /Users/luke/desktop/lego_assembler/parts
@@ -298,7 +298,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("/Users/luke/Desktop/lego_assembler/parts/s")) != NULL) {
+        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts/s")) != NULL) {
             // C:/Users/luke/Desktop/lego_assembler/parts/s
             // C:/Users/user/Desktop/lego_assembler/parts/s
             // /Users/luke/desktop/lego_assembler/parts/s
@@ -323,7 +323,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("/Users/luke/Desktop/lego_assembler/parts/48")) != NULL) {
+        if ((dir = opendir ("C:/Users/luke/Desktop/lego_assembler/parts/48")) != NULL) {
             // C:/Users/luke/Desktop/lego_assembler/parts/48
             // C:/Users/user/Desktop/lego_assembler/parts/48
             // /Users/luke/desktop/lego_assembler/parts/48
@@ -348,7 +348,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
             //return EXIT_FAILURE;
         }
 
-        if ((dir = opendir ("/Users/luke/desktop/lego_assembler/parts/8")) != NULL) {
+        if ((dir = opendir ("C:/Users/luke/desktop/lego_assembler/parts/8")) != NULL) {
             // C:/Users/luke/Desktop/lego_assembler/parts/8
             // C:/Users/user/Desktop/lego_assembler/parts/8
             // /Users/luke/desktop/legomac/parts/8
@@ -396,29 +396,29 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
         string invertnext = "INVERTNEXT";
         string certify    = "CERTIFY";
         string name       = "Name:";
-        
+
         //part's content
         string stud       = "stud.dat";
         string stud2      = "stud2.dat";
         string stud2a     = "stud2a.dat";
         string stud2b     = "stud2b.dat";
-        
+
         string sphe88     = "8-8sphe.dat";
         string fri8socket = "joint-8-socket-frica.dat";
         string p4733      = "4733.dat";
-        
+
         //part's type
         string plate      = "Plate";
         string brick      = "Brick";
-        
+
         //int metrix[12];   // a,b,c, d,e,f, g,h,i, j,k,l;
-        
+
         bool once= false;
         if( part_name == p4733 )
             once=true;
-        
+
         bool real= false;
-        
+
         string fninf;
         //char fninf[20];       // only used in type 1, to store the file name
         //char *test;           // only used in type 1, to store the file name
@@ -461,7 +461,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
         ifstream infs(s_dat_name);  // read the file with ifstream and save to inf
         ifstream inf8(dat_name8); // read the file with ifstream and save to inf
         ifstream inf48(dat_name48); // read the file with ifstream and save to inf
-        
+
         if( !inf && !infs && !inf8 && !inf48 ){
             cerr<<"Error: can't read part. place 02"<<endl;
             exit(1);
@@ -475,14 +475,14 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                         iss >> bfc_operation;
                         if(bfc_operation == namewithPath)
                             real=true;
-                        
+
                         color.clear();
                         bfc_operation.clear();
                         corcc.clear();
                     }
                     if(color == bfc){
                         iss >> bfc_operation;
-                        
+
                         if(bfc_operation==invertnext){
                             //if(invertYN==true) invertYN=false;
                             //else invertYN=true;
@@ -504,7 +504,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                                     cout<<"02 "<<part_name<<"\n";
                                 }
                                 invertYN=false;
-                                
+
                             }
                             if(corcc==cw){
                                 cout<<"cc"<<"\n";
@@ -522,7 +522,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                             corcc.clear();
                             //cout<<"{ "<<corcc<<" }"<<endl;
                         }
-                        
+
                     }
                     if(color==brick){
                         stud_for_brick=true;
@@ -552,9 +552,9 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                     metrix_V[10] = array_O[9]*metrix[4] + array_O[10]*metrix[7] + array_O[11]*metrix[10];
                     metrix_V[11] = array_O[9]*metrix[5] + array_O[10]*metrix[8] + array_O[11]*metrix[11];
                     metrix_V[2]  = array_O[9]*metrix[0] + array_O[10]*metrix[1] + array_O[11]*metrix[2] + array_O[2];
-                    
+
                     for(int i=0; i<12 ; i++){ metrix[i] = metrix_V[i]; }
-                    
+
                     vertex tmp_cnnc;
                     if(fninf==stud){
                         tmp_cnnc.x = metrix_V[0]*rate;
@@ -607,7 +607,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                         tmp_cnnc.z=metrix_V[2]*rate;
                         tmp_cnnc.num = 1;
                         cnnc_x.push_back(tmp_cnnc);
-                        
+
                         if(stud_for_brick && (part_name == p4733) && once){
                             tmp_cnnc.x = metrix_V[0]*rate;
                             tmp_cnnc.y =(array_O[6]*metrix[0]+array_O[7]*(metrix[1]+24.0)+array_O[8]*metrix[2]+ array_O[1])*rate;
@@ -630,7 +630,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                         tmp_cnnc.z=metrix_V[2]*rate;
                         tmp_cnnc.num = 2;
                         cnnc_x.push_back(tmp_cnnc);
-                        
+
                     }
                     if(fninf==fri8socket){
                         tmp_cnnc.x=metrix_V[0]*rate;
@@ -638,7 +638,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                         tmp_cnnc.z=metrix_V[2]*rate;
                         tmp_cnnc.num = 2;
                         cnnc_o.push_back(tmp_cnnc);
-                        
+
                     }
                     /*
                     cout << metrix_V[3] <<' '<< metrix_V[4] <<' '<< metrix_V[5] <<' '<< metrix_V[0] << endl;
@@ -649,11 +649,11 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                     search_or_read( fninf, true, metrix, invertYN, fninf);
                     if(invertYN==true) invertYN=false;
                     //invertYN=false;
-                    
+
                     //metrix_V[0]=0; metrix_V[1]=0; metrix_V[2]=0; metrix_V[3]=1; metrix_V[4]=0; metrix_V[5]=0;
                     //metrix_V[6]=0; metrix_V[7]=1; metrix_V[8]=0; metrix_V[9]=0; metrix_V[10]=0; metrix_V[11]=1;
                 }
-                
+
                 if(type==3&&real){
                     //triangle
                     iss >> metrix[0] >> metrix[1] >> metrix[2] >> metrix[3] >> metrix[4] >> metrix[5]
@@ -696,7 +696,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                     normalt.z = (dot2.x-dot1.x)*(dot3.y-dot1.y)-(dot3.x-dot1.x)*(dot2.y-dot1.y);
                     tmpNormalPool.push_back(normalt);
                     trianglePool.push_back(tri);
-                    
+
                     //clockwise
                     tri.v1 = dot3;
                     tri.v2 = dot2;
@@ -757,7 +757,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                     normalt.z = (dot2.x-dot1.x)*(dot3.y-dot1.y)-(dot3.x-dot1.x)*(dot2.y-dot1.y);
                     tmpNormalPool.push_back(normalt);
                     trianglePool.push_back(tri);
-                    
+
                     //clockwise
                     tri.v1 = dot3;
                     tri.v2 = dot2;
@@ -781,7 +781,7 @@ void search_or_read( string part_name, bool SorR, float array_O[12], bool invert
                     normalt.z = (dot2.x-dot1.x)*(dot3.y-dot1.y)-(dot3.x-dot1.x)*(dot2.y-dot1.y);
                     tmpNormalPool.push_back(normalt);
                     trianglePool.push_back(tri);
-                    
+
                     //clockwise
                     tri.v1 = dot3;
                     tri.v2 = dot2;
@@ -1395,7 +1395,7 @@ void readMa(char *fileName){
     bool fileread = false;
     vertex vtx;
     triangle triMa;
-    
+
     cout<<"\n";
     cout<<"Start to read .ma file: "<< ma <<"\n";
 
@@ -1654,7 +1654,7 @@ void bone_arrangement(vertex model_center){
     vector< int > bone_edge_id;
     float max_d = 10000;
     int maEn=0;
-    
+
     for(int i=0; i<ma_edge_pool.size(); i++){
         float mid_e = distanceBetween2V(model_center, edge_mid_point(ma_edge_pool[i].v1, ma_edge_pool[i].v2));
         if( mid_e < max_d ){
@@ -1841,7 +1841,7 @@ void stuffing(){
 
 void load_part(string name){
     part_v1 part0;
-    
+
     part0.tpfp.clear();
     part0.normal_pool.clear();
     search_or_read(name, false, metrix_O, false, name);
@@ -1878,10 +1878,10 @@ void load_part(string name){
 void init(void)
 {
 
-    read_obj();
-    randomPick_even();
-    surface_arrange_random();
-    stuffing();
+    //read_obj();
+    //randomPick_even();
+    //surface_arrange_random();
+    //stuffing();
     readMa(ma);
 
     /*
@@ -1910,11 +1910,11 @@ void init(void)
     partt = "11477.dat";//"3005.dat";3024 3070b
     load_part(partt);
     // 2
-    
+
     partt = "22890.dat";//"3005.dat";3024 3070b; 11477
     load_part(partt);
     // 3
-    
+
     partt = "14418.dat";//"3005.dat";3024 3070b; 11477
     load_part(partt);
     // 4
@@ -2222,23 +2222,23 @@ void drawJoint(int p_number, float place[12], float color[3]){
         x1.x = joint.x + 0.06;
         x1.y = joint.y;
         x1.z = joint.z;
-        
+
         x2.x = joint.x - 0.06;
         x2.y = joint.y;
         x2.z = joint.z;
-        
+
         y1.x = joint.x;
         y1.y = joint.y + 0.06;
         y1.z = joint.z;
-        
+
         y2.x = joint.x;
         y2.y = joint.y - 0.06;
         y2.z = joint.z;
-        
+
         z1.x = joint.x;
         z1.y = joint.y;
         z1.z = joint.z + 0.06;
-        
+
         z2.x = joint.x;
         z2.y = joint.y;
         z2.z = joint.z - 0.06;
@@ -2252,7 +2252,7 @@ void drawJoint(int p_number, float place[12], float color[3]){
                    , x2.y
                    , x2.z );
         glEnd();
-        
+
         glBegin(GL_LINES);
         //glNormal3f( normal.x, normal.y, normal.z );
         glVertex3f( y1.x
@@ -2262,7 +2262,7 @@ void drawJoint(int p_number, float place[12], float color[3]){
                    , y2.y
                    , y2.z );
         glEnd();
-        
+
         glBegin(GL_LINES);
         //glNormal3f( normal.x, normal.y, normal.z );
         glVertex3f( z1.x
@@ -2281,27 +2281,27 @@ void drawJoint(int p_number, float place[12], float color[3]){
         x1.x = joint.x + 0.06;
         x1.y = joint.y;
         x1.z = joint.z;
-        
+
         x2.x = joint.x - 0.06;
         x2.y = joint.y;
         x2.z = joint.z;
-        
+
         y1.x = joint.x;
         y1.y = joint.y + 0.06;
         y1.z = joint.z;
-        
+
         y2.x = joint.x;
         y2.y = joint.y - 0.06;
         y2.z = joint.z;
-        
+
         z1.x = joint.x;
         z1.y = joint.y;
         z1.z = joint.z + 0.06;
-        
+
         z2.x = joint.x;
         z2.y = joint.y;
         z2.z = joint.z - 0.06;
-        
+
         glBegin(GL_LINES);
         //glNormal3f( normal.x, normal.y, normal.z );
         glVertex3f( x1.x
@@ -2311,7 +2311,7 @@ void drawJoint(int p_number, float place[12], float color[3]){
                    , x2.y
                    , x2.z );
         glEnd();
-        
+
         glBegin(GL_LINES);
         //glNormal3f( normal.x, normal.y, normal.z );
         glVertex3f( y1.x
@@ -2321,7 +2321,7 @@ void drawJoint(int p_number, float place[12], float color[3]){
                    , y2.y
                    , y2.z );
         glEnd();
-        
+
         glBegin(GL_LINES);
         //glNormal3f( normal.x, normal.y, normal.z );
         glVertex3f( z1.x
@@ -2375,34 +2375,59 @@ void drawBonewithLego()
             vct.y = (ma_ePool[i].v1.y - ma_ePool[i].v2.y);
             vct.z = (ma_ePool[i].v1.z - ma_ePool[i].v2.z);
             vct = normalize( vct );
-            
+
             vertex ny;
             ny.x = 0.0; ny.y = 1.0; ny.z = 0.0;
+
+            vertex nny;
+            nny.x = 0.0; nny.y = -1.0; nny.z = 0.0;
+
             vertex nx;
             nx.x = 1.0; nx.y = 0.0; nx.z = 0.0;
+
             vertex nnx;
             nnx.x = -1.0; nnx.y = 0.0; nnx.z = 0.0;
+
+            vertex nz;
+            nz.x = 0.0; nz.y = 0.0; nz.z = 1.0;
+
+            vertex nnz;
+            nnz.x = 0.0; nnz.y = -1.0; nnz.z = -1.0;
+
             vertex o;
             o.x = 0.0;  o.y = 0.0;  o.z = 0.0;
-            
+
             vertex o4;
             o4.x = parts[4].connection_2_o[0].x;
             o4.y = parts[4].connection_2_o[0].y;
             o4.z = parts[4].connection_2_o[0].z;
-            
+
             vertex o3;
             o3.x = parts[3].connection_2_x[0].x;
             o3.y = parts[3].connection_2_x[0].y;
             o3.z = parts[3].connection_2_x[0].z;
-            
+
             if(4==4){
                 matri m_for_e = matrixRotate( angleBetween2Vector(vct ,nnx), normalOf2Vector(nnx, vct), o );
                 o4 = matrixVertexMotiply(m_for_e.m, o4);
                 o4.x = ma_ePool[i].v2.x - o4.x;
                 o4.y = ma_ePool[i].v2.y - o4.y;
                 o4.z = ma_ePool[i].v2.z - o4.z;
+
+                vertex normal4up  = normalOf2Vector( vct, nz );
+                matri  mNeed      = matrixRotate( 90, normal4up, o );
+                vertex lineYnormal= matrixVertexMotiply( mNeed.m, vct );
+
+                vertex studnormal = matrixVertexMotiply(m_for_e.m, nny);
+
+                vertex normal4up2 = normalOf2Vector( studnormal, normal4up );
+                matri  turnUp     = matrixRotate( angleBetween2Vector( studnormal, normal4up ), normal4up2, o );
+
+                m_for_e = matrixMotiply(turnUp.m, m_for_e.m);
+
                 float mp4[12]={ o4.x, o4.y, o4.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
                 m_for_e = matrixMotiply(mp4, m_for_e.m);
+
                 drawPart(4, m_for_e.m, lightgrey);
                 drawJoint(4, m_for_e.m, red);
             }
@@ -2412,12 +2437,24 @@ void drawBonewithLego()
                 o3.x = ma_ePool[i].v1.x - o3.x;
                 o3.y = ma_ePool[i].v1.y - o3.y;
                 o3.z = ma_ePool[i].v1.z - o3.z;
+
+                vertex normal4up  = normalOf2Vector( vct, nz );
+                matri  mNeed      = matrixRotate( 90, normal4up, o );
+                vertex lineYnormal= matrixVertexMotiply( mNeed.m, vct );
+
+                vertex studnormal = matrixVertexMotiply(m_for_e2.m, nny);
+
+                vertex normal4up2 = normalOf2Vector( studnormal, normal4up );
+                matri  turnUp     = matrixRotate( angleBetween2Vector( studnormal, normal4up ), normal4up2, o );
+
+                m_for_e2 = matrixMotiply(turnUp.m, m_for_e2.m);
+
                 float mp3[12]={ o3.x, o3.y, o3.z, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
                 m_for_e2 = matrixMotiply(mp3, m_for_e2.m);
                 drawPart(3, m_for_e2.m, dark);
                 drawJoint(3, m_for_e2.m, red);
             }
-            
+
         }
         /*
         if(edgeNotFace){
@@ -2471,9 +2508,9 @@ void drawBonewithLego()
                 }
             }
         }*/
-        
+
     }
-    
+
 }
 
 void drawSurfaceParts_random(){
@@ -2541,7 +2578,7 @@ static void display(void)
     drawMa();
     drawBonewithLego();
     //drawVoxel_stuffing();
-    
+
     //glutSolidSphere(1,slices,stacks);
     glPopMatrix();
 //--02---------------------------------------------------/
@@ -2579,7 +2616,7 @@ static void display(void)
     glEnd();
     if(swch)
     drawVoxel();
-    
+
     //glutSolidTorus(0.2,0.8,slices,stacks);
     glPopMatrix();
 
